@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AtimexController | Earning & Task Platform</title>
+    <title>Atimex | Earning & Task Platform</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -46,8 +46,75 @@
             background: #059669;
             border-radius: 4px;
         }
+/* Welcome Intro Overlay & Animations */
+#welcomeIntro {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease;
+}
+
+#welcomeIntro.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+
+.glow-bolt {
+  filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.75));
+  animation: pulseGlow 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0% { filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); transform: scale(0.96); }
+  100% { filter: drop-shadow(0 0 35px rgba(16, 185, 129, 0.9)); transform: scale(1.04); }
+}
+
+.intro-text-shimmer {
+  background: linear-gradient(90deg, #34d399, #ffffff, #10b981);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
     </style>
 </head>
+<!-- ⚡ ATTRACTIVE WELCOME ANIMATION INTRO ⚡ -->
+<div id="welcomeIntro">
+  <div class="relative flex flex-col items-center justify-center p-8 text-center">
+    <!-- Glowing Animated Icon -->
+    <div class="relative mb-6">
+      <div class="w-24 h-24 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center backdrop-blur-xl shadow-2xl shadow-emerald-500/20">
+        <i class="fa-solid fa-bolt text-5xl text-emerald-400 glow-bolt"></i>
+      </div>
+      <!-- Background Pulse Ring -->
+      <div class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl -z-10 animate-ping"></div>
+    </div>
+
+    <!-- Title & Shimmering Subtitle -->
+    <h1 class="text-3xl font-black tracking-wider text-white mb-2 uppercase">
+      ATIMEX<span class="intro-text-shimmer"></span>
+    </h1>
+    <p class="text-xs text-slate-400 tracking-widest uppercase font-medium mb-6">
+      Next-Gen Earning Platform
+    </p>
+
+    <!-- Sleek Progress Bar Indicator -->
+    <div class="w-48 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+      <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full animate-pulse w-full"></div>
+    </div>
+  </div>
+</div>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 
     <!-- Mobile Screen Wrapper Container -->
@@ -277,14 +344,72 @@
                 </div>
 
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
-                    <a href="https://t.me/Atimexcontroller" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
-                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @atimex999controller</span>
+                    <a href="https://t.me/Atimex" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
+                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @atimex999</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </a>
                     <div onclick="alert('Support Hotline: 01714553550')" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 cursor-pointer transition">
                         <span class="flex items-center gap-2"><i class="fa-solid fa-headset text-emerald-400 text-sm"></i> 24/7 Helpline Support</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </div>
+                   <!-- Enhanced Profile Options -->
+<div class="mt-6 space-y-3 px-2">
+  <!-- Transaction History -->
+  <button onclick="openTransactionHistory()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+        <i class="fas fa-history text-lg"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="text-white text-sm font-semibold">Transaction History</h4>
+        <p class="text-slate-400 text-xs">View all deposits & withdrawals</p>
+      </div>
+    </div>
+    <i class="fas fa-chevron-right text-slate-500 text-sm"></i>
+  </button>
+
+  <!-- Refer & Earn -->
+  <button onclick="openReferralModal()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+        <i class="fas fa-user-plus text-lg"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="text-white text-sm font-semibold">Refer & Earn</h4>
+        <p class="text-slate-400 text-xs">Invite friends and earn commission</p>
+      </div>
+    </div>
+    <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium">+10% Bonus</span>
+  </button>
+
+  <!-- Security & Password -->
+  <button onclick="openSecuritySettings()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+        <i class="fas fa-shield-alt text-lg"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="text-white text-sm font-semibold">Security Settings</h4>
+        <p class="text-slate-400 text-xs">Change password & PIN</p>
+      </div>
+    </div>
+    <i class="fas fa-chevron-right text-slate-500 text-sm"></i>
+  </button>
+
+  <!-- Support & Helpline -->
+  <a href="https://t.me/Atimex" target="_blank" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+        <i class="fas fa-headset text-lg"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="text-white text-sm font-semibold">24/7 Live Support</h4>
+        <p class="text-slate-400 text-xs">Contact Telegram support team</p>
+      </div>
+    </div>
+    <i class="fas fa-external-link-alt text-slate-500 text-xs"></i>
+  </a>
+</div>
                     <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
                         <span class="flex items-center gap-2"><i class="fa-solid fa-right-from-bracket text-sm"></i> Logout Account</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
@@ -328,8 +453,8 @@
                 <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
                     <i class="fa-solid fa-hand-wave"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white">Welcome to AtimexController</h3>
-                <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম @atimex999controller -এ আপনাকে স্বাগতম!</p>
+                <h3 class="text-lg font-bold text-white">Welcome to Atimex</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম @atimex999 -এ আপনাকে স্বাগতম!</p>
                 <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition">Proceed to Login / Register</button>
             </div>
         </div>
@@ -624,6 +749,17 @@
                 toast.classList.add('hidden');
             }, 3000);
         }
+// Auto Dismiss Welcome Animation
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(function () {
+    const intro = document.getElementById("welcomeIntro");
+    if (intro) {
+      intro.classList.add("fade-out");
+      // Clean up DOM after animation completes
+      setTimeout(() => { intro.style.display = "none"; }, 800);
+    }
+  }, 2200); // 2.2 seconds duration
+});
     </script>
 </body>
 </html>
