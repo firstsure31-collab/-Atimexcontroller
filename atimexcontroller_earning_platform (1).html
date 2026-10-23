@@ -87,6 +87,29 @@
 @keyframes shimmer {
   to { background-position: 200% center; }
 }
+
+/* Red Glowing Beat Animation for Inactive Notice/Popup */
+.red-beat-popup {
+  animation: redPopupBeat 1.2s infinite ease-in-out !important;
+}
+
+@keyframes redPopupBeat {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
+    border-color: #ef4444 !important;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px 8px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3);
+    border-color: #f87171 !important;
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 0 10px rgba(239, 68, 68, 0.2);
+    border-color: #ef4444 !important;
+    transform: scale(1);
+  }
+}
     </style>
 </head>
 <!-- ⚡ ATTRACTIVE WELCOME ANIMATION INTRO ⚡ -->
@@ -126,7 +149,7 @@
                 <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-xl">
                     <i class="fa-solid font-bold fa-bolt"></i>
                 </div>
-                <span class="text-lg font-extrabold tracking-tight text-white">Atimex<span class="text-emerald-400">Controller</span></span>
+                <span class="text-lg font-extrabold tracking-tight text-white">ATIMEX</span>
             </div>
 
             <!-- Header Balance & Status Badge -->
@@ -150,8 +173,8 @@
             <!-- 1. HOME TAB -->
             <div id="tabHome" class="tab-content space-y-4">
                 
-                <!-- Account Active Notice Banner (Red Popup) -->
-                <div id="accountActiveBanner" class="bg-slate-800/80 border border-emerald-500/20 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden shadow-lg">
+                <!-- Account Active Notice Banner (Red Popup with Beat Animation) -->
+                <div id="accountActiveBanner" class="bg-slate-800/80 border-2 border-red-500 rounded-2xl p-5 text-center space-y-3 red-beat-popup">
                     <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl border border-red-500/20">
                         <i class="fa-solid fa-lock"></i>
                     </div>
@@ -221,7 +244,7 @@
                         </div>
                         <div class="text-right">
                             <div class="text-sm font-black text-emerald-400">৳ 100</div>
-                            <button onclick="openPaymentModal()" class="mt-1 px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition">Buy</button>
+                            <button onclick="openPaymentModal()" class="mt-1 px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition cursor-pointer">Buy</button>
                         </div>
                     </div>
                 </div>
@@ -248,7 +271,7 @@
                             </div>
                         </div>
                     </div>
-                    <button id="task1Btn" onclick="runTask(1)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2">
+                    <button id="task1Btn" onclick="runTask(1)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2 cursor-pointer">
                         <span>Watch Ad (10 sec)</span>
                     </button>
                 </div>
@@ -266,7 +289,7 @@
                             </div>
                         </div>
                     </div>
-                    <button id="task2Btn" onclick="runTask(2)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2">
+                    <button id="task2Btn" onclick="runTask(2)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2 cursor-pointer">
                         <span>Watch Ad (10 sec)</span>
                     </button>
                 </div>
@@ -288,7 +311,8 @@
                             <label class="text-xs text-slate-400 mb-1 block font-medium">Select Method</label>
                             <select id="withdrawMethod" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                                 <option value="bKash">bKash Personal</option>
-                                <option value="Nagod">Nagod Personal</option>
+                                <option value="Nagod">Nagad Personal</option>
+                                <option value="Rocket">Rocket Personal</option>
                             </select>
                         </div>
                         <div>
@@ -299,7 +323,7 @@
                             <label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
                             <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
-                        <button onclick="handleWithdraw()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg">Submit Withdrawal Request</button>
+                        <button onclick="handleWithdraw()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">Submit Withdrawal Request</button>
                     </div>
                 </div>
             </div>
@@ -319,7 +343,7 @@
                             <p class="text-xs text-slate-400">Daily 5 Tasks | ৳50 Daily Income</p>
                             <div class="text-[11px] text-emerald-400 font-semibold mt-1">Validity: 30 Days</div>
                         </div>
-                        <button onclick="openPaymentModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl">৳ 300</button>
+                        <button onclick="openPaymentModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl cursor-pointer">৳ 300</button>
                     </div>
 
                     <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 flex justify-between items-center">
@@ -328,7 +352,7 @@
                             <p class="text-xs text-slate-400">Daily 12 Tasks | ৳120 Daily Income</p>
                             <div class="text-[11px] text-emerald-400 font-semibold mt-1">Validity: 30 Days</div>
                         </div>
-                        <button onclick="openPaymentModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl">৳ 700</button>
+                        <button onclick="openPaymentModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl cursor-pointer">৳ 700</button>
                     </div>
                 </div>
             </div>
@@ -345,71 +369,41 @@
 
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
                     <a href="https://t.me/Atimex" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
-                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @atimex999</span>
+                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @Atimex</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </a>
                     <div onclick="alert('Support Hotline: 01714553550')" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 cursor-pointer transition">
                         <span class="flex items-center gap-2"><i class="fa-solid fa-headset text-emerald-400 text-sm"></i> 24/7 Helpline Support</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </div>
-                   <!-- Enhanced Profile Options -->
-<div class="mt-6 space-y-3 px-2">
-  <!-- Transaction History -->
-  <button onclick="openTransactionHistory()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-        <i class="fas fa-history text-lg"></i>
-      </div>
-      <div class="text-left">
-        <h4 class="text-white text-sm font-semibold">Transaction History</h4>
-        <p class="text-slate-400 text-xs">View all deposits & withdrawals</p>
-      </div>
-    </div>
-    <i class="fas fa-chevron-right text-slate-500 text-sm"></i>
-  </button>
 
-  <!-- Refer & Earn -->
-  <button onclick="openReferralModal()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-        <i class="fas fa-user-plus text-lg"></i>
-      </div>
-      <div class="text-left">
-        <h4 class="text-white text-sm font-semibold">Refer & Earn</h4>
-        <p class="text-slate-400 text-xs">Invite friends and earn commission</p>
-      </div>
-    </div>
-    <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium">+10% Bonus</span>
-  </button>
+                    <!-- Enhanced Profile Options -->
+                    <div class="p-2 space-y-2">
+                      <button onclick="alert('Transaction history feature')" class="w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fas fa-history text-sm"></i>
+                          </div>
+                          <div class="text-left">
+                            <h4 class="text-white text-xs font-semibold">Transaction History</h4>
+                          </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+                      </button>
 
-  <!-- Security & Password -->
-  <button onclick="openSecuritySettings()" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-        <i class="fas fa-shield-alt text-lg"></i>
-      </div>
-      <div class="text-left">
-        <h4 class="text-white text-sm font-semibold">Security Settings</h4>
-        <p class="text-slate-400 text-xs">Change password & PIN</p>
-      </div>
-    </div>
-    <i class="fas fa-chevron-right text-slate-500 text-sm"></i>
-  </button>
+                      <button onclick="alert('Referral link copied!')" class="w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fas fa-user-plus text-sm"></i>
+                          </div>
+                          <div class="text-left">
+                            <h4 class="text-white text-xs font-semibold">Refer & Earn</h4>
+                          </div>
+                        </div>
+                        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">+10% Bonus</span>
+                      </button>
+                    </div>
 
-  <!-- Support & Helpline -->
-  <a href="https://t.me/Atimex" target="_blank" class="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition-all duration-200">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-        <i class="fas fa-headset text-lg"></i>
-      </div>
-      <div class="text-left">
-        <h4 class="text-white text-sm font-semibold">24/7 Live Support</h4>
-        <p class="text-slate-400 text-xs">Contact Telegram support team</p>
-      </div>
-    </div>
-    <i class="fas fa-external-link-alt text-slate-500 text-xs"></i>
-  </a>
-</div>
                     <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
                         <span class="flex items-center gap-2"><i class="fa-solid fa-right-from-bracket text-sm"></i> Logout Account</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
@@ -421,25 +415,25 @@
 
         <!-- Bottom Navigation Bar -->
         <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
-            <button onclick="switchTab('tabHome')" id="navHome" class="nav-btn active flex flex-col items-center gap-1 text-emerald-400">
+            <button onclick="switchTab('tabHome')" id="navHome" class="nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer">
                 <i class="fa-solid fa-house text-lg"></i>
                 <span class="text-[10px] font-medium">Home</span>
             </button>
-            <button onclick="switchTab('tabWallet')" id="navWallet" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('tabWallet')" id="navWallet" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer">
                 <i class="fa-solid fa-wallet text-lg"></i>
                 <span class="text-[10px] font-medium">Wallet</span>
             </button>
-            <button onclick="switchTab('tabTasks')" id="navTasks" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 relative">
+            <button onclick="switchTab('tabTasks')" id="navTasks" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 relative cursor-pointer">
                 <div class="w-10 h-10 -mt-5 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-slate-900">
                     <i class="fa-solid fa-list-check text-base"></i>
                 </div>
                 <span class="text-[10px] font-medium mt-1">Task</span>
             </button>
-            <button onclick="switchTab('tabServer')" id="navServer" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('tabServer')" id="navServer" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer">
                 <i class="fa-solid fa-crown text-lg"></i>
                 <span class="text-[10px] font-medium">Server</span>
             </button>
-            <button onclick="switchTab('tabProfile')" id="navProfile" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('tabProfile')" id="navProfile" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer">
                 <i class="fa-solid fa-user text-lg"></i>
                 <span class="text-[10px] font-medium">Profile</span>
             </button>
@@ -453,9 +447,9 @@
                 <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
                     <i class="fa-solid fa-hand-wave"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white">Welcome to Atimex</h3>
-                <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম @atimex999 -এ আপনাকে স্বাগতম!</p>
-                <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition">Proceed to Login / Register</button>
+                <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
+                <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
             </div>
         </div>
 
@@ -476,73 +470,76 @@
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
                         <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
-                    <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition">Submit & Enter</button>
+                    <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Submit & Enter</button>
                 </div>
             </div>
         </div>
 
-        <!-- 3. PAYMENT METHOD MODAL (bKash / Nagod Option) -->
-        <div id="paymentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-base font-bold text-white">Select Payment Method</h3>
-                    <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-                
-                <p class="text-xs text-slate-400">Account Active করতে পেমেন্ট মেথড নির্বাচন করুন (৳100)</p>
-
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <!-- bKash Button Card -->
-                    <button onclick="selectPaymentMethod('bKash')" class="bg-slate-800/80 border border-slate-700 hover:border-pink-500 rounded-2xl p-4 flex flex-col items-center gap-2 transition group">
-                        <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-500 flex items-center justify-center text-2xl font-black">
-                            <i class="fa-solid fa-building-columns"></i>
-                        </div>
-                        <span class="text-xs font-bold text-slate-200 group-hover:text-pink-400">bKash Send Money</span>
-                    </button>
-
-                    <!-- Nagod Button Card -->
-                    <button onclick="selectPaymentMethod('Nagod')" class="bg-slate-800/80 border border-slate-700 hover:border-orange-500 rounded-2xl p-4 flex flex-col items-center gap-2 transition group">
-                        <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-2xl font-black">
-                            <i class="fa-solid fa-wallet"></i>
-                        </div>
-                        <span class="text-xs font-bold text-slate-200 group-hover:text-orange-400">Nagod Send Money</span>
-                    </button>
-                </div>
+        <!-- 3. PAYMENT METHOD / ACCOUNT ACTIVATION MODAL -->
+        <div id="paymentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl relative">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-wallet text-emerald-400"></i> Account Activation
+              </h3>
+              <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+              </button>
             </div>
-        </div>
 
-        <!-- 4. DEPOSIT & TRXID SUBMISSION MODAL -->
-        <div id="depositModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-xs w-full space-y-4 shadow-2xl relative">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider" id="depositMethodTitle">bKash Deposit</span>
-                    <button onclick="closeDepositModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <!-- Payment Instruction & Numbers -->
+            <div class="bg-slate-800/60 rounded-xl p-4 space-y-3 border border-slate-700/50">
+              <p class="text-xs text-slate-300 font-medium">
+                Nicher je kono number-e <span class="text-emerald-400 font-bold">৳100</span> Send Money / Cash In করুন:
+              </p>
+              
+              <div class="space-y-2 text-xs">
+                <!-- bKash -->
+                <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-pink-500/30">
+                  <span class="text-pink-400 font-bold">bKash (Personal):</span>
+                  <span class="text-slate-100 font-mono select-all font-bold">01940779877</span>
                 </div>
-
-                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-center space-y-1">
-                    <div class="text-[11px] text-slate-400">Send Money Wallet Number</div>
-                    <div class="flex items-center justify-center gap-2">
-                        <span class="text-base font-black text-white" id="merchantNum">01714553550</span>
-                        <button onclick="copyNumber()" class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-md font-bold hover:bg-emerald-500/30">Copy</button>
-                    </div>
+                <!-- Nagad -->
+                <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-orange-500/30">
+                  <span class="text-orange-400 font-bold">Nagad (Personal):</span>
+                  <span class="text-slate-100 font-mono select-all font-bold">01731567454</span>
                 </div>
-
-                <div class="text-[11px] text-slate-400 leading-relaxed bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
-                    ⚠️ উল্লেখিত নম্বরে <span class="text-emerald-400 font-bold">১০০ টাকা Send Money</span> করে নিচের বক্সে আপনার নম্বর এবং TrxID বসান।
+                <!-- Rocket -->
+                <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-purple-500/30">
+                  <span class="text-purple-400 font-bold">Rocket (Personal):</span>
+                  <span class="text-slate-100 font-mono select-all font-bold">01731567454</span>
                 </div>
-
-                <div class="space-y-2.5">
-                    <div>
-                        <label class="text-[10px] text-slate-400 mb-1 block">Sender Number</label>
-                        <input type="tel" id="senderNum" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 mb-1 block">Transaction ID (TrxID)</label>
-                        <input type="text" id="trxId" placeholder="e.g. B7X90ALQ" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button onclick="submitDepositTrx()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg transition">Confirm Payment</button>
-                </div>
+              </div>
             </div>
+
+            <!-- Form Input -->
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block font-medium">Select Payment Method</label>
+                <select id="depositMethod" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                  <option value="bKash">bKash Personal</option>
+                  <option value="Nagad">Nagad Personal</option>
+                  <option value="Rocket">Rocket Personal</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block font-medium">Your Account Number</label>
+                <input type="number" id="depositNum" placeholder="017XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block font-medium">Transaction ID (TrxID)</label>
+                <input type="text" id="depositTrx" placeholder="e.g. 9J8A7K2M" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <button onclick="handleActivationSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg transition active:scale-95 cursor-pointer">
+                Submit Activation Request
+              </button>
+            </div>
+
+          </div>
         </div>
 
         <!-- 5. MESSAGE NOTIFICATION TOAST -->
@@ -569,7 +566,8 @@
         // Window load trigger
         window.onload = function() {
             // Show welcome popup initially
-            document.getElementById('welcomeModal').classList.remove('hidden');
+            const welcomeModal = document.getElementById('welcomeModal');
+            if(welcomeModal) welcomeModal.classList.remove('hidden');
         };
 
         // Modal triggers
@@ -602,44 +600,21 @@
             document.getElementById('paymentModal').classList.add('hidden');
         }
 
-        function selectPaymentMethod(method) {
-            appState.selectedMethod = method;
-            document.getElementById('depositMethodTitle').innerText = method + ' Deposit';
-            closePaymentModal();
-            document.getElementById('depositModal').classList.remove('hidden');
-        }
+        function handleActivationSubmit() {
+            const num = document.getElementById('depositNum').value;
+            const trx = document.getElementById('depositTrx').value;
 
-        function closeDepositModal() {
-            document.getElementById('depositModal').classList.add('hidden');
-        }
-
-        function copyNumber() {
-            const num = document.getElementById('merchantNum').innerText;
-            const tempInput = document.createElement('input');
-            tempInput.value = num;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            showToast('Number copied to clipboard!');
-        }
-
-        function submitDepositTrx() {
-            const sender = document.getElementById('senderNum').value;
-            const trx = document.getElementById('trxId').value;
-
-            if(!sender || !trx) {
-                showToast('মেইল ও ট্রানজেকশন আইডি সঠিক ভাবে পূরণ করুন!');
+            if(!num || !trx) {
+                showToast('আপনার অ্যাকাউন্ট নম্বর এবং TrxID দিন!');
                 return;
             }
 
-            closeDepositModal();
-            showToast('পেমেন্ট গ্রহণ করা হয়েছে! ৫ মিনিটের মধ্যে ভেরিফাই হবে।');
+            closePaymentModal();
+            showToast('অ্যাক্টিভেশন রিকোয়েস্ট সফল হয়েছে!');
 
-            // Simulate auto-approval for demo experience after 3 seconds
             setTimeout(() => {
                 activateAccount();
-            }, 3000);
+            }, 2000);
         }
 
         function activateAccount() {
@@ -651,27 +626,42 @@
             showToast('Account successfully activated!');
         }
 
-        // Tab Switching Engine
+        // Tab Switching Engine (Fixed with correct tabId mappings)
         function switchTab(tabId) {
             const tabs = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
             tabs.forEach(id => {
-                document.getElementById(id).classList.add('hidden');
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
             });
 
-            document.getElementById(tabId).classList.remove('hidden');
+            const targetEl = document.getElementById(tabId);
+            if(targetEl) {
+                targetEl.classList.remove('hidden');
+            }
 
             // Bottom Nav active highlights
             const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
             navs.forEach(navId => {
                 const btn = document.getElementById(navId);
-                btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200";
+                if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
             });
 
-            // Active button color
-            if(tabId === 'tabHome') document.getElementById('navHome').className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400";
-            if(tabId === 'tabWallet') document.getElementById('navWallet').className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400";
-            if(tabId === 'tabServer') document.getElementById('navServer').className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400";
-            if(tabId === 'tabProfile') document.getElementById('navProfile').className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400";
+            // Active button color mapping
+            const activeNavMap = {
+                'tabHome': 'navHome',
+                'tabWallet': 'navWallet',
+                'tabTasks': 'navTasks',
+                'tabServer': 'navServer',
+                'tabProfile': 'navProfile'
+            };
+
+            const activeNavId = activeNavMap[tabId];
+            if(activeNavId) {
+                const activeBtn = document.getElementById(activeNavId);
+                if(activeBtn) {
+                    activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
+                }
+            }
         }
 
         // Task Runner Simulation
@@ -683,6 +673,7 @@
             }
 
             const btn = document.getElementById(`task${taskNum}Btn`);
+            if(!btn) return;
             btn.disabled = true;
             let timer = 10;
             
@@ -749,17 +740,17 @@
                 toast.classList.add('hidden');
             }, 3000);
         }
-// Auto Dismiss Welcome Animation
-document.addEventListener("DOMContentLoaded", function () {
-  setTimeout(function () {
-    const intro = document.getElementById("welcomeIntro");
-    if (intro) {
-      intro.classList.add("fade-out");
-      // Clean up DOM after animation completes
-      setTimeout(() => { intro.style.display = "none"; }, 800);
-    }
-  }, 2200); // 2.2 seconds duration
-});
+
+        // Auto Dismiss Welcome Animation
+        document.addEventListener("DOMContentLoaded", function () {
+          setTimeout(function () {
+            const intro = document.getElementById("welcomeIntro");
+            if (intro) {
+              intro.classList.add("fade-out");
+              setTimeout(() => { intro.style.display = "none"; }, 800);
+            }
+          }, 2200);
+        });
     </script>
 </body>
 </html>
