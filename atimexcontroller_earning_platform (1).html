@@ -320,48 +320,88 @@
     </div>
 
             <!-- 2. TASKS TAB -->
-            <div id="tabTasks" class="tab-content hidden space-y-4">
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 space-y-2 text-center">
-                    <h3 class="font-bold text-slate-100 text-base">Daily Available Tasks</h3>
-                    <p class="text-xs text-slate-400">অ্যাড দেখে রিওয়ার্ড রিডিম করুন।</p>
-                </div>
+           <!-- VIP Investment Packages (Tasks Tab er vitor) -->
+    <div class="space-y-3 pt-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center shadow-lg">
+            <h2 class="text-sm font-bold text-amber-400">VIP Investment Packages</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">প্যাকেজ ক্রয় করে ডেইলি ইনকাম বৃদ্ধি করুন।</p>
+        </div>
 
-                <!-- Task Item 1 -->
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20">
-                                <i class="fa-solid fa-play"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-100 text-sm">Sponsor Ad Task #1</h4>
-                                <div class="text-xs text-slate-400">Reward: <span class="text-emerald-400 font-bold">৳ 10.00</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="task1Btn" onclick="runTask(1)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2 cursor-pointer">
-                        <span>Watch Ad (10 sec)</span>
-                    </button>
+        <!-- Package 1: 300 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Starter VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৩০০</p>
                 </div>
-
-                <!-- Task Item 2 -->
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20">
-                                <i class="fa-solid fa-play"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-100 text-sm">Sponsor Ad Task #2</h4>
-                                <div class="text-xs text-slate-400">Reward: <span class="text-emerald-400 font-bold">৳ 10.00</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="task2Btn" onclick="runTask(2)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow transition flex justify-center items-center gap-2 cursor-pointer">
-                        <span>Watch Ad (10 sec)</span>
-                    </button>
-                </div>
+                <button onclick="handlePackageBuy(300)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
             </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন = ৬০ টাকা</p>
+                <p>• মোট রিটার্ন: ৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৩০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 2: 500 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Standard VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৫০০</p>
+                </div>
+                <button onclick="handlePackageBuy(500)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৪০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ১২০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৭০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 3: 800 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Advanced VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৮০০</p>
+                </div>
+                <button onclick="handlePackageBuy(800)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৯০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 4: 1000 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Super VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳১০০০</p>
+                </div>
+                <button onclick="handlePackageBuy(1000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন</p>
+                <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 5: 2000 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Mega VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳২০০০</p>
+                </div>
+                <button onclick="handlePackageBuy(2000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ১২০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ৩৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১৬০০</span></p>
+            </div>
+        </div>
+    </div>
 
             <!-- 3. WALLET / WITHDRAW TAB -->
             <div id="tabWallet" class="tab-content hidden space-y-4">
