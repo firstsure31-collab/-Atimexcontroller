@@ -813,7 +813,6 @@ function openReferModal() {
 function closeReferModal() {
     document.getElementById('referModal').classList.add('hidden');
 }
-
 function copyReferLink() {
     const input = document.getElementById('referLinkInput');
     input.select();
@@ -834,12 +833,12 @@ async function executeShareTask() {
                 text: shareText,
                 url: shareLink
             });
-            
+
             // User share successful
             isReferShared = true;
             updateShareStatusUI(true);
             showToast('Task Completed! Share success verified.');
-            
+
             if (typeof logActivity === 'function') {
                 logActivity('Refer Share Task', 'User successfully shared referral link.');
             }
@@ -868,34 +867,105 @@ function updateShareStatusUI(completed) {
         statusAlert.innerHTML = "⚠️ Share completing mandatory before referral registration credit.";
     }
 }
-        let appState = {
-            isLoggedIn: false,
-            userPhone: '01714553550',
-            isActive: false,
-            balance: 0.00,
-            totalEarned: 0.00,
-            completedTasks: 0,
-            selectedMethod: 'bKash'
-        };
 
-        let activeGateway = {
-            method: 'bKash',
-            number: '01940779877'
-        };
+// Global App State
+let appState = {
+    isLoggedIn: false,
+    userPhone: '01714553550',
+    isActive: false,
+    balance: 500.00,
+    totalEarned: 0.00,
+    completedTasks: 0,
+    selectedMethod: 'bKash',
+    spinsLeft: 0,
+    hasBoughtStarter: false
+};
 
-        // Window load trigger
-        window.onload = function() {
-            // Show welcome popup initially
-            const welcomeModal = document.getElementById('welcomeModal');
-            if(welcomeModal) welcomeModal.classList.remove('hidden');
-        };
+let activeGateway = {
+    method: 'bKash',
+    number: '01940779877'
+};
 
-        // Modal triggers
-        function closeWelcomeOpenAuth() {
-            document.getElementById('welcomeModal').classList.add('hidden');
-            document.getElementById('authModal').classList.remove('hidden');
+// Window load trigger
+window.onload = function() {
+    // Show welcome popup initially
+    const welcomeModal = document.getElementById('welcomeModal');
+    if(welcomeModal) welcomeModal.classList.remove('hidden');
+};
+
+// Modal triggers
+function closeWelcomeOpenAuth() {
+    document.getElementById('welcomeModal').classList.add('hidden');
+    document.getElementById('authModal').classList.remove('hidden');
+}
+
+// Spin Modal Functions (플레이 버튼 সচল করার জন্য জরুরি)
+function openSpinModal() {
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateSpinUI();
+    }
+}
+
+function closeSpinModal() {
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function updateSpinUI() {
+    const textEl = document.getElementById('spinsLeftText');
+    if (textEl) {
+        textEl.innerText = `Spins Left: ${appState.spinsLeft}`;
+    }
+}
+
+// Buy Custom Package Function
+function buyCustomPackage(price, spinCount, type = '') {
+    if (type === 'starter' && appState.hasBoughtStarter) {
+        if (typeof showToast === 'function') {
+            showToast('আপনি এই ৳৫০ টাকার স্টার্টার অফারটি জীবনে মাত্র একবারই কিনতে পারবেন!', true);
         }
+        return;
+    }
 
+    if (appState.balance < price) {
+        if (typeof showToast === 'function') {
+            showToast('পর্যাপ্ত ব্যালেন্স নেই! ডিপোজিট সেকশনে নিয়ে যাওয়া হচ্ছে...', true);
+        }
+        closeSpinModal();
+        setTimeout(() => {
+            if (typeof openPaymentModal === 'function') {
+                openPaymentModal();
+            } else if (typeof switchTab === 'function') {
+                switchTab('wallet');
+            }
+        }, 1000);
+        return;
+    }
+
+    appState.balance -= price;
+    appState.spinsLeft += spinCount;
+
+    if (type === 'starter') {
+        appState.hasBoughtStarter = true;
+        const starterBtn = document.getElementById('starterPackBtn');
+        if (starterBtn) {
+            starterBtn.disabled = true;
+            starterBtn.innerText = 'কেনা শেষ';
+            starterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    updateSpinUI();
+    if (typeof updateWalletUI === 'function') updateWalletUI();
+
+    if (typeof showToast === 'function') {
+        showToast(`সফলভাবে ${spinCount}টি স্পিন কেনা হয়েছে!`);
+    }
+}
        function handleAuthSubmit() {
     const phone = document.getElementById('authPhone').value.trim();
     const pass = document.getElementById('authPass').value.trim();
