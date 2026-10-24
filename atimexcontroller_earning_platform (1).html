@@ -1503,71 +1503,115 @@ function rejectDeposit(reqId) {
             </button>
         </div>
 
-        <!-- Buy Spin Package Section (৳100 per spin, max 2 times daily) -->
-        <div class="w-full bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-bold text-slate-300">Buy Spin Package</span>
-                <span class="text-[10px] text-amber-400">৳100 / Spin (Max 2/day)</span>
-            </div>
-            <button onclick="buySpinPackage()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-bold text-xs rounded-xl shadow hover:from-amber-400 hover:to-yellow-500 transition-all">
-                Buy Spin (৳100)
-            </button>
+        <!-- Multi-Package Section (5-6 Packages) -->
+<div class="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1">
+    <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
+    
+    <!-- Package 1 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Starter Spin</span>
+            <p class="text-[10px] text-slate-400">১ টি স্পিন</p>
         </div>
+        <button onclick="buyCustomPackage(50, 1)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৫০</button>
     </div>
+
+    <!-- Package 2 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Standard Spin</span>
+            <p class="text-[10px] text-slate-400">১ টি স্পিন (দৈনিক সেরা)</p>
+        </div>
+        <button onclick="buyCustomPackage(100, 1)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳১০০</button>
+    </div>
+
+    <!-- Package 3 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Double Pack</span>
+            <p class="text-[10px] text-slate-400">২ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(200, 2)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳২০০</button>
+    </div>
+
+    <!-- Package 4 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Triple Pack</span>
+            <p class="text-[10px] text-slate-400">৩ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(300, 3)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৩০০</button>
+    </div>
+
+    <!-- Package 5 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Mega Pack</span>
+            <p class="text-[10px] text-slate-400">৫ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(500, 5)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৫০০</button>
+    </div>
+
+    <!-- Package 6 -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">VIP Ultimate Pack</span>
+            <p class="text-[10px] text-slate-400">১০ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(1000, 10)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳১০০০</button>
+    </div>
+</div>
 </div>
     </div>
 </div>
 
 <!-- Spin & Purchase Logic Script -->
 <script>
+// Safe state initialization (prevents duplicate declaration error)
+window.appState = window.appState || {
+    balance: 0,
+    spinsLeft: 0,
+    todaySpinsBought: 0,
+    isActive: true
+};
+
 let isSpinning = false;
 let currentDegree = 0;
 
-if (typeof appState === 'undefined') {
-    var appState = {
-        balance: 0,
-        spinsLeft: 0,
-        todaySpinsBought: 0,
-        isActive: true
-    };
-}
-
 function openSpinModal() {
-    if (!appState.isActive) {
-        if (typeof showToast === 'function') {
-            showToast('Account active na thakle spin kora jabe na!', true);
-        }
-        return;
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateSpinUI();
     }
-    document.getElementById('spinModal').classList.remove('hidden');
-    updateSpinUI();
 }
 
 function closeSpinModal() {
-    document.getElementById('spinModal').classList.add('hidden');
+    const modal = document.getElementById('spinModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function updateSpinUI() {
     const textEl = document.getElementById('spinsLeftText');
     if (textEl) {
-        textEl.innerText = `Spins Left: ${appState.spinsLeft} / Daily Bought: ${appState.todaySpinsBought}/2`;
+        textEl.innerText = `Spins Left: ${window.appState.spinsLeft} / Daily Bought: ${window.appState.todaySpinsBought}/2`;
     }
 }
 
 function buySpinPackage() {
-    if (appState.todaySpinsBought >= 2) {
+    if (window.appState.todaySpinsBought >= 2) {
         if (typeof showToast === 'function') showToast('Ajker jonno apni sorboccho 2 bar spin kinechen!', true);
         return;
     }
 
-    if (appState.balance < 100) {
-        if (typeof showToast === 'function') showToast('Account-e sothik balance nei! (Lagbe ৳100)', true);
+    if (window.appState.balance < 100) {
+        if (typeof showToast === 'function') showToast('অ্যাকাউন্টে সঠিক ব্যালেন্স নেই! (লাগবে ৳১০০)', true);
         return;
     }
 
-    appState.balance -= 100;
-    appState.spinsLeft += 1;
-    appState.todaySpinsBought += 1;
+    window.appState.balance -= 100;
+    window.appState.spinsLeft += 1;
+    window.appState.todaySpinsBought += 1;
 
     updateSpinUI();
     if (typeof updateWalletUI === 'function') updateWalletUI();
@@ -1580,20 +1624,22 @@ function buySpinPackage() {
 function startSpin() {
     if (isSpinning) return;
 
-    if (appState.spinsLeft <= 0) {
+    if (window.appState.spinsLeft <= 0) {
         if (typeof showToast === 'function') {
-            showToast('Apnar kase kono spin nei! Age Spin Package কিনুন।', true);
+            showToast('আপনার কাছে কোনো স্পিন নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
         }
         return;
     }
 
     isSpinning = true;
-    appState.spinsLeft -= 1;
+    window.appState.spinsLeft -= 1;
     updateSpinUI();
 
     const btn = document.getElementById('spinBtn');
-    btn.disabled = true;
-    btn.innerText = '...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '...';
+    }
 
     const rewards = [40, 50, 60, 70, 100, 200, 500, 1000, 2000, 2500];
     const randomSegmentIndex = Math.floor(Math.random() * rewards.length);
@@ -1603,15 +1649,19 @@ function startSpin() {
     currentDegree += extraDegree;
 
     const wheel = document.getElementById('wheel');
-    wheel.style.transform = `rotate(${currentDegree}deg)`;
+    if (wheel) {
+        wheel.style.transform = `rotate(${currentDegree}deg)`;
+    }
 
     setTimeout(() => {
         isSpinning = false;
-        btn.disabled = false;
-        btn.innerText = 'SPIN';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'SPIN';
+        }
 
         const wonAmount = rewards[rewards.length - 1 - (randomSegmentIndex)];
-        appState.balance += wonAmount;
+        window.appState.balance += wonAmount;
         if (typeof updateWalletUI === 'function') updateWalletUI();
 
         if (typeof showToast === 'function') {
