@@ -1523,14 +1523,14 @@ function rejectDeposit(reqId) {
 <div class="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1">
     <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
     
-    <!-- Package 1 -->
-    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
-        <div>
-            <span class="text-xs font-bold text-white">Starter Spin</span>
-            <p class="text-[10px] text-slate-400">১ টি স্পিন</p>
-        </div>
-        <button onclick="buyCustomPackage(50, 1)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৫০</button>
-    </div>
+   <!-- Package 1 -->
+            <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+                <div>
+                    <span class="text-xs font-bold text-white">Starter Spin</span>
+                    <p class="text-[10px] text-slate-400">১ টি স্পিন (একবার অফার)</p>
+                </div>
+                <button id="starterPackBtn" onclick="buyCustomPackage(50, 1, 'starter')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৫০</button>
+            </div>
 
     <!-- Package 2 -->
     <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
@@ -1588,7 +1588,8 @@ window.appState = window.appState || {
     balance: 0,
     spinsLeft: 0,
     todaySpinsBought: 0,
-    isActive: true
+    isActive: true,
+    hasBoughtStarter: false
 };
 
 let isSpinning = false;
