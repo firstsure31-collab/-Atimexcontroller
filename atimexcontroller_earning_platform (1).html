@@ -886,11 +886,11 @@ function updateShareStatusUI(completed) {
             document.getElementById('authModal').classList.remove('hidden');
         }
 
-        function handleAuthSubmit() {
+       function handleAuthSubmit() {
     const phone = document.getElementById('authPhone').value.trim();
     const pass = document.getElementById('authPass').value.trim();
 
-    // ১. Strict 11-digit Bangladeshi Phone Validation (01 দিয়ে শুরু হতে হবে)
+    // 1. Strict 11-digit Bangladeshi Phone Validation (01 diye shuru hote hobe)
     const phoneRegex = /^01[3-9]\d{8}$/;
     if (!phoneRegex.test(phone)) {
         showToast('Sothik 11-digit mobile number din (e.g. 017XXXXXXXX)!', true);
@@ -902,29 +902,36 @@ function updateShareStatusUI(completed) {
         return;
     }
 
-    // ২. User Account Data Retention (Phone Number base-e)
+    // 2. LocalStorage-e user check & password verification
     let savedUser = JSON.parse(localStorage.getItem('user_' + phone));
 
     if (savedUser) {
-        // আগের অ্যাকাউন্টের ব্যালেন্স ও ডাটা লোড হবে (টাকা রিসেট হবে না)
+        // User-er original password-er sathe match na korle login block hobe
+        if (savedUser.password && savedUser.password !== pass) {
+            showToast('Bhul Password! Sothik password diye login korun.', true);
+            return;
+        }
+        
+        // Sothik password hole ager saved balance & tasks load hobe
         appState = savedUser;
         showToast('Login successful!');
     } else {
-        // নতুন অ্যাকাউন্ট সেভ হবে
+        // New user hole Phone + Password shoho save hobe
         appState.isLoggedIn = true;
         appState.userPhone = phone;
+        appState.password = pass;
+        
         localStorage.setItem('user_' + phone, JSON.stringify(appState));
         showToast('New Account Created & Logged In!');
     }
 
-    // UI আপডেট ও মডেল হাইড
+    // UI Refresh & Modal Close
     const profilePhoneElem = document.getElementById('profilePhone');
     if (profilePhoneElem) profilePhoneElem.innerText = phone;
     
     document.getElementById('authModal').classList.add('hidden');
     
-    // UI Refresh (যদি ফাংশন থাকে)
-    if (typeof updateDashboardUI === 'function') updateDashboardUI();
+    if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
 }
         function openPaymentModal() {
             document.getElementById('paymentModal').classList.remove('hidden');
@@ -1091,12 +1098,17 @@ function selectPaymentProvider(method, num) {
             }, 1000);
         }
 
-        function updateBalanceDisplays() {
-            document.getElementById('balanceVal').innerText = appState.balance.toFixed(2);
-            document.getElementById('totalEarnedVal').innerText = appState.totalEarned.toFixed(2);
-            document.getElementById('walletTabBalance').innerText = appState.balance.toFixed(2);
-            document.getElementById('taskCountVal').innerText = appState.completedTasks;
-        }
+       function updateBalanceDisplays() {
+    // 🟢 Auto-Save User Data (টাকা বা টাস্ক চেঞ্জ হলেই অটো-সেভ হবে)
+    if (appState.userPhone) {
+        localStorage.setItem('user_' + appState.userPhone, JSON.stringify(appState));
+    }
+
+    document.getElementById('balanceVal').innerText = appState.balance.toFixed(2);
+    document.getElementById('totalEarnedVal').innerText = appState.totalEarned.toFixed(2);
+    document.getElementById('walletTabBalance').innerText = appState.balance.toFixed(2);
+    document.getElementById('taskCountVal').innerText = appState.completedTasks;
+}
 
 function handleWithdraw() {
         const num = document.getElementById('withdrawNum').value;
