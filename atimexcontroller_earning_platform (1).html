@@ -938,7 +938,7 @@
             isLoggedIn: false,
             userPhone: '01714553550',
             isActive: false,
-            balance: 0,
+            balance: 500,
             totalEarned: 0.00,
             completedTasks: 0,
             selectedMethod: 'bKash',
@@ -1007,6 +1007,59 @@
             updateBalanceDisplays();
             showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
         }
+        let isSpinning = false;
+let currentDegree = 0;
+
+function startSpin() {
+    if (isSpinning) return;
+
+    if (window.appState.spinsLeft <= 0) {
+        if (typeof showToast === 'function') {
+            showToast('Apnar kono spin baki nei! Age spin package kinun.', true);
+        }
+        return;
+    }
+
+    isSpinning = true;
+    window.appState.spinsLeft -= 1;
+    updateSpinUI();
+
+    const btn = document.getElementById('spinBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '...';
+    }
+
+    // 10 Segments (৳20 to ৳2500)
+    const rewards = [20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500];
+    const randomIndex = Math.floor(Math.random() * rewards.length);
+
+    const degreePerSegment = 36;
+    const extraDegree = (360 * 5) + (randomIndex * degreePerSegment) + (degreePerSegment / 2);
+    currentDegree += extraDegree;
+
+    const wheel = document.getElementById('wheel');
+    if (wheel) {
+        wheel.style.transform = `rotate(${currentDegree}deg)`;
+    }
+
+    setTimeout(() => {
+        isSpinning = false;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'SPIN';
+        }
+
+        const wonAmount = rewards[randomIndex];
+        window.appState.balance += wonAmount;
+
+        if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
+
+        if (typeof showToast === 'function') {
+            showToast(`Abhinandan! Apni ৳${wonAmount} jitechen!`);
+        }
+    }, 4000);
+}
 
         function handleAuthSubmit() {
             const phone = document.getElementById('authPhone').value.trim();
