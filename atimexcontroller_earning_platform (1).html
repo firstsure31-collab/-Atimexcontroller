@@ -172,19 +172,6 @@
             
             <!-- 1. HOME TAB -->
             <div id="tabHome" class="tab-content space-y-4">
-                <!-- Floating Spin Badge on Home Tab -->
-    <div onclick="openSpinModal()" class="flex items-center justify-between bg-gradient-to-r from-amber-500 to-yellow-600 p-3 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300 animate-pulse my-3">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl animate-spin" style="animation-duration: 4s;">
-                🎡
-            </div>
-            <div>
-                <h4 class="font-bold text-white text-sm">Daily Lucky Spin!</h4>
-                <p class="text-xs text-yellow-100">Spin kory jite nin puroshkar</p>
-            </div>
-        </div>
-        <span class="bg-white text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full shadow">Spin Now</span>
-    </div>
                 
                 <!-- Account Active Notice Banner (Red Popup with Beat Animation) -->
                 <div id="accountActiveBanner" class="bg-slate-800/80 border-2 border-red-500 rounded-2xl p-5 text-center space-y-3 red-beat-popup">
@@ -308,7 +295,7 @@
                 </div>
             </div>
 
-            <!-- 3. WALLET /  TAB -->
+            <!-- 3. WALLET / WITHDRAW TAB -->
             <div id="tabWallet" class="tab-content hidden space-y-4">
                 <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 text-center">
                     <div class="text-xs text-slate-400 font-medium">Withdrawable Balance</div>
@@ -329,18 +316,18 @@
   </div>
                 
                 <!-- Withdrawal Charge List Info Box -->
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
-                <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
-                    <i class="fa-solid fa-triangle-exclamation"></i> উইথড্র এবং প্রসেসিং চার্জ তালিকা:
-                </div>
-                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-300 font-medium">
-                    <div>• ৳২০ - ৳২০০ = ৳১০ Charge</div>
-                    <div>• ৳২০১ - ৳৫০০ = ৳১৫ Charge</div>
-                    <div>• ৳৫০১ - ৳১০০০ = ৳২০ Charge</div>
-                    <div>• ৳১০০১ - ৳৫০০০ = ৳৩০ Charge</div>
-                    <div>• ৳৫০০১ - ৳২৫০০০ = ৳৫০ Charge</div>
-                </div>
-            </div>
+<div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
+  <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
+    <i class="fa-solid fa-triangle-exclamation"></i> উইথড্র এবং প্রসেসিং চার্জ তালিকা:
+  </div>
+  <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-300 font-medium">
+    <div>• ৳200 - ৳500 = ৳15 Charge</div>
+    <div>• ৳501 - ৳1000 = ৳25 Charge</div>
+    <div>• ৳1001 - ৳2000 = ৳40 Charge</div>
+    <div>• ৳2001 - ৳5000 = ৳75 Charge</div>
+    <div>• ৳5001 - ৳10000 = ৳120 Charge</div>
+    <div>• ৳10000+ = 2% Admin Fee</div>
+  </div>
   <div class="text-[9.5px] text-amber-300/80 pt-1 border-t border-amber-500/20 italic">
     * উইথড্র রিকোয়েস্ট দেওয়ার 1 থেকে 6 ঘণ্টার মধ্যে টাকা অ্যাকাউন্টে পৌঁছে যাবে।
   </div>
@@ -405,7 +392,7 @@
                             <input type="number" id="withdrawNum" placeholder="017XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳20)</label>
+                            <label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
                             <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button onclick="handleWithdraw()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">Submit Withdrawal Request</button>
@@ -1457,148 +1444,174 @@ function rejectDeposit(reqId) {
     }
 }
     </script>
-    <!-- Spin Wheel Page / Modal -->
-<div id="spinModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-5 text-center text-white relative shadow-2xl my-auto">
+    <!-- Lucky Spin Modal -->
+<div id="spinModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 text-white relative shadow-2xl flex flex-col items-center">
+        <button onclick="closeSpinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
         
-        <!-- Close Button -->
-        <button onclick="closeSpinModal()" class="absolute top-4 right-4 bg-slate-800 text-slate-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold">✕</button>
+        <h3 class="text-base font-bold text-amber-400 mb-1 flex items-center gap-2">
+            <span>🎡</span> Lucky Spin Wheel
+        </h3>
+        <p class="text-[11px] text-slate-400 mb-3" id="spinsLeftText">Spins Left: 0 / Daily Max: 2</p>
 
-        <h3 class="text-xl font-bold text-amber-400 flex items-center justify-center gap-2">🎡 Lucky Spin Wheel</h3>
-        <p class="text-xs text-slate-400 mt-1">Daily Free Spin: <span id="freeSpinCount" class="text-amber-400 font-bold">1</span> Left</p>
-
-        <!-- Spinner Wheel Canvas Container -->
-        <div class="relative my-6 flex justify-center items-center">
+        <!-- Wheel Container -->
+        <div class="relative w-64 h-64 mb-4 flex items-center justify-center">
             <!-- Pointer Arrow -->
-            <div class="absolute -top-3 z-20 text-red-500 text-3xl font-bold drop-shadow-md">▼</div>
+            <div class="absolute -top-3 z-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[18px] border-t-red-500 filter drop-shadow"></div>
             
-            <!-- Wheel Container -->
-            <div id="wheel" class="w-64 h-64 rounded-full border-4 border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.3)] relative overflow-hidden transition-transform duration-[4000ms] cubic-bezier(0.15, 0.99, 0.18, 0.99)">
-                <!-- 10 Segments (10 Ghor) -->
-                <div class="absolute inset-0 rounded-full overflow-hidden" style="background: conic-gradient(#f59e0b 0 36deg, #3b82f6 36deg 72deg, #10b981 72deg 108deg, #ec4899 108deg 144deg, #8b5cf6 144deg 180deg, #ef4444 180deg 216deg, #06b6d4 216deg 252deg, #f97316 252deg 288deg, #84cc16 288deg 324deg, #6366f1 324deg 360deg);"></div>
-                
-                <!-- Ghor Numbers/Labels -->
-                <div class="absolute inset-0 flex items-center justify-center font-bold text-xs">
-                    <span class="absolute transform -rotate-72 -translate-y-24">৳10</span>
-                    <span class="absolute transform -rotate-36 -translate-y-24">৳20</span>
-                    <span class="absolute transform translate-y-[-96px]">৳50</span>
-                    <span class="absolute transform rotate-36 -translate-y-24">৳0</span>
-                    <span class="absolute transform rotate-72 -translate-y-24">৳100</span>
-                    <span class="absolute transform rotate-108 -translate-y-24">৳5</span>
-                    <span class="absolute transform rotate-144 -translate-y-24">৳30</span>
-                    <span class="absolute transform rotate-180 -translate-y-24">৳15</span>
-                    <span class="absolute transform rotate-216 -translate-y-24">৳80</span>
-                    <span class="absolute transform rotate-252 -translate-y-24">৳25</span>
+            <!-- Wheel Inner Disc (10 Segments with requested amounts) -->
+            <div id="wheel" class="w-full h-full rounded-full border-4 border-amber-500/50 relative overflow-hidden transition-transform duration-[4000ms] cubic-bezier(0.15, 0.95, 0.15, 1)" style="background: conic-gradient(
+                #ef4444 0deg 36deg, 
+                #f97316 36deg 72deg, 
+                #f59e0b 72deg 108deg, 
+                #eab308 108deg 144deg, 
+                #84cc16 144deg 180deg, 
+                #10b981 180deg 216deg, 
+                #06b6d4 216deg 252deg, 
+                #3b82f6 252deg 288deg, 
+                #8b5cf6 288deg 324deg, 
+                #ec4899 324deg 360deg
+            );">
+                <!-- Segment Labels -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="absolute text-[11px] font-bold text-white transform -translate-y-24">৳40</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[36deg] -translate-y-24">৳50</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[72deg] -translate-y-24">৳60</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[108deg] -translate-y-24">৳70</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[144deg] -translate-y-24">৳100</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[180deg] -translate-y-24">৳200</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[216deg] -translate-y-24">৳500</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[252deg] -translate-y-24">৳1000</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[288deg] -translate-y-24">৳2000</span>
+                    <span class="absolute text-[11px] font-bold text-white transform rotate-[324deg] -translate-y-24">৳2500</span>
                 </div>
             </div>
 
-            <!-- Start / Spin Button in Center -->
-            <button id="spinBtn" onclick="startSpin()" class="absolute z-30 w-16 h-16 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 rounded-full border-4 border-slate-900 shadow-xl flex items-center justify-center font-black text-slate-900 text-sm active:scale-95 transition-all">
-                START
+            <!-- Center Spin Button -->
+            <button id="spinBtn" onclick="startSpin()" class="absolute z-10 w-14 h-14 bg-slate-950 border-2 border-amber-400 rounded-full flex items-center justify-center text-xs font-bold text-amber-400 shadow-xl hover:scale-105 transition-transform">
+                SPIN
             </button>
         </div>
 
-        <hr class="border-slate-800 my-4">
-
-        <!-- Spin Packages Section -->
-        <h4 class="text-sm font-bold text-slate-300 text-left mb-3 flex items-center justify-between">
-            <span>VIP Spin Packages</span>
-            <span class="text-xs text-amber-400 font-normal">More Spins = More Income</span>
-        </h4>
-
-        <div class="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-            
-            <!-- Pack 1 -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-amber-400">Pack 1</div>
-                    <div class="text-[11px] text-slate-400">Daily 3 Spins | Duration: xxx Days</div>
-                </div>
-                <button onclick="buySpinPack('Pack 1')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg">৳ xxx</button>
+        <!-- Buy Spin Package Section (৳100 per spin, max 2 times daily) -->
+        <div class="w-full bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-300">Buy Spin Package</span>
+                <span class="text-[10px] text-amber-400">৳100 / Spin (Max 2/day)</span>
             </div>
-
-            <!-- Pack 2 -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-blue-400">Pack 2</div>
-                    <div class="text-[11px] text-slate-400">Daily xxx Spins | Duration: xxx Days</div>
-                </div>
-                <button onclick="buySpinPack('Pack 2')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">৳ xxx</button>
-            </div>
-
-            <!-- Pack 3 -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-emerald-400">Pack 3</div>
-                    <div class="text-[11px] text-slate-400">Daily xxx Spins | Duration: xxx Days</div>
-                </div>
-                <button onclick="buySpinPack('Pack 3')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg">৳ xxx</button>
-            </div>
-
-            <!-- Pack 4 -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-purple-400">Pack 4</div>
-                    <div class="text-[11px] text-slate-400">Daily xxx Spins | Duration: xxx Days</div>
-                </div>
-                <button onclick="buySpinPack('Pack 4')" class="bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">৳ xxx</button>
-            </div>
-
-            <!-- Pack 5 -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-pink-400">Pack 5</div>
-                    <div class="text-[11px] text-slate-400">Daily xxx Spins | Duration: xxx Days</div>
-                </div>
-                <button onclick="buySpinPack('Pack 5')" class="bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">৳ xxx</button>
-            </div>
-
+            <button onclick="buySpinPackage()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-bold text-xs rounded-xl shadow hover:from-amber-400 hover:to-yellow-500 transition-all">
+                Buy Spin (৳100)
+            </button>
         </div>
     </div>
 </div>
+    </div>
+</div>
 
+<!-- Spin & Purchase Logic Script -->
 <script>
-    let currentDegree = 0;
-    let isSpinning = false;
+let isSpinning = false;
+let currentDegree = 0;
 
-    function openSpinModal() {
-        document.getElementById('spinModal').classList.remove('hidden');
-    }
+if (typeof appState === 'undefined') {
+    var appState = {
+        balance: 0,
+        spinsLeft: 0,
+        todaySpinsBought: 0,
+        isActive: true
+    };
+}
 
-    function closeSpinModal() {
-        document.getElementById('spinModal').classList.add('hidden');
-    }
-
-    function startSpin() {
-        if (isSpinning) return;
-        
-        isSpinning = true;
-        const btn = document.getElementById('spinBtn');
-        btn.disabled = true;
-        btn.innerText = '...';
-
-        // 360 * 5 (5 turns) + Random Angle
-        const extraDegree = Math.floor(Math.random() * 360);
-        currentDegree += 1800 + extraDegree;
-
-        const wheel = document.getElementById('wheel');
-        wheel.style.transform = `rotate(${currentDegree}deg)`;
-
-        setTimeout(() => {
-            isSpinning = false;
-            btn.disabled = false;
-            btn.innerText = 'START';
-            if (typeof showToast === 'function') {
-                showToast('Abhinandan! Apni Spin Puroshkar Peyeshen!');
-            }
-        }, 4000);
-    }
-
-    function buySpinPack(packName) {
+function openSpinModal() {
+    if (!appState.isActive) {
         if (typeof showToast === 'function') {
-            showToast(`${packName} kinar request patano hoyeche!`);
+            showToast('Account active na thakle spin kora jabe na!', true);
         }
+        return;
     }
+    document.getElementById('spinModal').classList.remove('hidden');
+    updateSpinUI();
+}
+
+function closeSpinModal() {
+    document.getElementById('spinModal').classList.add('hidden');
+}
+
+function updateSpinUI() {
+    const textEl = document.getElementById('spinsLeftText');
+    if (textEl) {
+        textEl.innerText = `Spins Left: ${appState.spinsLeft} / Daily Bought: ${appState.todaySpinsBought}/2`;
+    }
+}
+
+function buySpinPackage() {
+    if (appState.todaySpinsBought >= 2) {
+        if (typeof showToast === 'function') showToast('Ajker jonno apni sorboccho 2 bar spin kinechen!', true);
+        return;
+    }
+
+    if (appState.balance < 100) {
+        if (typeof showToast === 'function') showToast('Account-e sothik balance nei! (Lagbe ৳100)', true);
+        return;
+    }
+
+    appState.balance -= 100;
+    appState.spinsLeft += 1;
+    appState.todaySpinsBought += 1;
+
+    updateSpinUI();
+    if (typeof updateWalletUI === 'function') updateWalletUI();
+
+    if (typeof showToast === 'function') {
+        showToast('Safolvabe 1 ta Spin kora hoyeche! Ebar spin korun.');
+    }
+}
+
+function startSpin() {
+    if (isSpinning) return;
+
+    if (appState.spinsLeft <= 0) {
+        if (typeof showToast === 'function') {
+            showToast('Apnar kase kono spin nei! Age Spin Package কিনুন।', true);
+        }
+        return;
+    }
+
+    isSpinning = true;
+    appState.spinsLeft -= 1;
+    updateSpinUI();
+
+    const btn = document.getElementById('spinBtn');
+    btn.disabled = true;
+    btn.innerText = '...';
+
+    const rewards = [40, 50, 60, 70, 100, 200, 500, 1000, 2000, 2500];
+    const randomSegmentIndex = Math.floor(Math.random() * rewards.length);
+    const degreePerSegment = 36;
+    
+    const extraDegree = (360 * 5) + (randomSegmentIndex * degreePerSegment) + (degreePerSegment / 2);
+    currentDegree += extraDegree;
+
+    const wheel = document.getElementById('wheel');
+    wheel.style.transform = `rotate(${currentDegree}deg)`;
+
+    setTimeout(() => {
+        isSpinning = false;
+        btn.disabled = false;
+        btn.innerText = 'SPIN';
+
+        const wonAmount = rewards[rewards.length - 1 - (randomSegmentIndex)];
+        appState.balance += wonAmount;
+        if (typeof updateWalletUI === 'function') updateWalletUI();
+
+        if (typeof showToast === 'function') {
+            showToast(`Abhinandan! Apni ৳${wonAmount} jitechen!`);
+        }
+    }, 4000);
+}
 </script>
+
+</body>
+</html>
 </body>
 </html>
