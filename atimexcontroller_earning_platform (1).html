@@ -833,17 +833,62 @@
                 </div>
 
                 <div class="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1 w-full">
-                    <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
-                    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
-                        <div>
-                            <span class="text-xs font-bold text-white">Starter Spin</span>
-                            <p class="text-[10px] text-slate-400">১ টি স্পিন (একবার অফার)</p>
-                        </div>
-                        <button id="starterPackBtn" onclick="buyCustomPackage(50, 1, 'starter')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg">কিনুন ৳৫০</button>
-                    </div>
-                </div>
-            </div>
+    <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
+    
+    <!-- Package 1: Starter -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Starter Spin</span>
+            <p class="text-[10px] text-slate-400">১ টি স্পিন (একবার অফার)</p>
         </div>
+        <button id="starterPackBtn" onclick="buyCustomPackage(50, 1, 'starter')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০</button>
+    </div>
+
+    <!-- Package 2: Standard -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Standard Spin</span>
+            <p class="text-[10px] text-slate-400">১ টি স্পিন (দৈনিক সেরা)</p>
+        </div>
+        <button onclick="buyCustomPackage(100, 1)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০</button>
+    </div>
+
+    <!-- Package 3: Double Pack -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Double Pack</span>
+            <p class="text-[10px] text-slate-400">২ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(200, 2)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳২০০</button>
+    </div>
+
+    <!-- Package 4: Triple Pack -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Triple Pack</span>
+            <p class="text-[10px] text-slate-400">৩ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(300, 3)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৩০০</button>
+    </div>
+
+    <!-- Package 5: Mega Pack -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">Mega Pack</span>
+            <p class="text-[10px] text-slate-400">৫ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(500, 5)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০০</button>
+    </div>
+
+    <!-- Package 6: VIP Ultimate Pack -->
+    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
+        <div>
+            <span class="text-xs font-bold text-white">VIP Ultimate Pack</span>
+            <p class="text-[10px] text-slate-400">১০ টি স্পিন</p>
+        </div>
+        <button onclick="buyCustomPackage(1000, 10)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
+    </div>
+</div>
 
         <!-- TOAST NOTIFICATION -->
         <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2">
