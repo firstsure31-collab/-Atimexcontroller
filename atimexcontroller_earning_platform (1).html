@@ -1598,26 +1598,37 @@ function updateSpinUI() {
     }
 }
 
-function buySpinPackage() {
-    if (window.appState.todaySpinsBought >= 2) {
-        if (typeof showToast === 'function') showToast('Ajker jonno apni sorboccho 2 bar spin kinechen!', true);
+function buyCustomPackage(price, spinCount) {
+    if (window.appState.balance < price) {
+        if (typeof showToast === 'function') {
+            showToast('পর্যাপ্ত ব্যালেন্স নেই! ডিপোজিট সেকশনে নিয়ে যাওয়া হচ্ছে...', true);
+        }
+
+        // স্পিন মোডাল বন্ধ করা
+        closeSpinModal();
+
+        // ১ সেকেন্ড পর ডিপোজিট/পেমেন্ট সেকশন ওপেন করা
+        setTimeout(() => {
+            if (typeof openPaymentModal === 'function') {
+                openPaymentModal();
+            } else if (typeof switchTab === 'function') {
+                switchTab('wallet');
+            }
+        }, 1000);
+
         return;
     }
 
-    if (window.appState.balance < 100) {
-        if (typeof showToast === 'function') showToast('অ্যাকাউন্টে সঠিক ব্যালেন্স নেই! (লাগবে ৳১০০)', true);
-        return;
-    }
-
-    window.appState.balance -= 100;
-    window.appState.spinsLeft += 1;
-    window.appState.todaySpinsBought += 1;
+    // পর্যাপ্ত ব্যালেন্স থাকলে স্পিন কেনা হবে
+    window.appState.balance -= price;
+    window.appState.spinsLeft += spinCount;
+    window.appState.todaySpinsBought += spinCount;
 
     updateSpinUI();
     if (typeof updateWalletUI === 'function') updateWalletUI();
 
     if (typeof showToast === 'function') {
-        showToast('Safolvabe 1 ta Spin kora hoyeche! Ebar spin korun.');
+        showToast(`সফলভাবে ${spinCount}টি স্পিন কেনা হয়েছে!`);
     }
 }
 
