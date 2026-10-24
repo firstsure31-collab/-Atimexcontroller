@@ -1464,45 +1464,61 @@ function rejectDeposit(reqId) {
         </h3>
         <p class="text-[11px] text-slate-400 mb-3" id="spinsLeftText">Spins Left: 0 / Daily Max: 2</p>
 
-        <!-- Wheel Container -->
-        <div class="relative w-64 h-64 mb-4 flex items-center justify-center">
-            <!-- Pointer Arrow -->
-            <div class="absolute -top-3 z-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[18px] border-t-red-500 filter drop-shadow"></div>
-            
-            <!-- Wheel Inner Disc (10 Segments with requested amounts) -->
-            <div id="wheel" class="w-full h-full rounded-full border-4 border-amber-500/50 relative overflow-hidden transition-transform duration-[4000ms] cubic-bezier(0.15, 0.95, 0.15, 1)" style="background: conic-gradient(
-                #ef4444 0deg 36deg, 
-                #f97316 36deg 72deg, 
-                #f59e0b 72deg 108deg, 
-                #eab308 108deg 144deg, 
-                #84cc16 144deg 180deg, 
-                #10b981 180deg 216deg, 
-                #06b6d4 216deg 252deg, 
-                #3b82f6 252deg 288deg, 
-                #8b5cf6 288deg 324deg, 
-                #ec4899 324deg 360deg
-            );">
-                <!-- Segment Labels -->
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="absolute text-[11px] font-bold text-white transform -translate-y-24">৳40</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[36deg] -translate-y-24">৳50</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[72deg] -translate-y-24">৳60</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[108deg] -translate-y-24">৳70</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[144deg] -translate-y-24">৳100</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[180deg] -translate-y-24">৳200</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[216deg] -translate-y-24">৳500</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[252deg] -translate-y-24">৳1000</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[288deg] -translate-y-24">৳2000</span>
-                    <span class="absolute text-[11px] font-bold text-white transform rotate-[324deg] -translate-y-24">৳2500</span>
-                </div>
-            </div>
+      <!-- Wheel SVG with Values -->
+<div class="relative w-64 h-64 mx-auto my-4">
+    <!-- Pointer -->
+    <div class="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[18px] border-t-rose-500 drop-shadow"></div>
+    
+    <!-- Rotating Wheel -->
+    <div id="wheel" class="w-full h-full rounded-full overflow-hidden transition-transform duration-[4000ms] cubic-bezier(0.15, 0.90, 0.20, 1.00) relative shadow-2xl border-4 border-amber-400">
+        <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+            <!-- Segment 1: 20 BDT -->
+            <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#EF4444"/>
+            <text x="78" y="58" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(18, 78, 58)">৳20</text>
 
-            <!-- Center Spin Button -->
-            <button id="spinBtn" onclick="startSpin()" class="absolute z-10 w-14 h-14 bg-slate-950 border-2 border-amber-400 rounded-full flex items-center justify-center text-xs font-bold text-amber-400 shadow-xl hover:scale-105 transition-transform">
-                SPIN
-            </button>
-        </div>
+            <!-- Segment 2: 50 BDT -->
+            <path d="M50 50 L90.45 79.39 A50 50 0 0 1 65.45 97.55 Z" fill="#F97316"/>
+            <text x="68" y="78" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(54, 68, 78)">৳50</text>
 
+            <!-- Segment 3: 70 BDT -->
+            <path d="M50 50 L65.45 97.55 A50 50 0 0 1 34.55 97.55 Z" fill="#F59E0B"/>
+            <text x="50" y="86" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(90, 50, 86)">৳70</text>
+
+            <!-- Segment 4: 100 BDT -->
+            <path d="M50 50 L34.55 97.55 A50 50 0 0 1 9.55 79.39 Z" fill="#10B981"/>
+            <text x="32" y="78" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(126, 32, 78)">৳100</text>
+
+            <!-- Segment 5: 200 BDT -->
+            <path d="M50 50 L9.55 79.39 A50 50 0 0 1 0 50 Z" fill="#06B6D4"/>
+            <text x="22" y="58" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(162, 22, 58)">৳200</text>
+
+            <!-- Segment 6: 300 BDT -->
+            <path d="M50 50 L0 50 A50 50 0 0 1 9.55 20.61 Z" fill="#3B82F6"/>
+            <text x="22" y="42" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(198, 22, 42)">৳300</text>
+
+            <!-- Segment 7: 500 BDT -->
+            <path d="M50 50 L9.55 20.61 A50 50 0 0 1 34.55 2.45 Z" fill="#6366F1"/>
+            <text x="32" y="22" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(234, 32, 22)">৳500</text>
+
+            <!-- Segment 8: 800 BDT -->
+            <path d="M50 50 L34.55 2.45 A50 50 0 0 1 65.45 2.45 Z" fill="#8B5CF6"/>
+            <text x="50" y="14" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(270, 50, 14)">৳800</text>
+
+            <!-- Segment 9: 1500 BDT -->
+            <path d="M50 50 L65.45 2.45 A50 50 0 0 1 90.45 20.61 Z" fill="#EC4899"/>
+            <text x="68" y="22" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(306, 68, 22)">৳1500</text>
+
+            <!-- Segment 10: 2500 BDT -->
+            <path d="M50 50 L90.45 20.61 A50 50 0 0 1 100 50 Z" fill="#14B8A6"/>
+            <text x="78" y="42" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(342, 78, 42)">৳2500</text>
+        </svg>
+    </div>
+
+    <!-- Center SPIN Button -->
+    <button id="spinBtn" onclick="startSpin()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm rounded-full border-4 border-slate-900 shadow-xl flex items-center justify-center z-10 transition-transform active:scale-95">
+        SPIN
+    </button>
+</div>
         <!-- Multi-Package Section (5-6 Packages) -->
 <div class="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1">
     <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
@@ -1637,7 +1653,7 @@ function startSpin() {
 
     if (window.appState.spinsLeft <= 0) {
         if (typeof showToast === 'function') {
-            showToast('আপনার কাছে কোনো স্পিন নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
+            showToast('Apnar kase kono spin nei! Age Spin Package kinun.', true);
         }
         return;
     }
@@ -1652,10 +1668,13 @@ function startSpin() {
         btn.innerText = '...';
     }
 
-    const rewards = [40, 50, 60, 70, 100, 200, 500, 1000, 2000, 2500];
-    const randomSegmentIndex = Math.floor(Math.random() * rewards.length);
-    const degreePerSegment = 36;
+    // Taka gulo: 20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500
+    const rewards = [20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500];
     
+    // Prothome shudhu choto amount gulo (Index 0 theke 4: 20, 50, 70, 100, 200) porbe, boro amount kokhono porbe na (No Loss System)
+    const randomSegmentIndex = Math.floor(Math.random() * 5);
+
+    const degreePerSegment = 36;
     const extraDegree = (360 * 5) + (randomSegmentIndex * degreePerSegment) + (degreePerSegment / 2);
     currentDegree += extraDegree;
 
@@ -1671,7 +1690,7 @@ function startSpin() {
             btn.innerText = 'SPIN';
         }
 
-        const wonAmount = rewards[rewards.length - 1 - (randomSegmentIndex)];
+        const wonAmount = rewards[randomSegmentIndex];
         window.appState.balance += wonAmount;
         if (typeof updateWalletUI === 'function') updateWalletUI();
 
