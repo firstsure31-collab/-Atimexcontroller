@@ -302,19 +302,91 @@
                     <div class="text-3xl font-black text-emerald-400">৳ <span id="walletTabBalance">0.00</span></div>
                 </div>
 
+                <!-- Live Countdown Timer Box (Initially Hidden) -->
+  <div id="withdrawTimerBox" class="hidden bg-slate-900 border border-amber-500/30 rounded-2xl p-3 text-center space-y-1 mb-3">
+    <div class="text-[11px] font-bold text-amber-400 flex items-center justify-center gap-1.5">
+      <i class="fa-solid fa-clock animate-spin"></i> Poroborti Withdraw-er Somoy Baki:
+    </div>
+    <div id="countdownDisplay" class="text-base font-black text-white tracking-wider">
+      23h 59m 59s
+    </div>
+    <div class="text-[9.5px] text-slate-400">
+      Protidin matro ১ bar withdraw korte parben. Somoy shes hole abar form chalu hobe.
+    </div>
+  </div>
+                
+                <!-- Withdrawal Charge List Info Box -->
+<div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
+  <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
+    <i class="fa-solid fa-triangle-exclamation"></i> উইথড্র এবং প্রসেসিং চার্জ তালিকা:
+  </div>
+  <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-300 font-medium">
+    <div>• ৳200 - ৳500 = ৳15 Charge</div>
+    <div>• ৳501 - ৳1000 = ৳25 Charge</div>
+    <div>• ৳1001 - ৳2000 = ৳40 Charge</div>
+    <div>• ৳2001 - ৳5000 = ৳75 Charge</div>
+    <div>• ৳5001 - ৳10000 = ৳120 Charge</div>
+    <div>• ৳10000+ = 2% Admin Fee</div>
+  </div>
+  <div class="text-[9.5px] text-amber-300/80 pt-1 border-t border-amber-500/20 italic">
+    * উইথড্র রিকোয়েস্ট দেওয়ার ১ থেকে ১২ ঘণ্টার মধ্যে টাকা অ্যাকাউন্টে পৌঁছে যাবে।
+  </div>
+</div>
+
                 <!-- Withdraw Request Form -->
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 space-y-4">
                     <h4 class="font-bold text-slate-100 text-sm">Withdraw Money (উইথড্র করুন)</h4>
                     
                     <div class="space-y-3">
-                        <div>
-                            <label class="text-xs text-slate-400 mb-1 block font-medium">Select Method</label>
-                            <select id="withdrawMethod" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
-                                <option value="bKash">bKash Personal</option>
-                                <option value="Nagod">Nagad Personal</option>
-                                <option value="Rocket">Rocket Personal</option>
-                            </select>
-                        </div>
+                        <!-- Withdraw Method Grid Selection -->
+<div class="space-y-2">
+  <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Select Withdrawal Method</label>
+  
+  <div class="grid grid-cols-2 gap-3">
+    <!-- bKash Withdraw Card -->
+    <button type="button" onclick="selectWithdrawMethod('bKash')" id="btnWbKash" class="withdraw-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <div class="bg-white h-12 flex items-center justify-center p-2">
+        <span class="text-pink-600 font-black text-lg italic tracking-tighter">bKash</span>
+      </div>
+      <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
+        <span class="text-[10px] font-bold text-slate-200">bKash Active</span>
+      </div>
+    </button>
+
+    <!-- Nagad Withdraw Card (Active) -->
+    <button type="button" onclick="selectWithdrawMethod('Nagad')" id="btnWNagad" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <div class="bg-white h-12 flex items-center justify-center p-2">
+        <span class="text-orange-600 font-black text-lg tracking-tight">নগদ</span>
+      </div>
+      <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
+        <span class="text-[10px] font-bold text-slate-200">Nagad Active</span>
+      </div>
+    </button>
+
+    <!-- Rocket Withdraw Card (Active) -->
+    <button type="button" onclick="selectWithdrawMethod('Rocket')" id="btnWRocket" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <div class="bg-white h-12 flex items-center justify-center p-2">
+        <div class="flex items-center gap-1 text-purple-700 font-black text-sm">
+          <i class="fa-solid fa-rocket text-xs"></i>
+          <span>Rocket</span>
+        </div>
+      </div>
+      <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
+        <span class="text-[10px] font-bold text-slate-200">Rocket Active</span>
+      </div>
+    </button>
+
+    <!-- VISA Withdraw Card -->
+    <button type="button" onclick="selectWithdrawMethod('VISA')" id="btnWVISA" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <div class="bg-white h-12 flex items-center justify-center p-2">
+        <span class="text-blue-700 font-black text-xl italic tracking-wider">VISA</span>
+      </div>
+      <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
+        <span class="text-[10px] font-bold text-slate-200">VISA Card</span>
+      </div>
+    </button>
+  </div>
+</div>
                         <div>
                             <label class="text-xs text-slate-400 mb-1 block font-medium">Account Number</label>
                             <input type="number" id="withdrawNum" placeholder="017XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
@@ -475,20 +547,20 @@
             </div>
         </div>
 
-<!-- 3. PREMIUM PAYMENT METHOD MODAL WITH LOGOS & STEP INSTRUCTIONS -->
+<!-- 3. ACCOUNT DEPOSITS GATEWAY MODAL (4 METHODS) -->
 <div id="paymentModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
   <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl relative max-h-[92vh] overflow-y-auto">
     
-    <!-- Header -->
+    <!-- Modal Header -->
     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-          <i class="fa-solid fa-shield-halved text-sm"></i>
-        </div>
-        <h3 class="text-sm font-bold text-white">Secure Gateway Deposit</h3>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white transition cursor-pointer">
+          <i class="fa-solid fa-arrow-left text-base"></i>
+        </button>
+        <h3 class="text-sm font-bold text-white">Account deposits</h3>
       </div>
-      <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white cursor-pointer p-1">
-        <i class="fa-solid fa-xmark text-lg"></i>
+      <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
+        <i class="fa-solid fa-rotate-right text-xs"></i>
       </button>
     </div>
 
@@ -507,35 +579,102 @@
       </div>
     </div>
 
-    <!-- Select Payment Method Logos -->
-    <div class="space-y-2">
-      <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">১. পেমেন্ট মেথড সিলেক্ট করুন:</label>
-      <div class="grid grid-cols-3 gap-2">
-        <!-- bKash Button -->
-        <button type="button" onclick="selectPaymentProvider('bKash', '01940779877')" id="btnBkash" class="pay-provider-btn active border-2 border-pink-500 bg-pink-500/10 rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 transition cursor-pointer">
-          <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-black text-xs shadow-md">
-            bK
+    <!-- 4 Payment Methods Grid (bKash, Nagad, Rocket, VISA) -->
+    <div class="space-y-3">
+      <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Select Deposit Method</label>
+      
+      <div class="grid grid-cols-2 gap-3">
+        <!-- bKash Card -->
+        <button type="button" onclick="selectPaymentProvider('bKash', '01940779877')" id="btnbKash" class="pay-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+          <span class="absolute top-1 right-1 bg-red-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">0% Commission</span>
+          <div class="bg-white h-14 flex items-center justify-center p-2">
+            <span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span>
           </div>
-          <span class="text-[11px] font-bold text-pink-400">bKash</span>
+          <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
+            <span class="text-[11px] font-bold text-slate-200">bKash Free</span>
+          </div>
         </button>
+               
+        <!-- Nagad Card with Animation Badge -->
+    <button type="button" onclick="selectPaymentProvider('Nagad', '01731567xxx')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
+      <div class="bg-white h-14 flex items-center justify-center p-2">
+        <span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span>
+      </div>
+      <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
+        <span class="text-[11px] font-bold text-slate-200">Maintenance</span>
+      </div>
+    </button>
 
-        <!-- Nagad Button -->
-        <button type="button" onclick="selectPaymentProvider('Nagad', '01731567454')" id="btnNagad" class="pay-provider-btn border-2 border-slate-800 bg-slate-800/60 hover:border-orange-500/50 rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 transition cursor-pointer">
-          <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-black text-xs shadow-md">
-            NG
-          </div>
-          <span class="text-[11px] font-bold text-slate-400 hover:text-orange-400">Nagad</span>
-        </button>
+    <!-- Rocket Card with Animation Badge -->
+    <button type="button" onclick="selectPaymentProvider('Rocket', '01731567xxx')" id="btnRocket" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+      <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
+      <div class="bg-white h-14 flex items-center justify-center p-2">
+        <div class="flex items-center gap-1 text-purple-700 font-black text-base">
+          <i class="fa-solid fa-rocket text-sm"></i>
+          <span>Rocket</span>
+        </div>
+      </div>
+      <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
+        <span class="text-[11px] font-bold text-slate-200">Coming Soon</span>
+      </div>
+    </button>
 
-        <!-- Rocket Button -->
-        <button type="button" onclick="selectPaymentProvider('Rocket', '01731567454')" id="btnRocket" class="pay-provider-btn border-2 border-slate-800 bg-slate-800/60 hover:border-purple-500/50 rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 transition cursor-pointer">
-          <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-black text-xs shadow-md">
-            RK
+                      <!-- VISA Card -->
+        <button type="button" onclick="selectPaymentProvider('VISA', '4840 6100 3163 4357')" id="btnVISA" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+          <div class="bg-white h-14 flex items-center justify-center p-2">
+            <span class="text-blue-700 font-black text-2xl italic tracking-wider">VISA</span>
           </div>
-          <span class="text-[11px] font-bold text-slate-400 hover:text-purple-400">Rocket</span>
+          <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
+            <span class="text-[11px] font-bold text-slate-200">VISA / Card</span>
+          </div>
         </button>
       </div>
     </div>
+
+    <!-- Active Selected Number Box -->
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex justify-between items-center shadow-inner">
+      <div class="space-y-0.5">
+        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide" id="selectedProviderLabel">bKash Account / Details</div>
+        <div class="text-sm font-black text-emerald-400 font-mono select-all" id="selectedProviderNum">01940779877</div>
+      </div>
+      <button type="button" onclick="copyDepositNumber()" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer">
+        <i class="fa-regular fa-copy"></i> Copy
+      </button>
+    </div>
+
+    <!-- Instructions Box -->
+    <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-3 space-y-2 text-[11px] text-slate-300">
+      <div class="font-bold text-slate-200 border-b border-slate-700/60 pb-1 flex items-center gap-1.5">
+        <i class="fa-solid fa-list-ol text-emerald-400"></i> পেমেন্ট করার নিয়ম:
+      </div>
+      <ol class="space-y-1 list-decimal list-inside text-slate-400 leading-relaxed text-[10.5px]">
+        <li>উপরে নির্বাচিত নম্বরে বা কার্ডে নির্ধারিত টাকার পরিমাণ পেমেন্ট সম্পূর্ণ করুন।</li>
+        <li>পেমেন্ট শেষ হলে আপনার প্রদেয় অ্যাকাউন্ট নম্বর ও TrxID/Reference সাবমিট করুন।</li>
+        <li>তথ্য ঠিক থাকলে ২-৫ মিনিটের ভেতর একাউন্ট এক্টিভ হয়ে যাবে।</li>
+      </ol>
+    </div>
+
+    <!-- Input Form -->
+    <div class="space-y-3">
+      <div>
+        <label class="text-[11px] text-slate-400 mb-1 block font-medium" id="senderNumLabel">আপনার অ্যাকাউন্ট নম্বর (Sender Number)</label>
+        <input type="text" id="depositNum" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <div>
+        <label class="text-[11px] text-slate-400 mb-1 block font-medium">ট্রানজেকশন আইডি / রেফারেন্স (TrxID)</label>
+        <input type="text" id="depositTrx" placeholder="e.g. 9J8A7K2M" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <button type="button" onclick="handleActivationSubmit()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>VERIFY PAYMENT</span>
+      </button>
+    </div>
+
+  </div>
+</div>
 
     <!-- Active Selected Wallet Number Card -->
     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex justify-between items-center shadow-inner">
@@ -602,6 +741,11 @@
             selectedMethod: 'bKash'
         };
 
+        let activeGateway = {
+            method: 'bKash',
+            number: '01940779877'
+        };
+
         // Window load trigger
         window.onload = function() {
             // Show welcome popup initially
@@ -639,6 +783,67 @@
             document.getElementById('paymentModal').classList.add('hidden');
         }
 
+        // Payment Provider Selection & Dynamic UI Switcher
+function selectPaymentProvider(method, num) {
+        activeGateway.method = method;
+        activeGateway.number = num;
+
+        // Reset all buttons border and active states
+        const btns = document.querySelectorAll('.pay-provider-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500');
+            btn.classList.add('border-slate-700');
+        });
+
+        // Highlight selected button
+        const targetBtn = document.getElementById('btn' + method);
+        if(targetBtn) {
+            targetBtn.classList.remove('border-slate-700');
+            if(method === 'bKash') targetBtn.classList.add('border-pink-500');
+            if(method === 'Nagad') targetBtn.classList.add('border-orange-500');
+            if(method === 'Rocket') targetBtn.classList.add('border-purple-500');
+            if(method === 'VISA') targetBtn.classList.add('border-blue-500');
+        }
+
+        // Update UI Text Labels dynamically based on selection
+        const labelElem = document.getElementById('selectedProviderLabel');
+        const numElem = document.getElementById('selectedProviderNum');
+        const senderLabel = document.getElementById('senderNumLabel');
+        const trxLabel = document.getElementById('trxLabel');
+        const depositNum = document.getElementById('depositNum');
+        const depositTrx = document.getElementById('depositTrx');
+
+        if(labelElem) labelElem.innerText = method + ' Account / Details';
+        if(numElem) numElem.innerText = num;
+        
+        // Dynamic Field Switching for VISA vs Mobile Banking
+        if(method === 'VISA') {
+            if(senderLabel) senderLabel.innerText = 'User Card Number (যে কার্ড থেকে টাকা পাঠিয়েছেন)';
+            if(depositNum) depositNum.value = ''; // User nijer card number likhbe
+            if(depositNum) depositNum.placeholder = '4111 XXXXXXXXXX XXXX';
+            
+            if(trxLabel) trxLabel.innerText = 'Expiry & CVV / Approval Code';
+            if(depositTrx) depositTrx.placeholder = 'MM/YY & CVV (e.g. 12/28 123)';
+        } else {
+            if(senderLabel) senderLabel.innerText = 'Apnar Account Number (Sender Number)';
+            if(depositNum) depositNum.value = '';
+            if(depositNum) depositNum.placeholder = '017XXXXXXXX';
+            
+            if(trxLabel) trxLabel.innerText = 'Transaction ID / Reference (TrxID)';
+            if(depositTrx) depositTrx.placeholder = 'e.g. 9J8A7K2M';
+        }
+    }
+        function copyDepositNumber() {
+            const num = activeGateway.number;
+            const tempInput = document.createElement('input');
+            tempInput.value = num;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast(activeGateway.method + ' number copied!');
+        }
+
         function handleActivationSubmit() {
             const num = document.getElementById('depositNum').value;
             const trx = document.getElementById('depositTrx').value;
@@ -649,7 +854,7 @@
             }
 
             closePaymentModal();
-            showToast('অ্যাক্টিভেশন রিকোয়েস্ট সফল হয়েছে!');
+            showToast('অ্যাক্টিভেশন রিকোয়েস্ট সফল হয়েছে!');
 
             setTimeout(() => {
                 activateAccount();
@@ -742,43 +947,95 @@
             document.getElementById('taskCountVal').innerText = appState.completedTasks;
         }
 
-        function handleWithdraw() {
-            const num = document.getElementById('withdrawNum').value;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+function handleWithdraw() {
+        const num = document.getElementById('withdrawNum').value;
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        
+        // 1. Daily Limit Check (Din-e 1 bar limit)
+        const todayStr = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const lastWithdrawDate = localStorage.getItem('lastWithdrawDate');
 
-            if(!num || isNaN(amount)) {
-                showToast('সঠিক নম্বর এবং পরিমাণ লিখুন!');
-                return;
-            }
-
-            if(amount < 100) {
-                showToast('সর্বনিম্ন উইথড্র ৳১০০!');
-                return;
-            }
-
-            if(amount > appState.balance) {
-                showToast('পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
-
-            appState.balance -= amount;
-            updateBalanceDisplays();
-            showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
+        if (lastWithdrawDate === todayStr) {
+            showToast('আজকে ইতিমধ্যে ১ বার উইথড্র করেছেন। ২৪ ঘণ্টা পর আবার চেষ্টা করুন!');
+            return;
         }
 
+        // 2. Validation Checks
+        if (!num || isNaN(amount)) {
+            showToast('সঠিক নম্বর এবং পরিমাণ লিখুন!');
+            return;
+        }
+
+        if (amount < 100) {
+            showToast('সর্বনিম্ন উইথড্র ১০০ টাকা!');
+            return;
+        }
+
+        if (amount > appState.balance) {
+            showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
+            return;
+        }
+
+        // 3. Process Withdrawal & Save Today's Date
+        appState.balance -= amount;
+        updateBalanceDisplays();
+        
+        // Save today's date in local storage
+        localStorage.setItem('lastWithdrawDate', todayStr);
+
+        showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
+        
+        // Clear Form Inputs
+        document.getElementById('withdrawNum').value = '';
+        document.getElementById('withdrawAmount').value = '';
+    }
+        let activeWithdrawMethod = 'bKash';
+
+function selectWithdrawMethod(method) {
+    activeWithdrawMethod = method;
+    
+    // Reset borders
+    const btns = document.querySelectorAll('.withdraw-provider-btn');
+    btns.forEach(btn => {
+        btn.classList.remove('border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500');
+        btn.classList.add('border-slate-700');
+    });
+
+    // Highlight selected
+    const target = document.getElementById('btnW' + method);
+    if(target) {
+        target.classList.remove('border-slate-700');
+        if(method === 'bKash') target.classList.add('border-pink-500');
+        if(method === 'Nagad') target.classList.add('border-orange-500');
+        if(method === 'Rocket') target.classList.add('border-purple-500');
+        if(method === 'VISA') target.classList.add('border-blue-500');
+    }
+}
         function logout() {
             appState.isLoggedIn = false;
             document.getElementById('authModal').classList.remove('hidden');
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
-        }
+function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    
+    if(!toast || !toastMsg) return;
+
+    toastMsg.innerText = msg;
+    
+    // Error hole Lal (Red), Success hole Sobuj (Green) dekhabe
+    if (isError) {
+        toast.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50 transition-all duration-300";
+    } else {
+        toast.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50 transition-all duration-300";
+    }
+
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
 
         // Auto Dismiss Welcome Animation
         document.addEventListener("DOMContentLoaded", function () {
