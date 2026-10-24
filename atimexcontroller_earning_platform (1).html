@@ -428,20 +428,66 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Secret Admin Modal Popup -->
+<div id="adminModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-user-shield text-amber-400 text-base"></i>
+        <h3 class="text-xs font-bold text-white">Admin Control Panel</h3>
+      </div>
+      <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+    </div>
 
+    <!-- Tabs inside Admin Modal -->
+    <div class="flex gap-2 border-b border-slate-800 pb-2 text-[11px]">
+      <button onclick="switchAdminTab('pending')" id="tabBtnPending" class="flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition">Pending Deposits</button>
+      <button onclick="switchAdminTab('history')" id="tabBtnHistory" class="flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition">Live Activity Log</button>
+    </div>
+
+    <!-- Tab 1: Pending Deposits -->
+    <div id="adminTabPending" class="space-y-3">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span>Pending Requests:</span>
+        <span id="pendingBadge" class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-black">0</span>
+      </div>
+      <div id="adminPendingList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+        <!-- JS Auto Render -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Live Activity / User History -->
+    <div id="adminTabHistory" class="hidden space-y-3">
+      <div class="text-[11px] text-slate-400">Website Realtime Event Log:</div>
+      <div id="adminActivityList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+        <!-- JS Auto Render -->
+      </div>
+    </div>
+
+    <button onclick="logoutAdmin()" class="w-full bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white font-bold py-1.5 rounded-xl transition text-xs">
+      Exit Admin Panel
+    </button>
+  </div>
+</div>
             <!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content hidden space-y-4">
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-5 text-center space-y-2">
-                    <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
-                    <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
-                </div>
+               <div class="relative bg-slate-800/60 border border-slate-800 rounded-2xl p-5 text-center space-y-2">
+      <button onclick="openAdminModal()" class="absolute top-3 right-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
+        <i class="fa-solid fa-lock text-[9px]"></i> Admin
+      </button>
+      <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
+      <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
+    </div>
 
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
                     <a href="https://t.me/Atimex" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
-                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @Atimex</span>
+                        <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @Atimex999</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </a>
                     <div onclick="alert('Support Hotline: 01714553550')" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 cursor-pointer transition">
@@ -463,17 +509,17 @@
                         <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
                       </button>
 
-                      <button onclick="alert('Referral link copied!')" class="w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
-                        <div class="flex items-center space-x-3">
-                          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                            <i class="fas fa-user-plus text-sm"></i>
-                          </div>
-                          <div class="text-left">
-                            <h4 class="text-white text-xs font-semibold">Refer & Earn</h4>
-                          </div>
-                        </div>
-                        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">+10% Bonus</span>
-                      </button>
+                      <button onclick="openReferModal()" class="w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
+  <div class="flex items-center space-x-3">
+    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+      <i class="fas fa-user-plus text-sm"></i>
+    </div>
+    <div class="text-left">
+      <h4 class="text-white text-xs font-semibold">Refer & Earn</h4>
+    </div>
+  </div>
+  <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">৳50/Refer</span>
+</button>
                     </div>
 
                     <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
@@ -482,6 +528,68 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Mandatory Share & Refer Modal Popup -->
+<div id="referModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl text-xs text-slate-200">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-share-nodes text-emerald-400 text-base"></i>
+        <h3 class="font-bold text-white">Refer & Share Task</h3>
+      </div>
+      <button onclick="closeReferModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <!-- Share & Copy Box -->
+    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3 text-center">
+      <div class="text-slate-400 text-[11px]">Share your referral link to unlock task bonus</div>
+      
+      <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-2 rounded-lg">
+        <input type="text" id="referLinkInput" readonly value="https://atimex.com/register?ref=01322668498" class="bg-transparent text-[11px] text-emerald-400 w-full outline-none font-mono">
+        <button onclick="copyReferLink()" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md text-[10px] font-bold transition">Copy</button>
+      </div>
+
+      <!-- Mandatory Share Button -->
+      <button onclick="executeShareTask()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-600/20">
+        <i class="fa-solid fa-paper-plane"></i> Share Now To Complete
+      </button>
+    </div>
+
+    <!-- Task Status Alert -->
+    <div id="shareStatusAlert" class="bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-[10.5px] text-center">
+      ⚠️ Share completing mandatory before referral registration credit.
+    </div>
+
+    <!-- Bonus Tiers -->
+    <div class="space-y-1.5">
+      <div class="font-bold text-slate-300">Bonus Rules & Tiers:</div>
+      <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1 text-[10.5px]">
+        <div class="flex justify-between"><span>Per Successful Refer:</span> <span class="text-emerald-400 font-bold">৳50</span></div>
+        <div class="flex justify-between"><span>5 Refers (1 Day):</span> <span class="text-amber-400 font-bold">৳250 + ৳100 = ৳350</span></div>
+        <div class="flex justify-between"><span>10 Refers (1 Day):</span> <span class="text-amber-400 font-bold">৳500 + ৳250 = ৳750</span></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-around text-center">
+      <div>
+        <div class="text-[10px] text-slate-400">Total Refers</div>
+        <div id="totalRefersCount" class="text-xs font-bold text-white">0</div>
+      </div>
+      <div class="border-r border-slate-800"></div>
+      <div>
+        <div class="text-[10px] text-slate-400">Refer Earning</div>
+        <div id="totalReferEarnings" class="text-xs font-bold text-emerald-400">৳0</div>
+      </div>
+    </div>
+
+    <button onclick="closeReferModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl transition text-xs">
+      Close
+    </button>
+  </div>
+</div>
 
         </main>
 
@@ -676,50 +784,6 @@
   </div>
 </div>
 
-    <!-- Active Selected Wallet Number Card -->
-    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex justify-between items-center shadow-inner">
-      <div class="space-y-0.5">
-        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide" id="selectedProviderLabel">bKash (Personal) Number</div>
-        <div class="text-sm font-black text-emerald-400 font-mono select-all" id="selectedProviderNum">01940779877</div>
-      </div>
-      <button onclick="copyDepositNumber()" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer">
-        <i class="fa-regular fa-copy"></i> Copy
-      </button>
-    </div>
-
-    <!-- Step Instructions Box -->
-    <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-3 space-y-2 text-[11px] text-slate-300">
-      <div class="font-bold text-slate-200 border-b border-slate-700/60 pb-1 flex items-center gap-1.5">
-        <i class="fa-solid fa-list-ol text-emerald-400"></i> ২. কিভাবে পেমেন্ট করবেন (Instructions):
-      </div>
-      <ol class="space-y-1 list-decimal list-inside text-slate-400 leading-relaxed text-[10.5px]">
-        <li>উপরে দেখানো নম্বরে নির্বাচিত প্যাকেজের মূল টাকা + নির্দিষ্ট চার্জসহ Send Money / Cash In করুন।</li>
-        <li>পেমেন্ট সম্পন্ন হওয়ার পর আপনার নম্বর ও TrxID লিখে সাবমিট করুন।</li>
-        <li>সঠিক তথ্য দিলে ২-৫ মিনিটের মধ্যে স্বয়ংক্রিয়ভাবে অ্যাকাউন্ট অ্যাক্টিভ হবে।</li>
-      </ol>
-    </div>
-
-    <!-- Form Input Box -->
-    <div class="space-y-3">
-      <div>
-        <label class="text-[11px] text-slate-400 mb-1 block font-medium">আপনার প্রেরক অ্যাকাউন্ট নম্বর (Your Number)</label>
-        <input type="number" id="depositNum" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <div>
-        <label class="text-[11px] text-slate-400 mb-1 block font-medium">ট্রানজেকশন আইডি (TrxID)</label>
-        <input type="text" id="depositTrx" placeholder="e.g. 9J8A7K2M" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <button onclick="handleActivationSubmit()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
-        <i class="fa-solid fa-circle-check"></i>
-        <span>VERIFY PAYMENT</span>
-      </button>
-    </div>
-
-  </div>
-</div>
-
         <!-- 5. MESSAGE NOTIFICATION TOAST -->
         <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2">
             <i class="fa-solid fa-circle-check"></i>
@@ -730,7 +794,70 @@
 
     <!-- JavaScript Application State & Logic -->
     <script>
-        // State variables
+        let isReferShared = false;
+
+function openReferModal() {
+    document.getElementById('referModal').classList.remove('hidden');
+}
+
+function closeReferModal() {
+    document.getElementById('referModal').classList.add('hidden');
+}
+
+function copyReferLink() {
+    const input = document.getElementById('referLinkInput');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value);
+    showToast('Referral link copied!');
+}
+
+// Mandatory Share Task Function
+async function executeShareTask() {
+    const shareLink = document.getElementById('referLinkInput').value;
+    const shareText = "Atimex Platform-e Join korun ebong protidin earning korun! Amar Refer Link:";
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Join Atimex Platform',
+                text: shareText,
+                url: shareLink
+            });
+            
+            // User share successful
+            isReferShared = true;
+            updateShareStatusUI(true);
+            showToast('Task Completed! Share success verified.');
+            
+            if (typeof logActivity === 'function') {
+                logActivity('Refer Share Task', 'User successfully shared referral link.');
+            }
+        } catch (err) {
+            // User cancelled share dialog
+            showToast('Share kora hoyni! Task complete korte share korun.', true);
+        }
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(`${shareText} ${shareLink}`);
+        isReferShared = true;
+        updateShareStatusUI(true);
+        showToast('Referral link and text copied to clipboard! Share on social media.');
+    }
+}
+
+function updateShareStatusUI(completed) {
+    const statusAlert = document.getElementById('shareStatusAlert');
+    if (!statusAlert) return;
+
+    if (completed) {
+        statusAlert.className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-2.5 rounded-xl text-[10.5px] text-center font-bold";
+        statusAlert.innerHTML = "✅ Share Task Completed Successfully!";
+    } else {
+        statusAlert.className = "bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-[10.5px] text-center";
+        statusAlert.innerHTML = "⚠️ Share completing mandatory before referral registration credit.";
+    }
+}
         let appState = {
             isLoggedIn: false,
             userPhone: '01714553550',
@@ -1038,6 +1165,7 @@ function showToast(msg, isError = false) {
 }
 
         // Auto Dismiss Welcome Animation
+   // Auto Dismiss Welcome Animation & Initial Load Handlers
         document.addEventListener("DOMContentLoaded", function () {
           setTimeout(function () {
             const intro = document.getElementById("welcomeIntro");
@@ -1046,7 +1174,232 @@ function showToast(msg, isError = false) {
               setTimeout(() => { intro.style.display = "none"; }, 800);
             }
           }, 2200);
+
+          // Page load er sathe pending deposit & withdraw cooldown load korbe
+          if (typeof renderAdminPendingDeposits === 'function') {
+            renderAdminPendingDeposits();
+          }
+          if (typeof checkWithdrawCooldown === 'function') {
+            checkWithdrawCooldown();
+          }
         });
+// let এর পরিবর্তে window ব্যবহার করুন, এতে ডুপ্লিকেট ডিক্লেয়ারেশনের এরর আর আসবে না
+window.pendingDeposits = window.pendingDeposits || JSON.parse(localStorage.getItem('pendingDeposits')) || [];
+
+    // Admin Password & Storage Variables
+const SECRET_ADMIN_PIN = "990969"; // Ekhane apnar pochondo moto password dite paren
+window.pendingDeposits = window.pendingDeposits || JSON.parse(localStorage.getItem('pendingDeposits')) || [];
+let systemLogs = JSON.parse(localStorage.getItem('systemLogs')) || [];
+let isAdminAuthenticated = false;
+
+// Activity Log Helper
+function logActivity(title, desc) {
+    systemLogs.unshift({
+        title: title,
+        desc: desc,
+        time: new Date().toLocaleTimeString('bn-BD')
+    });
+    localStorage.setItem('systemLogs', JSON.stringify(systemLogs));
+}
+
+// 1. Open Admin Modal with PIN
+function openAdminModal() {
+    if (!isAdminAuthenticated) {
+        const enteredPin = prompt("Admin Panel-e probesh korar jonno Secret Password din:");
+        if (!enteredPin) return;
+
+        if (enteredPin === SECRET_ADMIN_PIN) {
+            isAdminAuthenticated = true;
+            showToast('Admin panel-e welcome!');
+        } else {
+            showToast('Bhul Password! Access denied.', true);
+            return;
+        }
+    }
+    
+    document.getElementById('adminModal').classList.remove('hidden');
+    renderAdminPendingDeposits();
+    renderAdminActivityLogs();
+}
+
+function closeAdminModal() {
+    document.getElementById('adminModal').classList.add('hidden');
+}
+
+function logoutAdmin() {
+    isAdminAuthenticated = false;
+    closeAdminModal();
+    showToast('Admin panel theke exit hoyeche.');
+}
+
+// 2. Admin Tab Switching
+function switchAdminTab(tab) {
+    const tabPending = document.getElementById('adminTabPending');
+    const tabHistory = document.getElementById('adminTabHistory');
+    const btnPending = document.getElementById('tabBtnPending');
+    const btnHistory = document.getElementById('tabBtnHistory');
+
+    if (tab === 'pending') {
+        tabPending.classList.remove('hidden');
+        tabHistory.classList.add('hidden');
+        btnPending.className = "flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition";
+        btnHistory.className = "flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition";
+    } else {
+        tabPending.classList.add('hidden');
+        tabHistory.classList.remove('hidden');
+        btnHistory.className = "flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition";
+        btnPending.className = "flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition";
+    }
+}
+
+// 3. Render Pending Requests
+function renderAdminPendingDeposits() {
+    const listContainer = document.getElementById('adminPendingList');
+    const badge = document.getElementById('pendingBadge');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+    const pendingList = window.pendingDeposits.filter(req => req.status === 'Pending');
+
+    if (badge) badge.innerText = pendingList.length;
+
+    if (pendingList.length === 0) {
+        listContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Kono pending deposit request nei.</div>';
+        return;
+    }
+
+    pendingList.forEach(req => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-200 space-y-1.5";
+        card.innerHTML = `
+            <div class="flex justify-between font-bold text-amber-400">
+                <span>${req.method} Deposit</span>
+                <span>৳${req.amount}</span>
+            </div>
+            <div class="text-[11px] text-slate-300">
+                <div><b>TrxID:</b> <span class="text-emerald-400 font-mono select-all">${req.trxId}</span></div>
+                <div><b>Sender:</b> ${req.userNum || 'N/A'}</div>
+                <div class="text-[9.5px] text-slate-500">${req.date}</div>
+            </div>
+            <div class="flex gap-2 pt-1">
+                <button onclick="approveDeposit('${req.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1 rounded-lg transition text-[11px]">Approve</button>
+                <button onclick="rejectDeposit('${req.id}')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-1 rounded-lg transition text-[11px]">Reject</button>
+            </div>
+        `;
+        listContainer.appendChild(card);
+    });
+}
+
+// 4. Render System Activity Logs
+function renderAdminActivityLogs() {
+    const container = document.getElementById('adminActivityList');
+    if (!container) return;
+
+    container.innerHTML = '';
+    if (systemLogs.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Kono history nei.</div>';
+        return;
+    }
+
+    systemLogs.forEach(log => {
+        const item = document.createElement('div');
+        item.className = "bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-0.5";
+        item.innerHTML = `
+            <div class="flex justify-between font-bold text-slate-200">
+                <span>${log.title}</span>
+                <span class="text-[9.5px] font-normal text-slate-500">${log.time}</span>
+            </div>
+            <div class="text-slate-400 text-[10.5px]">${log.desc}</div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// 5. Handle Deposit Request
+function handleDeposit() {
+    const amountInput = document.getElementById('depositAmount');
+    const trxIdInput = document.getElementById('depositTrxId');
+    const numInput = document.getElementById('depositNum');
+
+    const amount = amountInput ? parseFloat(amountInput.value) : 0;
+    const trxId = trxIdInput ? trxIdInput.value.trim() : '';
+    const num = numInput ? numInput.value.trim() : '';
+
+    if (isNaN(amount) || amount < 100) {
+        showToast('Sorbonimo deposit 100 Taka!', true);
+        return;
+    }
+
+    if (!trxId || trxId.length < 8) {
+        showToast('Sothik TrxID din!', true);
+        return;
+    }
+
+    const depositRequest = {
+        id: 'DEP-' + Date.now(),
+        method: typeof activeDepositMethod !== 'undefined' ? activeDepositMethod : 'bKash',
+        amount: amount,
+        trxId: trxId,
+        userNum: num,
+        date: new Date().toLocaleString('bn-BD'),
+        status: 'Pending'
+    };
+
+    window.pendingDeposits.push(depositRequest);
+    localStorage.setItem('pendingDeposits', JSON.stringify(window.pendingDeposits));
+
+    logActivity('Deposit Request Received', `User requested ৳${amount} (${trxId})`);
+
+    showToast('Deposit request pending ache! Admin verify korbe.');
+
+    if(trxIdInput) trxIdInput.value = '';
+    if(amountInput) amountInput.value = '';
+    if(numInput) numInput.value = '';
+
+    if (isAdminAuthenticated) {
+        renderAdminPendingDeposits();
+        renderAdminActivityLogs();
+    }
+}
+
+// 6. Approve Deposit
+function approveDeposit(reqId) {
+    if (!isAdminAuthenticated) return;
+
+    const reqIndex = window.pendingDeposits.findIndex(r => r.id === reqId);
+    if (reqIndex !== -1) {
+        const req = window.pendingDeposits[reqIndex];
+        appState.balance += req.amount;
+        updateBalanceDisplays();
+
+        window.pendingDeposits[reqIndex].status = 'Approved';
+        localStorage.setItem('pendingDeposits', JSON.stringify(window.pendingDeposits));
+
+        logActivity('Deposit Approved', `Approved ৳${req.amount} for TrxID: ${req.trxId}`);
+
+        showToast(`৳${req.amount} deposit approve hoyeche!`);
+        renderAdminPendingDeposits();
+        renderAdminActivityLogs();
+    }
+}
+
+// 7. Reject Deposit
+function rejectDeposit(reqId) {
+    if (!isAdminAuthenticated) return;
+
+    const reqIndex = window.pendingDeposits.findIndex(r => r.id === reqId);
+    if (reqIndex !== -1) {
+        const req = window.pendingDeposits[reqIndex];
+        window.pendingDeposits[reqIndex].status = 'Rejected';
+        localStorage.setItem('pendingDeposits', JSON.stringify(window.pendingDeposits));
+
+        logActivity('Deposit Rejected', `Rejected TrxID: ${req.trxId}`);
+
+        showToast('Deposit request reject kora hoyeche!', true);
+        renderAdminPendingDeposits();
+        renderAdminActivityLogs();
+    }
+}
     </script>
 </body>
 </html>
