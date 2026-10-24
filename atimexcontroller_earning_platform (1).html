@@ -236,30 +236,88 @@
                 </div>
                 <span class="bg-slate-950 text-amber-400 text-[10px] font-bold px-3 py-1.5 rounded-xl shadow">PLAY</span>
             </div>
-                <!-- Popular Packages Preview -->
-                <div class="space-y-3 pt-2">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-sm text-slate-200">Active Packages</h4>
-                        <span class="text-xs text-emerald-400 font-semibold cursor-pointer" onclick="switchTab('tabServer')">View All</span>
-                    </div>
+                <!-- VIP Investment Packages Section -->
+    <div class="space-y-3 pt-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center shadow-lg">
+            <h2 class="text-sm font-bold text-amber-400">VIP Investment Packages</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">প্যাকেজ ক্রয় করে ডেইলি ইনকাম বৃদ্ধি করুন।</p>
+        </div>
 
-                    <!-- Starter Package Card -->
-                    <div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-4 flex justify-between items-center shadow-sm">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-100 text-sm">Starter Plan</span>
-                                <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase">Basic</span>
-                            </div>
-                            <div class="text-xs text-slate-400">Daily 2 Ads | ৳20 Daily Earning</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm font-black text-emerald-400">৳ 100</div>
-                            <button onclick="openPaymentModal()" class="mt-1 px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition cursor-pointer">Buy</button>
-                        </div>
-                    </div>
+        <!-- Package 1: 300 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Starter VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৩০০</p>
                 </div>
-
+                <button onclick="handlePackageBuy(300)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
             </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন = ৬০ টাকা</p>
+                <p>• মোট রিটার্ন: ৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৩০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 2: 500 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Standard VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৫০০</p>
+                </div>
+                <button onclick="handlePackageBuy(500)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৪০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ১২০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৭০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 3: 800 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Advanced VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৮০০</p>
+                </div>
+                <button onclick="handlePackageBuy(800)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৯০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 4: 1000 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Super VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳১০০০</p>
+                </div>
+                <button onclick="handlePackageBuy(1000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন (বা নির্দিষ্ট)</p>
+                <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
+            </div>
+        </div>
+
+        <!-- Package 5: 2000 Taka -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-white">Mega VIP Plan</h3>
+                    <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳২০০০</p>
+                </div>
+                <button onclick="handlePackageBuy(2000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
+            </div>
+            <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
+                <p>• ডেইলি ইনকাম: ১২০ টাকা × ৩০ দিন</p>
+                <p>• মোট রিটার্ন: ৩৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১৬০০</span></p>
+            </div>
+        </div>
+    </div>
 
             <!-- 2. TASKS TAB -->
             <div id="tabTasks" class="tab-content hidden space-y-4">
@@ -1665,12 +1723,34 @@ window.appState = window.appState || {
 let isSpinning = false;
 let currentDegree = 0;
 
+// Spin Modal Functions
 function openSpinModal() {
     const modal = document.getElementById('spinModal');
     if (modal) {
         modal.classList.remove('hidden');
-        ();
+        updateSpinUI();
     }
+}
+
+function closeSpinModal() {
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Package Buy Handler
+function handlePackageBuy(price) {
+    if (typeof showToast === 'function') {
+        showToast(`৳${price} takar package kinte porjapto deposit korun. Walete neoya hocche...`, true);
+    }
+    setTimeout(() => {
+        if (typeof openPaymentModal === 'function') {
+            openPaymentModal();
+        } else if (typeof switchTab === 'function') {
+            switchTab('wallet');
+        }
+    }, 1000);
 }
 
 function closeSpinModal() {
