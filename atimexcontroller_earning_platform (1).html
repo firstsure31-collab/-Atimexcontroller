@@ -890,7 +890,7 @@ function updateShareStatusUI(completed) {
     const phone = document.getElementById('authPhone').value.trim();
     const pass = document.getElementById('authPass').value.trim();
 
-    // 1. Strict 11-digit Bangladeshi Phone Validation (01 diye shuru hote hobe)
+    // 1. Strict 11-digit Bangladeshi Phone Validation
     const phoneRegex = /^01[3-9]\d{8}$/;
     if (!phoneRegex.test(phone)) {
         showToast('Sothik 11-digit mobile number din (e.g. 017XXXXXXXX)!', true);
@@ -902,21 +902,24 @@ function updateShareStatusUI(completed) {
         return;
     }
 
-    // 2. LocalStorage-e user check & password verification
+    // 2. Fetch existing user
     let savedUser = JSON.parse(localStorage.getItem('user_' + phone));
 
     if (savedUser) {
-        // User-er original password-er sathe match na korle login block hobe
+        // Jodi ager account-e password set thake ebong password na mel-e
         if (savedUser.password && savedUser.password !== pass) {
-            showToast('Bhul Password! Sothik password diye login korun.', true);
+            showToast('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিয়ে লগইন করুন।', true);
             return;
         }
         
-        // Sothik password hole ager saved balance & tasks load hobe
+        // Sothik password hole data load hobe
         appState = savedUser;
+        // Password na thakle ekhon set kore dewa hocche
+        appState.password = pass;
+        localStorage.setItem('user_' + phone, JSON.stringify(appState));
         showToast('Login successful!');
     } else {
-        // New user hole Phone + Password shoho save hobe
+        // Notun account toiri
         appState.isLoggedIn = true;
         appState.userPhone = phone;
         appState.password = pass;
@@ -925,6 +928,10 @@ function updateShareStatusUI(completed) {
         showToast('New Account Created & Logged In!');
     }
 
+    // 3. Admin Live Activity Log-e History Add Kora
+    if (typeof logActivity === 'function') {
+        logActivity('User Login', `Phone: ${phone} logged in successfully`);
+    }
     // UI Refresh & Modal Close
     const profilePhoneElem = document.getElementById('profilePhone');
     if (profilePhoneElem) profilePhoneElem.innerText = phone;
