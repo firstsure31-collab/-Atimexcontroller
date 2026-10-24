@@ -1599,7 +1599,7 @@ function openSpinModal() {
     const modal = document.getElementById('spinModal');
     if (modal) {
         modal.classList.remove('hidden');
-        updateSpinUI();
+        ();
     }
 }
 
@@ -1611,7 +1611,7 @@ function closeSpinModal() {
 function updateSpinUI() {
     const textEl = document.getElementById('spinsLeftText');
     if (textEl) {
-        textEl.innerText = `Spins Left: ${window.appState.spinsLeft} / Daily Bought: ${window.appState.todaySpinsBought}/2`;
+        textEl.innerText = `Spins Left: ${window.appState.spinsLeft}`;
     }
 }
 
