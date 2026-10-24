@@ -887,21 +887,45 @@ function updateShareStatusUI(completed) {
         }
 
         function handleAuthSubmit() {
-            const phone = document.getElementById('authPhone').value;
-            const pass = document.getElementById('authPass').value;
+    const phone = document.getElementById('authPhone').value.trim();
+    const pass = document.getElementById('authPass').value.trim();
 
-            if(!phone || !pass) {
-                showToast('Please enter both Phone & Password!');
-                return;
-            }
+    // ১. Strict 11-digit Bangladeshi Phone Validation (01 দিয়ে শুরু হতে হবে)
+    const phoneRegex = /^01[3-9]\d{8}$/;
+    if (!phoneRegex.test(phone)) {
+        showToast('Sothik 11-digit mobile number din (e.g. 017XXXXXXXX)!', true);
+        return;
+    }
 
-            appState.isLoggedIn = true;
-            appState.userPhone = phone;
-            document.getElementById('profilePhone').innerText = phone;
-            document.getElementById('authModal').classList.add('hidden');
-            showToast('Login successful!');
-        }
+    if (!pass) {
+        showToast('Password din!', true);
+        return;
+    }
 
+    // ২. User Account Data Retention (Phone Number base-e)
+    let savedUser = JSON.parse(localStorage.getItem('user_' + phone));
+
+    if (savedUser) {
+        // আগের অ্যাকাউন্টের ব্যালেন্স ও ডাটা লোড হবে (টাকা রিসেট হবে না)
+        appState = savedUser;
+        showToast('Login successful!');
+    } else {
+        // নতুন অ্যাকাউন্ট সেভ হবে
+        appState.isLoggedIn = true;
+        appState.userPhone = phone;
+        localStorage.setItem('user_' + phone, JSON.stringify(appState));
+        showToast('New Account Created & Logged In!');
+    }
+
+    // UI আপডেট ও মডেল হাইড
+    const profilePhoneElem = document.getElementById('profilePhone');
+    if (profilePhoneElem) profilePhoneElem.innerText = phone;
+    
+    document.getElementById('authModal').classList.add('hidden');
+    
+    // UI Refresh (যদি ফাংশন থাকে)
+    if (typeof updateDashboardUI === 'function') updateDashboardUI();
+}
         function openPaymentModal() {
             document.getElementById('paymentModal').classList.remove('hidden');
         }
