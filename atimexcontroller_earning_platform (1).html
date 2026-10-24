@@ -1615,16 +1615,21 @@ function updateSpinUI() {
     }
 }
 
-function buyCustomPackage(price, spinCount) {
+function buyCustomPackage(price, spinCount, type = '') {
+    // ৫০ টাকার স্টার্টার প্যাকেজটি ইতোমধ্যে কিনেছে কিনা তা চেক করা হচ্ছে
+    if (type === 'starter' && window.appState.hasBoughtStarter) {
+        if (typeof showToast === 'function') {
+            showToast('আপনি এই ৳৫০ টাকার স্টার্টার অফারটি জীবনে মাত্র একবারই কিনতে পারবেন!', true);
+        }
+        return;
+    }
+
+    // পর্যাপ্ত ব্যালেন্স আছে কিনা চেক করা
     if (window.appState.balance < price) {
         if (typeof showToast === 'function') {
             showToast('পর্যাপ্ত ব্যালেন্স নেই! ডিপোজিট সেকশনে নিয়ে যাওয়া হচ্ছে...', true);
         }
-
-        // স্পিন মোডাল বন্ধ করা
         closeSpinModal();
-
-        // ১ সেকেন্ড পর ডিপোজিট/পেমেন্ট সেকশন ওপেন করা
         setTimeout(() => {
             if (typeof openPaymentModal === 'function') {
                 openPaymentModal();
@@ -1632,14 +1637,23 @@ function buyCustomPackage(price, spinCount) {
                 switchTab('wallet');
             }
         }, 1000);
-
         return;
     }
 
-    // পর্যাপ্ত ব্যালেন্স থাকলে স্পিন কেনা হবে
+    // ব্যালেন্স কাটা এবং স্পিন সংখ্যা যোগ করা
     window.appState.balance -= price;
     window.appState.spinsLeft += spinCount;
-    window.appState.todaySpinsBought += spinCount;
+
+    // স্টার্টার প্যাকেজ কেনা হলে তা মার্ক করা এবং বাটন ডিজেবল করা
+    if (type === 'starter') {
+        window.appState.hasBoughtStarter = true;
+        const starterBtn = document.getElementById('starterPackBtn');
+        if (starterBtn) {
+            starterBtn.disabled = true;
+            starterBtn.innerText = 'কেনা শেষ';
+            starterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
 
     updateSpinUI();
     if (typeof updateWalletUI === 'function') updateWalletUI();
@@ -1648,7 +1662,7 @@ function buyCustomPackage(price, spinCount) {
         showToast(`সফলভাবে ${spinCount}টি স্পিন কেনা হয়েছে!`);
     }
 }
-
+    
 function startSpin() {
     if (isSpinning) return;
 
