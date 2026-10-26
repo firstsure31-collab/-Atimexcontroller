@@ -900,6 +900,13 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+       function openAdminModal() {
+    // 'adminModal' holo tor admin modal-er ID (tui tor code anujayi ID name ta bosiye dibi)
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.classList.remove('hidden'); // Jodi Tailwind er hidden class thake
+    }
+}
         let isReferShared = false;
 
         function openReferModal() {
