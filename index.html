@@ -901,15 +901,7 @@
     <!-- JAVASCRIPT LOGIC -->
     <script>
       function switchAdminTab(tabName) {
-    console.log("Active tab name:", tabName);
-    
-    // Sob section guli khuje ber kore hidden kore dao
-    const pendingSec = document.getElementById('pendingSection');
-    const activitySec = document.getElementById('activitySection') || document.getElementById('historySection');
-    
-    if (pendingSec) pendingSec.classList.add('hidden');
-    
-    // Jekono ekta match korlei activity/history section khule jabe
+    const activitySec = document.getElementById('activitySection');
     if (activitySec) {
         activitySec.classList.remove('hidden');
     }
