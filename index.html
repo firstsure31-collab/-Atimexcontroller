@@ -913,6 +913,38 @@ function switchAdminTab(tabName) {
         activitySec.classList.remove('hidden');
     }
 }
+        function handleLogin(phoneNumber, password) {
+    // Check koro number ta age save ache kina
+    let savedUser = localStorage.getItem('user_' + phoneNumber);
+    
+    if (savedUser) {
+        let userData = JSON.parse(savedUser);
+        if (userData.password === password) {
+            // Sothik password hole login korbe
+            localStorage.setItem('currentLoggedInUser', phoneNumber);
+            showToast('Login successful!');
+        } else {
+            showToast(' ভুল পাস! (Wrong password)');
+        }
+    } else {
+        // Notun hole save kore dibe
+        let newUser = { phone: phoneNumber, password: password, progressData: {} };
+        localStorage.setItem('user_' + phoneNumber, JSON.stringify(newUser));
+        localStorage.setItem('currentLoggedInUser', phoneNumber);
+        showToast('Account created & logged in!');
+    }
+}
+        function saveUserProgress(key, value) {
+    let currentPhone = localStorage.getItem('currentLoggedInUser');
+    if (currentPhone) {
+        let savedUser = JSON.parse(localStorage.getItem('user_' + currentPhone)) || {};
+        savedUser.progressData = savedUser.progressData || {};
+        savedUser.progressData[key] = value;
+        
+        // Data update kore abar save kora
+        localStorage.setItem('user_' + currentPhone, JSON.stringify(savedUser));
+    }
+}
         let isReferShared = false;
 
         function openReferModal() {
@@ -1251,6 +1283,16 @@ function startSpin() {
             }
           }, 2200);
         });
+        window.onload = function() {
+    let currentPhone = localStorage.getItem('currentLoggedInUser');
+    if (currentPhone) {
+        let savedUser = JSON.parse(localStorage.getItem('user_' + currentPhone));
+        if (savedUser && savedUser.progressData) {
+            // Ekhane user er ager data guli website er field ba UI te bosiye dibi
+            console.log("Restored data for user:", currentPhone, savedUser.progressData);
+        }
+    }
+};
     </script>
 </body>
 </html>
