@@ -900,11 +900,18 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-       function openAdminModal() {
-    // 'adminModal' holo tor admin modal-er ID (tui tor code anujayi ID name ta bosiye dibi)
-    const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.classList.remove('hidden'); // Jodi Tailwind er hidden class thake
+      function switchAdminTab(tabName) {
+    console.log("Active tab name:", tabName);
+    
+    // Sob section guli khuje ber kore hidden kore dao
+    const pendingSec = document.getElementById('pendingSection');
+    const activitySec = document.getElementById('activitySection') || document.getElementById('historySection');
+    
+    if (pendingSec) pendingSec.classList.add('hidden');
+    
+    // Jekono ekta match korlei activity/history section khule jabe
+    if (activitySec) {
+        activitySec.classList.remove('hidden');
     }
 }
         let isReferShared = false;
