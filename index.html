@@ -902,63 +902,12 @@
     <script>
 function openAdminModal() {
     const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-    }
+    if (modal) modal.classList.remove('hidden');
 }
 
 function switchAdminTab(tabName) {
     const activitySec = document.getElementById('activitySection');
-    if (activitySec) {
-        activitySec.classList.remove('hidden');
-    }
-}
-
-function loginUser(phoneNumber, enteredPassword) {
-    let savedUser = localStorage.getItem('user_' + phoneNumber);
-    
-    if (!savedUser) {
-        showToast("Account not found! Please register first.", true);
-        return;
-    }
-
-    let userData = JSON.parse(savedUser);
-    
-    if (userData.password === enteredPassword) {
-        localStorage.setItem('currentLoggedInUser', phoneNumber);
-        showToast("Login successful!");
-    } else {
-        showToast("Incorrect password! Please try again.", true);
-    }
-}
-
-function registerUser(phoneNumber, password) {
-    let existingUser = localStorage.getItem('user_' + phoneNumber);
-    
-    if (existingUser) {
-        showToast("Account already exists with this number!", true);
-        return;
-    }
-
-    let newUser = {
-        phone: phoneNumber,
-        password: password,
-        progressData: {}
-    };
-
-    localStorage.setItem('user_' + phoneNumber, JSON.stringify(newUser));
-    localStorage.setItem('currentLoggedInUser', phoneNumber);
-    showToast("Account successfully created!");
-}
-
-function saveUserProgress(key, value) {
-    let currentPhone = localStorage.getItem('currentLoggedInUser');
-    if (currentPhone) {
-        let savedUser = JSON.parse(localStorage.getItem('user_' + currentPhone)) || {};
-        savedUser.progressData = savedUser.progressData || {};
-        savedUser.progressData[key] = value;
-        localStorage.setItem('user_' + currentPhone, JSON.stringify(savedUser));
-    }
+    if (activitySec) activitySec.classList.remove('hidden');
 }
 
 let isReferShared = false;
@@ -975,109 +924,163 @@ function copyReferLink() {
     const input = document.getElementById('referLinkInput');
     input.select();
     navigator.clipboard.writeText(input.value);
-    showToast('Referral link copied!');
+    showToast('রেফারেল লিঙ্ক কপি করা হয়েছে!');
 }
 
-        async function executeShareTask() {
-            const shareLink = document.getElementById('referLinkInput').value;
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: 'Join Atimex', text: 'Join Atimex!', url: shareLink });
-                    isReferShared = true;
-                    showToast('Task Completed!');
-                } catch (err) {
-                    showToast('Share kora hoyni!', true);
-                }
-            } else {
-                navigator.clipboard.writeText(shareLink);
-                isReferShared = true;
-                showToast('Link copied to clipboard!');
+async function executeShareTask() {
+    const shareLink = document.getElementById('referLinkInput').value;
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: 'Join Atimex', text: 'Join Atimex!', url: shareLink });
+            isReferShared = true;
+            showToast('টাস্ক সম্পন্ন হয়েছে!');
+        } catch (err) {
+            showToast('শেয়ার করা হয়নি!', true);
+        }
+    } else {
+        navigator.clipboard.writeText(shareLink);
+        isReferShared = true;
+        showToast('লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে!');
+    }
+}
+
+window.appState = window.appState || {
+    isLoggedIn: false,
+    userPhone: '',
+    isActive: false,
+    balance: 500,
+    totalEarned: 0.00,
+    completedTasks: 0,
+    selectedMethod: 'bKash',
+    spinsLeft: 0,
+    hasBoughtStarter: false
+};
+
+let activeGateway = { method: 'bKash', number: '01940779877' };
+
+// Page load hole session check korbe ebong data restore korbe
+window.onload = function() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    let currentPhone = localStorage.getItem('currentLoggedInUser');
+    
+    if (currentPhone) {
+        let savedUserJSON = localStorage.getItem('user_' + currentPhone);
+        if (savedUserJSON) {
+            let savedUser = JSON.parse(savedUserJSON);
+            
+            // Session and appState restore kora
+            window.appState.isLoggedIn = true;
+            window.appState.userPhone = currentPhone;
+            
+            if (savedUser.progressData) {
+                if (savedUser.progressData.balance !== undefined) window.appState.balance = savedUser.progressData.balance;
+                if (savedUser.progressData.totalEarned !== undefined) window.appState.totalEarned = savedUser.progressData.totalEarned;
+                if (savedUser.progressData.completedTasks !== undefined) window.appState.completedTasks = savedUser.progressData.completedTasks;
+                if (savedUser.progressData.isActive !== undefined) window.appState.isActive = savedUser.progressData.isActive;
+                if (savedUser.progressData.spinsLeft !== undefined) window.appState.spinsLeft = savedUser.progressData.spinsLeft;
+                if (savedUser.progressData.hasBoughtStarter !== undefined) window.appState.hasBoughtStarter = savedUser.progressData.hasBoughtStarter;
             }
-        }
-
-        window.appState = window.appState || {
-            isLoggedIn: false,
-            userPhone: '01714553550',
-            isActive: false,
-            balance: 500,
-            totalEarned: 0.00,
-            completedTasks: 0,
-            selectedMethod: 'bKash',
-            spinsLeft: 0,
-            hasBoughtStarter: false
-        };
-
-        let activeGateway = { method: 'bKash', number: '01940779877' };
-
-        window.onload = function() {
-            const welcomeModal = document.getElementById('welcomeModal');
-            if(welcomeModal) welcomeModal.classList.remove('hidden');
-        };
-
-        function closeWelcomeOpenAuth() {
-            document.getElementById('welcomeModal').classList.add('hidden');
-            document.getElementById('authModal').classList.remove('hidden');
-        }
-
-        function openSpinModal() {
-            const modal = document.getElementById('spinModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                updateSpinUI();
-            }
-        }
-
-        function closeSpinModal() {
-            const modal = document.getElementById('spinModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function updateSpinUI() {
-            const textEl = document.getElementById('spinsLeftText');
-            if (textEl) textEl.innerText = `Spins Left: ${window.appState.spinsLeft}`;
-        }
-
-        function handlePackageBuy(price) {
-            if (typeof showToast === 'function') {
-                showToast(`৳${price} takar package kinte porjapto deposit korun. Walete neoya hocche...`, true);
-            }
-            setTimeout(() => {
-                if (typeof openPaymentModal === 'function') {
-                    openPaymentModal();
-                } else if (typeof switchTab === 'function') {
-                    switchTab('tabWallet');
-                }
-            }, 1000);
-        }
-
-        function buyCustomPackage(price, spinCount, type = '') {
-            if (type === 'starter' && window.appState.hasBoughtStarter) {
-                showToast('স্টার্টার অফারটি একবারই কেনা সম্ভব!', true);
-                return;
-            }
-            if (window.appState.balance < price) {
-                showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
-                closeSpinModal();
-                setTimeout(() => openPaymentModal(), 1000);
-                return;
-            }
-            window.appState.balance -= price;
-            window.appState.spinsLeft += spinCount;
-            if (type === 'starter') window.appState.hasBoughtStarter = true;
-            updateSpinUI();
+            
+            const profilePhoneEl = document.getElementById('profilePhone');
+            if (profilePhoneEl) profilePhoneEl.innerText = currentPhone;
+            
+            if (welcomeModal) welcomeModal.classList.add('hidden');
+            const authModal = document.getElementById('authModal');
+            if (authModal) authModal.classList.add('hidden');
+            
             updateBalanceDisplays();
-            showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
+            updateSpinUI();
+            if (window.appState.isActive) {
+                activateAccountUIOnly();
+            }
+            showToast('অ্যাকাউন্ট রিকভার করা হয়েছে!');
         }
-        let isSpinning = false;
+    } else {
+        if(welcomeModal) welcomeModal.classList.remove('hidden');
+    }
+};
+
+function saveAllProgress() {
+    let currentPhone = window.appState.userPhone || localStorage.getItem('currentLoggedInUser');
+    if (!currentPhone) return;
+    
+    let savedUserJSON = localStorage.getItem('user_' + currentPhone);
+    if (savedUserJSON) {
+        let savedUser = JSON.parse(savedUserJSON);
+        savedUser.progressData = {
+            balance: window.appState.balance,
+            totalEarned: window.appState.totalEarned,
+            completedTasks: window.appState.completedTasks,
+            isActive: window.appState.isActive,
+            spinsLeft: window.appState.spinsLeft,
+            hasBoughtStarter: window.appState.hasBoughtStarter
+        };
+        localStorage.setItem('user_' + currentPhone, JSON.stringify(savedUser));
+    }
+}
+
+function closeWelcomeOpenAuth() {
+    document.getElementById('welcomeModal').classList.add('hidden');
+    document.getElementById('authModal').classList.remove('hidden');
+}
+
+function openSpinModal() {
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateSpinUI();
+    }
+}
+
+function closeSpinModal() {
+    const modal = document.getElementById('spinModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function updateSpinUI() {
+    const textEl = document.getElementById('spinsLeftText');
+    if (textEl) textEl.innerText = `Spins Left: ${window.appState.spinsLeft}`;
+}
+
+function handlePackageBuy(price) {
+    showToast(`৳${price} টাকার প্যাকেজ কিনতে পর্যাপ্ত ডিপোজিট করুন। ওয়ালেটে নেওয়া হচ্ছে...`, true);
+    setTimeout(() => {
+        if (typeof openPaymentModal === 'function') {
+            openPaymentModal();
+        } else if (typeof switchTab === 'function') {
+            switchTab('tabWallet');
+        }
+    }, 1000);
+}
+
+function buyCustomPackage(price, spinCount, type = '') {
+    if (type === 'starter' && window.appState.hasBoughtStarter) {
+        showToast('স্টার্টার অফারটি একবারই কেনা সম্ভব!', true);
+        return;
+    }
+    if (window.appState.balance < price) {
+        showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
+        closeSpinModal();
+        setTimeout(() => openPaymentModal(), 1000);
+        return;
+    }
+    window.appState.balance -= price;
+    window.appState.spinsLeft += spinCount;
+    if (type === 'starter') window.appState.hasBoughtStarter = true;
+    updateSpinUI();
+    updateBalanceDisplays();
+    saveAllProgress();
+    showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
+}
+
+let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
     if (isSpinning) return;
 
     if (window.appState.spinsLeft <= 0) {
-        if (typeof showToast === 'function') {
-            showToast('Apnar kono spin baki nei! Age spin package kinun.', true);
-        }
+        showToast('আপনার কোনো স্পিন বাকি নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
         return;
     }
 
@@ -1091,7 +1094,6 @@ function startSpin() {
         btn.innerText = '...';
     }
 
-    // 10 Segments (৳20 to ৳2500)
     const rewards = [20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500];
     const randomIndex = Math.floor(Math.random() * rewards.length);
 
@@ -1114,201 +1116,277 @@ function startSpin() {
         const wonAmount = rewards[randomIndex];
         window.appState.balance += wonAmount;
 
-        if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
-
-        if (typeof showToast === 'function') {
-            showToast(`Abhinandan! Apni ৳${wonAmount} jitechen!`);
-        }
+        updateBalanceDisplays();
+        saveAllProgress();
+        showToast(`অভিনন্দন! আপনি ৳${wonAmount} জিতেছেন!`);
     }, 4000);
 }
 
-        function handleAuthSubmit() {
-            const phone = document.getElementById('authPhone').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
-            const phoneRegex = /^01[3-9]\d{8}$/;
-            
-            if (!phoneRegex.test(phone)) {
-                showToast('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!', true);
-                return;
-            }
-            if (!pass) {
-                showToast('পাসওয়ার্ড দিন!', true);
-                return;
-            }
+// Strict Authentication (Only Number check & localStorage persistence)
+function handleAuthSubmit() {
+    const phone = document.getElementById('authPhone').value.trim();
+    const pass = document.getElementById('authPass').value.trim();
+    const phoneRegex = /^01[3-9]\d{8}$/;
+    
+    if (!phoneRegex.test(phone)) {
+        showToast('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!', true);
+        return;
+    }
+    if (!pass) {
+        showToast('পাসওয়ার্ড দিন!', true);
+        return;
+    }
 
+    // Check pass is strictly numbers only
+    const passRegex = /^\d+$/;
+    if (!passRegex.test(pass)) {
+        showToast('পাসওয়ার্ডে শুধুমাত্র সংখ্যা (Numbers) ব্যবহার করতে হবে!', true);
+        return;
+    }
+
+    let savedUserJSON = localStorage.getItem('user_' + phone);
+
+    if (savedUserJSON) {
+        let userData = JSON.parse(savedUserJSON);
+        if (userData.password === pass) {
+            localStorage.setItem('currentLoggedInUser', phone);
             window.appState.isLoggedIn = true;
             window.appState.userPhone = phone;
-            document.getElementById('profilePhone').innerText = phone;
-            document.getElementById('authModal').classList.add('hidden');
-            showToast('Login successful!');
-            updateBalanceDisplays();
-        }
-
-        function openPaymentModal() {
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-        }
-
-        function selectPaymentProvider(method, num) {
-            activeGateway.method = method;
-            activeGateway.number = num;
-            document.getElementById('selectedProviderLabel').innerText = method + ' Account / Details';
-            document.getElementById('selectedProviderNum').innerText = num;
-        }
-
-        function copyDepositNumber() {
-            navigator.clipboard.writeText(activeGateway.number);
-            showToast(activeGateway.method + ' number copied!');
-        }
-
-        function handleActivationSubmit() {
-            const num = document.getElementById('depositNum').value;
-            const trx = document.getElementById('depositTrx').value;
-            if(!num || !trx) {
-                showToast('নম্বর এবং TrxID দিন!', true);
-                return;
-            }
-            closePaymentModal();
-            activateAccount();
-        }
-
-        function activateAccount() {
-            window.appState.isActive = true;
-            document.getElementById('userBadge').className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5";
-            document.getElementById('badgeText').innerText = "Active";
-            document.getElementById('accountActiveBanner').classList.add('hidden');
-            document.getElementById('activeStatusBanner').classList.remove('hidden');
-            showToast('Account successfully activated!');
-        }
-
-        function switchTab(tabId) {
-            const tabs = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
-            tabs.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-
-            const targetEl = document.getElementById(tabId);
-            if(targetEl) targetEl.classList.remove('hidden');
-
-            const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
-            navs.forEach(navId => {
-                const btn = document.getElementById(navId);
-                if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
-            });
-
-            const activeNavMap = {
-                'tabHome': 'navHome',
-                'tabWallet': 'navWallet',
-                'tabTasks': 'navTasks',
-                'tabServer': 'navServer',
-                'tabProfile': 'navProfile'
-            };
-
-            const activeNavId = activeNavMap[tabId];
-            if(activeNavId) {
-                const activeBtn = document.getElementById(activeNavId);
-                if(activeBtn) activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
-            }
-        }
-
-        function runTask(taskNum) {
-            if(!window.appState.isActive) {
-                showToast('আগে অ্যাকাউন্ট অ্যাক্টিভ করুন!', true);
-                openPaymentModal();
-                return;
-            }
-
-            const btn = document.getElementById(`task${taskNum}Btn`);
-            if(!btn) return;
-            btn.disabled = true;
-            let timer = 5;
             
-            const interval = setInterval(() => {
-                btn.innerHTML = `<span>Watching Ad... (${timer}s)</span>`;
-                timer--;
-                if(timer < 0) {
-                    clearInterval(interval);
-                    btn.innerHTML = `<i class="fa-solid fa-circle-check text-white"></i> <span>Completed</span>`;
-                    
-                    window.appState.balance += 10.00;
-                    window.appState.totalEarned += 10.00;
-                    window.appState.completedTasks += 1;
-
-                    updateBalanceDisplays();
-                    showToast('৳10.00 reward added!');
-                }
-            }, 1000);
-        }
-
-        function updateBalanceDisplays() {
-            document.getElementById('balanceVal').innerText = window.appState.balance.toFixed(2);
-            document.getElementById('totalEarnedVal').innerText = window.appState.totalEarned.toFixed(2);
-            document.getElementById('walletTabBalance').innerText = window.appState.balance.toFixed(2);
-            document.getElementById('taskCountVal').innerText = window.appState.completedTasks;
-        }
-
-        function handleWithdraw() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            if (isNaN(amount) || amount < 100) {
-                showToast('সর্বনিম্ন উইথড্র ১০০ টাকা!', true);
-                return;
+            if (userData.progressData) {
+                if (userData.progressData.balance !== undefined) window.appState.balance = userData.progressData.balance;
+                if (userData.progressData.totalEarned !== undefined) window.appState.totalEarned = userData.progressData.totalEarned;
+                if (userData.progressData.completedTasks !== undefined) window.appState.completedTasks = userData.progressData.completedTasks;
+                if (userData.progressData.isActive !== undefined) window.appState.isActive = userData.progressData.isActive;
+                if (userData.progressData.spinsLeft !== undefined) window.appState.spinsLeft = userData.progressData.spinsLeft;
+                if (userData.progressData.hasBoughtStarter !== undefined) window.appState.hasBoughtStarter = userData.progressData.hasBoughtStarter;
             }
-            if (amount > window.appState.balance) {
-                showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
-                return;
-            }
-            window.appState.balance -= amount;
+
+            const profilePhoneEl = document.getElementById('profilePhone');
+            if (profilePhoneEl) profilePhoneEl.innerText = phone;
+            document.getElementById('authModal').classList.add('hidden');
+            
             updateBalanceDisplays();
-            showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
-        }
-
-        function selectWithdrawMethod(method) {
-            const btns = document.querySelectorAll('.withdraw-provider-btn');
-            btns.forEach(btn => btn.classList.remove('border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
-            const target = document.getElementById('btnW' + method);
-            if(target) target.classList.add('border-pink-500');
-        }
-
-        function logout() {
-            window.appState.isLoggedIn = false;
-            document.getElementById('authModal').classList.remove('hidden');
-        }
-
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            if(!toast || !toastMsg) return;
-
-            toastMsg.innerText = msg;
-            toast.className = isError ? "fixed top-5 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50" : "fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50";
-
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-          setTimeout(function () {
-            const intro = document.getElementById("welcomeIntro");
-            if (intro) {
-              intro.classList.add("fade-out");
-              setTimeout(() => { intro.style.display = "none"; }, 800);
+            updateSpinUI();
+            if (window.appState.isActive) {
+                activateAccountUIOnly();
             }
-          }, 2200);
-        });
-        window.onload = function() {
-    let currentPhone = localStorage.getItem('currentLoggedInUser');
-    if (currentPhone) {
-        let savedUser = JSON.parse(localStorage.getItem('user_' + currentPhone));
-        if (savedUser && savedUser.progressData) {
-            // Ekhane user er ager data guli website er field ba UI te bosiye dibi
-            console.log("Restored data for user:", currentPhone, savedUser.progressData);
+            showToast('লগইন সফল হয়েছে!');
+        } else {
+            showToast('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।', true);
         }
+    } else {
+        let newUser = {
+            phone: phone,
+            password: pass,
+            progressData: {
+                balance: 500,
+                totalEarned: 0.00,
+                completedTasks: 0,
+                isActive: false,
+                spinsLeft: 0,
+                hasBoughtStarter: false
+            }
+        };
+        localStorage.setItem('user_' + phone, JSON.stringify(newUser));
+        localStorage.setItem('currentLoggedInUser', phone);
+        
+        window.appState.isLoggedIn = true;
+        window.appState.userPhone = phone;
+        window.appState.balance = 500;
+        window.appState.totalEarned = 0.00;
+        window.appState.completedTasks = 0;
+        window.appState.isActive = false;
+        window.appState.spinsLeft = 0;
+        window.appState.hasBoughtStarter = false;
+
+        const profilePhoneEl = document.getElementById('profilePhone');
+        if (profilePhoneEl) profilePhoneEl.innerText = phone;
+        document.getElementById('authModal').classList.add('hidden');
+        
+        updateBalanceDisplays();
+        updateSpinUI();
+        showToast('অ্যাকাউন্ট সফলভাবে তৈরি এবং লগইন হয়েছে!');
     }
-};
+}
+
+function openPaymentModal() {
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+function selectPaymentProvider(method, num) {
+    activeGateway.method = method;
+    activeGateway.number = num;
+    document.getElementById('selectedProviderLabel').innerText = method + ' Account / Details';
+    document.getElementById('selectedProviderNum').innerText = num;
+}
+
+function copyDepositNumber() {
+    navigator.clipboard.writeText(activeGateway.number);
+    showToast(activeGateway.method + ' নম্বর কপি করা হয়েছে!');
+}
+
+function handleActivationSubmit() {
+    const num = document.getElementById('depositNum').value;
+    const trx = document.getElementById('depositTrx').value;
+    if(!num || !trx) {
+        showToast('নম্বর এবং TrxID দিন!', true);
+        return;
+    }
+    closePaymentModal();
+    activateAccount();
+}
+
+function activateAccountUIOnly() {
+    const userBadge = document.getElementById('userBadge');
+    const badgeText = document.getElementById('badgeText');
+    const activeBanner = document.getElementById('accountActiveBanner');
+    const statusBanner = document.getElementById('activeStatusBanner');
+    
+    if (userBadge) userBadge.className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5";
+    if (badgeText) badgeText.innerText = "Active";
+    if (activeBanner) activeBanner.classList.add('hidden');
+    if (statusBanner) statusBanner.classList.remove('hidden');
+}
+
+function activateAccount() {
+    window.appState.isActive = true;
+    activateAccountUIOnly();
+    saveAllProgress();
+    showToast('অ্যাকাউন্ট সফলভাবে অ্যাক্টিভ করা হয়েছে!');
+}
+
+function switchTab(tabId) {
+    const tabs = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
+    tabs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+
+    const targetEl = document.getElementById(tabId);
+    if(targetEl) targetEl.classList.remove('hidden');
+
+    const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
+    navs.forEach(navId => {
+        const btn = document.getElementById(navId);
+        if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
+    });
+
+    const activeNavMap = {
+        'tabHome': 'navHome',
+        'tabWallet': 'navWallet',
+        'tabTasks': 'navTasks',
+        'tabServer': 'navServer',
+        'tabProfile': 'navProfile'
+    };
+
+    const activeNavId = activeNavMap[tabId];
+    if(activeNavId) {
+        const activeBtn = document.getElementById(activeNavId);
+        if(activeBtn) activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
+    }
+}
+
+function runTask(taskNum) {
+    if(!window.appState.isActive) {
+        showToast('আগে অ্যাকাউন্ট অ্যাক্টিভ করুন!', true);
+        openPaymentModal();
+        return;
+    }
+
+    const btn = document.getElementById(`task${taskNum}Btn`);
+    if(!btn) return;
+    btn.disabled = true;
+    let timer = 5;
+    
+    const interval = setInterval(() => {
+        btn.innerHTML = `<span>Watching Ad... (${timer}s)</span>`;
+        timer--;
+        if(timer < 0) {
+            clearInterval(interval);
+            btn.innerHTML = `<i class="fa-solid fa-circle-check text-white"></i> <span>Completed</span>`;
+            
+            window.appState.balance += 10.00;
+            window.appState.totalEarned += 10.00;
+            window.appState.completedTasks += 1;
+
+            updateBalanceDisplays();
+            saveAllProgress();
+            showToast('৳10.00 রেওয়ার্ড যোগ করা হয়েছে!');
+        }
+    }, 1000);
+}
+
+function updateBalanceDisplays() {
+    const bEl = document.getElementById('balanceVal');
+    const tEl = document.getElementById('totalEarnedVal');
+    const wEl = document.getElementById('walletTabBalance');
+    const cEl = document.getElementById('taskCountVal');
+    
+    if (bEl) bEl.innerText = window.appState.balance.toFixed(2);
+    if (tEl) tEl.innerText = window.appState.totalEarned.toFixed(2);
+    if (wEl) wEl.innerText = window.appState.balance.toFixed(2);
+    if (cEl) cEl.innerText = window.appState.completedTasks;
+}
+
+function handleWithdraw() {
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (isNaN(amount) || amount < 100) {
+        showToast('সর্বনিম্ন উইথড্র ১০০ টাকা!', true);
+        return;
+    }
+    if (amount > window.appState.balance) {
+        showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
+        return;
+    }
+    window.appState.balance -= amount;
+    updateBalanceDisplays();
+    saveAllProgress();
+    showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
+}
+
+function selectWithdrawMethod(method) {
+    const btns = document.querySelectorAll('.withdraw-provider-btn');
+    btns.forEach(btn => btn.classList.remove('border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
+    const target = document.getElementById('btnW' + method);
+    if(target) target.classList.add('border-pink-500');
+}
+
+function logout() {
+    localStorage.removeItem('currentLoggedInUser');
+    window.appState.isLoggedIn = false;
+    window.appState.userPhone = '';
+    document.getElementById('authModal').classList.remove('hidden');
+    showToast('লগআউট সফল হয়েছে!');
+}
+
+function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    if(!toast || !toastMsg) return;
+
+    toastMsg.innerText = msg;
+    toast.className = isError 
+        ? "fixed top-5 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50" 
+        : "fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50";
+
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(function () {
+    const intro = document.getElementById("welcomeIntro");
+    if (intro) {
+      intro.classList.add("fade-out");
+      setTimeout(() => { intro.style.display = "none"; }, 800);
+    }
+  }, 2200);
+});
     </script>
 </body>
 </html>
