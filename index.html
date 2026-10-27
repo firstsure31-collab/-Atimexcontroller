@@ -913,54 +913,70 @@ function switchAdminTab(tabName) {
         activitySec.classList.remove('hidden');
     }
 }
-        function handleLogin(phoneNumber, password) {
-    // Check koro number ta age save ache kina
+
+function loginUser(phoneNumber, enteredPassword) {
     let savedUser = localStorage.getItem('user_' + phoneNumber);
     
-    if (savedUser) {
-        let userData = JSON.parse(savedUser);
-        if (userData.password === password) {
-            // Sothik password hole login korbe
-            localStorage.setItem('currentLoggedInUser', phoneNumber);
-            showToast('Login successful!');
-        } else {
-            showToast(' ভুল পাস! (Wrong password)');
-        }
-    } else {
-        // Notun hole save kore dibe
-        let newUser = { phone: phoneNumber, password: password, progressData: {} };
-        localStorage.setItem('user_' + phoneNumber, JSON.stringify(newUser));
+    if (!savedUser) {
+        showToast("Account not found! Please register first.", true);
+        return;
+    }
+
+    let userData = JSON.parse(savedUser);
+    
+    if (userData.password === enteredPassword) {
         localStorage.setItem('currentLoggedInUser', phoneNumber);
-        showToast('Account created & logged in!');
+        showToast("Login successful!");
+    } else {
+        showToast("Incorrect password! Please try again.", true);
     }
 }
-        function saveUserProgress(key, value) {
+
+function registerUser(phoneNumber, password) {
+    let existingUser = localStorage.getItem('user_' + phoneNumber);
+    
+    if (existingUser) {
+        showToast("Account already exists with this number!", true);
+        return;
+    }
+
+    let newUser = {
+        phone: phoneNumber,
+        password: password,
+        progressData: {}
+    };
+
+    localStorage.setItem('user_' + phoneNumber, JSON.stringify(newUser));
+    localStorage.setItem('currentLoggedInUser', phoneNumber);
+    showToast("Account successfully created!");
+}
+
+function saveUserProgress(key, value) {
     let currentPhone = localStorage.getItem('currentLoggedInUser');
     if (currentPhone) {
         let savedUser = JSON.parse(localStorage.getItem('user_' + currentPhone)) || {};
         savedUser.progressData = savedUser.progressData || {};
         savedUser.progressData[key] = value;
-        
-        // Data update kore abar save kora
         localStorage.setItem('user_' + currentPhone, JSON.stringify(savedUser));
     }
 }
-        let isReferShared = false;
 
-        function openReferModal() {
-            document.getElementById('referModal').classList.remove('hidden');
-        }
+let isReferShared = false;
 
-        function closeReferModal() {
-            document.getElementById('referModal').classList.add('hidden');
-        }
+function openReferModal() {
+    document.getElementById('referModal').classList.remove('hidden');
+}
 
-        function copyReferLink() {
-            const input = document.getElementById('referLinkInput');
-            input.select();
-            navigator.clipboard.writeText(input.value);
-            showToast('Referral link copied!');
-        }
+function closeReferModal() {
+    document.getElementById('referModal').classList.add('hidden');
+}
+
+function copyReferLink() {
+    const input = document.getElementById('referLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    showToast('Referral link copied!');
+}
 
         async function executeShareTask() {
             const shareLink = document.getElementById('referLinkInput').value;
