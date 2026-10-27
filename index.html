@@ -900,7 +900,14 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-      function switchAdminTab(tabName) {
+function openAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function switchAdminTab(tabName) {
     const activitySec = document.getElementById('activitySection');
     if (activitySec) {
         activitySec.classList.remove('hidden');
