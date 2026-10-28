@@ -711,37 +711,6 @@
             </div>
 
         </main>
-        <!-- Profile Pic Options Modal -->
-    <div id="profilePicModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 text-center space-y-4 shadow-2xl">
-            <h3 class="text-white font-bold text-base">Profile Picture</h3>
-            <div class="space-y-2">
-                <button onclick="triggerProfileUpload()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-sm">Upload New Photo</button>
-                <button onclick="removeProfilePic()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-red-400 font-semibold rounded-xl transition cursor-pointer text-sm">Remove Picture</button>
-            </div>
-            <button onclick="closeProfilePicModal()" class="text-slate-400 hover:text-white text-xs underline cursor-pointer">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Hidden File Input for Image Upload -->
-    <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="handleImageCropPreview(event)">
-
-    <!-- Crop/Preview Modal -->
-    <div id="imageCropModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 text-center space-y-4 shadow-2xl">
-            <h3 class="text-white font-bold text-base">Preview Picture</h3>
-            <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-emerald-500 shadow-md">
-                <img id="cropPreviewImg" src="" alt="Preview" class="w-full h-full object-cover">
-            </div>
-            <div class="flex gap-2">
-                <button onclick="closeCropModal()" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition cursor-pointer text-xs">Cancel</button>
-                <button onclick="confirmAndSaveProfilePic()" class="w-1/2 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-xs">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
 
     <!-- Bottom Navigation Bar -->
     <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
@@ -771,6 +740,21 @@
                 <span class="text-[10px] font-medium">Profile</span>
             </button>
         </nav>
+
+        <!-- MODALS -->
+
+     <!-- Ei pura block-ti kete fele din -->
+<div id="welcomeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
+        <div class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-800 rounded-2xl border border-slate-700/80 overflow-hidden shadow-lg">
+        <img src="Gemini_Generated_Image_ot8ko7ot8ko7ot8k.jfif" alt="ATIMEX Logo" class="w-full h-full object-cover">
+    </div>
+        <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
+        <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
+    </div>
+</div>
+
         <!-- 2. AUTHENTICATION MODAL -->
         <div id="authModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full space-y-4 shadow-2xl relative">
@@ -786,7 +770,7 @@
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" placeholder="Input only numbers" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Submit & Enter</button>
                 </div>
@@ -1132,16 +1116,6 @@
             <button onclick="closeCropModal()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition">Cancel</button>
             <button onclick="confirmAndSaveProfilePic()" class="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow">OK / Save</button>
         </div>
-    </div>
-</div>
-            <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
-        <div class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-800 rounded-2xl border border-slate-700/80 overflow-hidden shadow-lg">
-            <img src="Gemini_Generated_Image_ot8ko7ot8ko7ot8k.jfif" alt="ATIMEX Logo" class="w-full h-full object-cover">
-        </div>
-        <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
-        <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
     </div>
 </div>
 
