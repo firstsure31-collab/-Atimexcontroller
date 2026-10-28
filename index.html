@@ -1078,8 +1078,108 @@
 
     </div>
 
+            <!-- 🖼️ PROFILE PICTURE EDIT / REMOVE POPUP MODAL -->
+<div id="profilePicModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl">
+        <h3 class="font-bold text-slate-100 text-base">Profile Picture</h3>
+        
+        <div class="flex flex-col gap-2.5">
+            <button onclick="triggerProfileUpload()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow">
+                <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit / Change Picture
+            </button>
+            <button onclick="removeProfilePic()" class="w-full py-3 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 font-bold text-xs rounded-xl transition">
+                <i class="fa-solid fa-trash mr-1.5"></i> Remove Picture
+            </button>
+            <button onclick="closeProfilePicModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition">
+                Cancel
+            </button>
+        </div>
+        <!-- Hidden File Input -->
+        <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="handleImageCropPreview(event)">
+    </div>
+</div>
+
+<!-- ✂️ IMAGE CROP & CONFIRM MODAL -->
+<div id="imageCropModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl">
+        <h3 class="font-bold text-slate-100 text-sm">Crop / Adjust Square Image</h3>
+        
+        <!-- Square Preview Container -->
+        <div class="w-36 h-36 mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500/50 bg-slate-950 flex items-center justify-center relative">
+            <img id="cropPreviewImg" src="" alt="Preview" class="w-full h-full object-cover">
+        </div>
+        <p class="text-[10px] text-slate-400">Picture automatically fitted to square format.</p>
+
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="closeCropModal()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition">Cancel</button>
+            <button onclick="confirmAndSaveProfilePic()" class="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow">OK / Save</button>
+        </div>
+    </div>
+</div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        let selectedBase64Image = "";
+
+// Profile avatar-e click korle options modal open hobe
+function openProfilePicOptions() {
+    document.getElementById('profilePicModal').classList.remove('hidden');
+}
+
+function closeProfilePicModal() {
+    document.getElementById('profilePicModal').classList.add('hidden');
+}
+
+function triggerProfileUpload() {
+    closeProfilePicModal();
+    document.getElementById('profileImageInput').click();
+}
+
+// File select korar por square preview dekhabe
+function handleImageCropPreview(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedBase64Image = e.target.result;
+            document.getElementById('cropPreviewImg').src = selectedBase64Image;
+            document.getElementById('imageCropModal').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function closeCropModal() {
+    document.getElementById('imageCropModal').classList.add('hidden');
+}
+
+// OK korle profile pic save hobe ebong leaderboard/profile-eo auto call hobe
+function confirmAndSaveProfilePic() {
+    if (selectedBase64Image) {
+        localStorage.setItem('userProfilePic', selectedBase64Image);
+        
+        // UI-te shob jaygay update kore dibe
+        const avatarElements = document.querySelectorAll('.user-avatar-display');
+        avatarElements.forEach(img => {
+            img.src = selectedBase64Image;
+        });
+
+        showToast('Profile picture successfully updated!');
+    }
+    closeCropModal();
+}
+
+// Remove picture option
+function removeProfilePic() {
+    localStorage.removeItem('userProfilePic');
+    const defaultAvatar = "default-avatar.png"; // Tor default avatar path
+    const avatarElements = document.querySelectorAll('.user-avatar-display');
+    avatarElements.forEach(img => {
+        img.src = defaultAvatar;
+    });
+    closeProfilePicModal();
+    showToast('Profile picture removed!');
+}
         function openLeaderboardModal() {
     const modal = document.getElementById('leaderboardModal');
     if (modal) modal.classList.remove('hidden');
