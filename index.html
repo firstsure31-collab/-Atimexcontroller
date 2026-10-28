@@ -110,7 +110,29 @@
     transform: scale(1);
   }
 }
-    </style>
+    
+/* ATIMEX enhancement layer */
+#totalReferChip { position:fixed; right:10px; top:82px; z-index:40; }
+#firstVisitNotice { animation: noticeIn .45s ease-out both; }
+@keyframes noticeIn { from {opacity:0;transform:translateY(-12px) scale(.98)} to {opacity:1;transform:translateY(0) scale(1)} }
+#homeBannerSlider img { transition: transform .8s ease, filter .8s ease; }
+#homeBannerSlider:hover img { transform:scale(1.035); filter:saturate(1.08); }
+
+/* Live animated welcome heading */
+.welcome-live-text {
+  display: inline-block;
+  background: linear-gradient(90deg,#ffffff 0%,#34d399 25%,#a7f3d0 50%,#ffffff 75%,#34d399 100%);
+  background-size: 250% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: welcomeShine 2.6s linear infinite, welcomeFloat 2.2s ease-in-out infinite;
+  text-shadow: 0 0 18px rgba(16,185,129,.14);
+}
+@keyframes welcomeShine { to { background-position: 250% center; } }
+@keyframes welcomeFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .welcome-live-text { animation: none; } }
+</style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 
@@ -663,7 +685,9 @@
     <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
     <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
 </div>
-                <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
+                <h3 class="font-bold text-slate-100 text-base" id="profileNickname">Nickname</h3>
+                <button onclick="editNickname()" class="text-[10px] text-emerald-300 underline">Nickname edit</button>
+                <h3 class="font-bold text-slate-400 text-xs" id="profilePhone">01700000000</h3>
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
 
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
@@ -750,14 +774,20 @@
 
                 <div class="space-y-3">
                     <div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Nickname</label>
+                        <input type="text" id="authNickname" maxlength="24" placeholder="আপনার Nickname" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Phone Number</label>
                         <input type="tel" id="authPhone" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="password" id="authPass" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="শুধু সংখ্যা (Numbers)" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
-                    <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Submit & Enter</button>
+                    <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login / Register</button>
+                    <button onclick="showForgotPasswordInfo()" class="w-full text-emerald-300 text-[11px] underline">পাসওয়ার্ড ভুলে গেছেন?</button>
+                    <p class="text-[9px] text-slate-500 text-center">OTP/API সংযোগ না হওয়া পর্যন্ত password reset চালু নয়।</p>
                 </div>
             </div>
         </div>
@@ -916,6 +946,16 @@
               <button onclick="closeReferModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-indigo-500/10 border border-indigo-400/30 rounded-xl p-3 text-center">
+                <div class="text-[10px] text-slate-400">Active Referrals</div>
+                <div class="text-lg font-black text-indigo-300" id="referActiveCount">0 / 20</div>
+              </div>
+              <div class="bg-emerald-500/10 border border-emerald-400/30 rounded-xl p-3 text-center">
+                <div class="text-[10px] text-slate-400">Referral Earnings</div>
+                <div class="text-lg font-black text-emerald-300">৳<span id="referralEarnings">0</span></div>
+              </div>
+            </div>
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3 text-center">
               <div class="text-slate-400 text-[11px]">Share your referral link to unlock task bonus</div>
               <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-2 rounded-lg">
@@ -931,6 +971,15 @@
               ⚠️ Share completing mandatory before referral registration credit.
             </div>
 
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div class="font-bold text-white">Referral Wallet — আলাদা ব্যালেন্স</div>
+              <div class="text-slate-400 text-[10px]">২০টি active referral পূর্ণ না হওয়া পর্যন্ত referral withdrawal locked থাকবে।</div>
+              <div class="text-amber-300 text-[10px]" id="refWithdrawLockMsg">🔒 Online database যুক্ত হলে active referral count যাচাই হবে।</div>
+              <label class="block text-slate-400 text-[10px] text-left">Withdrawal method</label>
+              <select id="refWithdrawMethod" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs"><option>bKash</option><option>Nagad</option><option>Rocket</option></select>
+              <input id="refWithdrawNumber" type="tel" inputmode="numeric" placeholder="বিকাশ/নগদ নম্বর" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+              <button id="refWithdrawBtn" onclick="requestReferralWithdrawal()" disabled class="w-full bg-slate-700 text-slate-400 font-bold py-2 rounded-lg text-xs cursor-not-allowed">২০ Active Refer হলে Unlock</button>
+            </div>
             <button onclick="closeReferModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl transition text-xs">
               Close
             </button>
@@ -1103,13 +1152,23 @@
         </div>
     </div>
 </div>
+            <!-- First-visit announcement banner -->
+    <div id="firstVisitNotice" class="hidden fixed inset-0 z-[10000] bg-slate-950/80 backdrop-blur-sm items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-slate-900 border border-emerald-500/40 rounded-2xl p-5 shadow-2xl relative">
+        <button onclick="closeFirstVisitNotice()" aria-label="Close notice" class="absolute right-3 top-3 text-slate-400 hover:text-white text-xl">×</button>
+        <h3 class="font-black text-emerald-300 text-sm mb-3 pr-6">ATIMEX Notice</h3>
+        <p class="text-xs leading-6 text-slate-200">👀 শুধুমাত্র একবার ২০ জনকে রেফার করে 😔 ✅ প্রতি মাসে আমাদের থেকে নিতে পাচ্ছেন ২৩ হাজার ৪০০ টাকা স্যালারি ✨ ❕ আর এটা এক বছর যাবত আমাদের থেকে নিতে পারবে এবং তার পাশাপাশি প্রতি রেফারে ৫০ টাকা তো আছেই 🔔 📣 তাই এত সুযোগ-সুবিধা থাকা সত্ত্বেও যদি আপনি কাজ না করেন তাহলে পরবর্তীতে মারাত্মক লেভেলের আফসোস করবেন 📱</p>
+        <p class="text-[9px] text-amber-300 mt-3">নোট: এখানে দেখানো আয়ের প্রতিশ্রুতি বাস্তবে যাচাই করে এবং শর্ত স্পষ্ট করে প্রকাশ করতে হবে।</p>
+      </div>
+    </div>
+
             <!-- Welcome Modal (Bodyer baire, viewport-er dead center) -->
     <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
             <div class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-800 rounded-2xl border border-slate-700/80 overflow-hidden shadow-lg">
                 <img src="Gemini_Generated_Image_ot8ko7ot8ko7ot8k.jfif" alt="ATIMEX Logo" class="w-full h-full object-cover">
             </div>
-            <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
+            <h3 class="welcome-live-text text-lg font-bold text-white">Welcome to ATIMEX</h3>
             <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
             <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
         </div>
@@ -1124,8 +1183,46 @@
     
     if (welcomeModal) document.body.appendChild(welcomeModal);
     if (authModal) document.body.appendChild(authModal);
+    // Keep profile image/crop dialogs outside overflow-hidden app wrapper.
+    ['profilePicModal', 'imageCropModal', 'spinModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal && modal.parentElement !== document.body) document.body.appendChild(modal);
+    });
+    // Restore saved avatar whenever the page opens.
+    const savedAvatar = localStorage.getItem('userProfilePic');
+    const savedNickname = localStorage.getItem('atimexNickname');
+    if (savedNickname) {
+        const nick = document.getElementById('profileNickname');
+        if (nick) nick.textContent = savedNickname;
+        if (window.appState) window.appState.nickname = savedNickname;
+    }
+    if (savedAvatar) {
+        document.querySelectorAll('.user-avatar-display').forEach(img => {
+            img.src = savedAvatar;
+            img.classList.remove('hidden');
+        });
+        const icon = document.getElementById('profileDefaultIcon');
+        if (icon) icon.classList.add('hidden');
+    }
 });
 let selectedBase64Image = "";
+
+function editNickname() {
+    const current = (window.appState && window.appState.nickname) ||
+        (document.getElementById('profileNickname')?.textContent || 'Nickname').trim();
+    const next = window.prompt('নতুন Nickname লিখুন:', current);
+    if (next === null) return;
+    const nickname = next.trim();
+    if (!nickname) { alert('Nickname খালি রাখা যাবে না।'); return; }
+    if (nickname.length > 24) { alert('Nickname সর্বোচ্চ ২৪ অক্ষরের হতে পারবে।'); return; }
+    if (!window.appState) window.appState = {};
+    window.appState.nickname = nickname;
+    const el = document.getElementById('profileNickname');
+    if (el) el.textContent = nickname;
+    try { localStorage.setItem('atimexNickname', nickname); } catch (_) {}
+    if (typeof saveAllProgress === 'function') saveAllProgress();
+    if (typeof showToast === 'function') showToast('Nickname update হয়েছে!');
+}
 
 function openProfilePicOptions() {
     document.getElementById('profilePicModal').classList.remove('hidden');
@@ -1290,6 +1387,7 @@ let isReferShared = false;
 
 function openReferModal() {
     document.getElementById('referModal').classList.remove('hidden');
+    if (typeof updateReferralUi === 'function') updateReferralUi();
 }
 
 function closeReferModal() {
@@ -1323,8 +1421,9 @@ async function executeShareTask() {
 window.appState = window.appState || {
     isLoggedIn: false,
     userPhone: '',
+    nickname: '',
     isActive: false,
-    balance: 500,
+    balance: 0,
     totalEarned: 0.00,
     completedTasks: 0,
     selectedMethod: 'bKash',
@@ -1365,7 +1464,17 @@ window.onload = function() {
             if (authModal) authModal.classList.add('hidden');
             
             updateBalanceDisplays();
+            updateReferralUi();
+            if (!localStorage.getItem('noticeSeen_' + currentPhone)) {
+              const notice = document.getElementById('firstVisitNotice');
+              if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
+            }
             updateSpinUI();
+            updateReferralUi();
+            if (!localStorage.getItem('noticeSeen_' + phone)) {
+              const notice = document.getElementById('firstVisitNotice');
+              if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
+            }
             if (window.appState.isActive) {
                 activateAccountUIOnly();
             }
@@ -1474,7 +1583,10 @@ function startSpin() {
     const randomIndex = Math.floor(Math.random() * rewards.length);
 
     const degreePerSegment = 36;
-    const extraDegree = (360 * 5) + (randomIndex * degreePerSegment) + (degreePerSegment / 2);
+    // Wheel SVG is rotated -90deg and the pointer is at 12 o'clock.
+    // Align the chosen segment's center under the pointer; result text uses same selected index.
+    const pointerOffset = 18;
+    const extraDegree = (360 * 5) + (360 - (randomIndex * degreePerSegment + pointerOffset));
     currentDegree += extraDegree;
 
     const wheel = document.getElementById('wheel');
@@ -1502,6 +1614,8 @@ function startSpin() {
 function handleAuthSubmit() {
     const phone = document.getElementById('authPhone').value.trim();
     const pass = document.getElementById('authPass').value.trim();
+    const nicknameInput = document.getElementById('authNickname');
+    const nickname = nicknameInput ? nicknameInput.value.trim().slice(0,24) : '';
     const phoneRegex = /^01[3-9]\d{8}$/;
     
     if (!phoneRegex.test(phone)) {
@@ -1554,9 +1668,10 @@ function handleAuthSubmit() {
     } else {
         let newUser = {
             phone: phone,
+            nickname: nickname || 'User' + phone.slice(-4),
             password: pass,
             progressData: {
-                balance: 500,
+                balance: 0,
                 totalEarned: 0.00,
                 completedTasks: 0,
                 isActive: false,
@@ -1569,7 +1684,10 @@ function handleAuthSubmit() {
         
         window.appState.isLoggedIn = true;
         window.appState.userPhone = phone;
-        window.appState.balance = 500;
+        window.appState.nickname = nickname || 'User' + phone.slice(-4);
+        const nickEl = document.getElementById('profileNickname');
+        if (nickEl) nickEl.innerText = window.appState.nickname;
+        window.appState.balance = 0;
         window.appState.totalEarned = 0.00;
         window.appState.completedTasks = 0;
         window.appState.isActive = false;
@@ -1582,7 +1700,10 @@ function handleAuthSubmit() {
         
         updateBalanceDisplays();
         updateSpinUI();
-        showToast('অ্যাকাউন্ট সফলভাবে তৈরি এবং লগইন হয়েছে!');
+        updateReferralUi();
+        const notice = document.getElementById('firstVisitNotice');
+        if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
+        showToast('অ্যাকাউন্ট তৈরি হয়েছে। এটি এখনো local demo; online account নয়।');
     }
 }
 
@@ -1607,14 +1728,20 @@ function copyDepositNumber() {
 }
 
 function handleActivationSubmit() {
-    const num = document.getElementById('depositNum').value;
-    const trx = document.getElementById('depositTrx').value;
-    if(!num || !trx) {
-        showToast('নম্বর এবং TrxID দিন!', true);
+    const num = document.getElementById('depositNum').value.trim();
+    const trx = document.getElementById('depositTrx').value.trim().toUpperCase();
+    const phoneRegex = /^01[3-9]\\d{8}$/;
+    // Common bKash TrxID shape is alphanumeric; this is only a format check, NOT payment verification.
+    const trxRegex = /^[A-Z0-9]{8,12}$/;
+    if (!phoneRegex.test(num)) {
+        showToast('সঠিক ১১ ডিজিটের sender number দিন!', true);
         return;
     }
-    closePaymentModal();
-    activateAccount();
+    if (!trxRegex.test(trx)) {
+        showToast('TrxID-এর format ঠিক নয়। সঠিক transaction ID দিন।', true);
+        return;
+    }
+    showToast('Request জমা দেওয়ার backend/API এখনো যুক্ত হয়নি। Payment যাচাই না হওয়া পর্যন্ত account active হবে না।', true);
 }
 
 function activateAccountUIOnly() {
