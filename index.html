@@ -743,18 +743,6 @@
 
         <!-- MODALS -->
 
-     <!-- Ei pura block-ti kete fele din -->
-<div id="welcomeModal" class="absolute inset-x-0 bottom-4 mx-auto w-[90%] max-w-xs bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-2xl z-[9999] backdrop-blur-md">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
-        <div class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-800 rounded-2xl border border-slate-700/80 overflow-hidden shadow-lg">
-        <img src="Gemini_Generated_Image_ot8ko7ot8ko7ot8k.jfif" alt="ATIMEX Logo" class="w-full h-full object-cover">
-    </div>
-        <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
-        <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
-    </div>
-</div>
-
         <!-- 2. AUTHENTICATION MODAL -->
         <div id="authModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full space-y-4 shadow-2xl relative">
@@ -1118,7 +1106,34 @@
         </div>
     </div>
 </div>
+            <!-- Welcome Modal (Bodyer baire, viewport-er dead center) -->
+    <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
+            <div class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-800 rounded-2xl border border-slate-700/80 overflow-hidden shadow-lg">
+                <img src="Gemini_Generated_Image_ot8ko7ot8ko7ot8k.jfif" alt="ATIMEX Logo" class="w-full h-full object-cover">
+            </div>
+            <h3 class="text-lg font-bold text-white">Welcome to ATIMEX</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">বাংলাদেশের বিশ্বস্ত অনলাইন টাস্ক এবং আর্নিং প্ল্যাটফর্ম ATIMEX-এ আপনাকে স্বাগতম!</p>
+            <button onclick="closeWelcomeOpenAuth()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Proceed to Login / Register</button>
+        </div>
+    </div>
 
+    <!-- Auth Modal (Bodyer baire, fixed center) -->
+    <div id="authModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl relative">
+            <div class="text-center space-y-1">
+                <h3 class="text-lg font-bold text-white" id="authTitle">Login Account</h3>
+                <p class="text-xs text-slate-400">আপনার মোবাইল নাম্বার দিয়ে লগইন করুন</p>
+            </div>
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="text-[11px] text-slate-400 block mb-1">Phone Number</label>
+                    <input type="tel" id="authPhone" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                </div>
+                <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login Account</button>
+            </div>
+        </div>
+    </div>
     <!-- JAVASCRIPT LOGIC -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
