@@ -1453,6 +1453,8 @@ function logout() {
     window.appState.userPhone = '';
     document.getElementById('authModal').classList.remove('hidden');
     showToast('লগআউট সফল হয়েছে!');
+    // Ebar auto page refresh hoye jabe
+    location.reload();
 }
 
 function showToast(msg, isError = false) {
