@@ -659,8 +659,9 @@
 
             <!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content hidden space-y-4">
-  <div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
-    <img src="default-avatar.png" alt="Profile" class="w-full h-full object-cover user-avatar-display">
+<div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
+    <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
+    <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
 </div>
                   <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
