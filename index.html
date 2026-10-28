@@ -663,7 +663,7 @@
     <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
     <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
 </div>
-                  <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
+                <h3 class="font-bold text-slate-100 text-base" id="profilePhone">01700000000</h3>
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
                 </div>
 
@@ -1119,41 +1119,21 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let selectedBase64Image = "";
-        function confirmAndSaveProfilePic() {
-    if (selectedBase64Image) {
-        localStorage.setItem('userProfilePic', selectedBase64Image);
-        
-        // Update all avatars
-        const avatarElements = document.querySelectorAll('.user-avatar-display');
-        avatarElements.forEach(img => {
-            img.src = selectedBase64Image;
-            img.classList.remove('hidden');
-        });
-        
-        const defIcon = document.getElementById('profileDefaultIcon');
-        if(defIcon) defIcon.classList.add('hidden');
+let selectedBase64Image = "";
 
-        showToast('Profile picture successfully updated!');
-    }
-    closeCropModal();
+function openProfilePicOptions() {
+    document.getElementById('profilePicModal').classList.remove('hidden');
 }
 
-function removeProfilePic() {
-    localStorage.removeItem('userProfilePic');
-    const avatarElements = document.querySelectorAll('.user-avatar-display');
-    avatarElements.forEach(img => {
-        img.src = '';
-        img.classList.add('hidden');
-    });
-    
-    const defIcon = document.getElementById('profileDefaultIcon');
-    if(defIcon) defIcon.classList.remove('hidden');
+function closeProfilePicModal() {
+    document.getElementById('profilePicModal').classList.add('hidden');
+}
 
+function triggerProfileUpload() {
     closeProfilePicModal();
-    showToast('Profile picture removed!');
+    document.getElementById('profileImageInput').click();
 }
-// File select korar por square preview dekhabe
+
 function handleImageCropPreview(event) {
     const file = event.target.files[0];
     if (file) {
@@ -1171,32 +1151,37 @@ function closeCropModal() {
     document.getElementById('imageCropModal').classList.add('hidden');
 }
 
-// OK korle profile pic save hobe ebong leaderboard/profile-eo auto call hobe
 function confirmAndSaveProfilePic() {
     if (selectedBase64Image) {
         localStorage.setItem('userProfilePic', selectedBase64Image);
         
-        // UI-te shob jaygay update kore dibe
         const avatarElements = document.querySelectorAll('.user-avatar-display');
         avatarElements.forEach(img => {
             img.src = selectedBase64Image;
+            img.classList.remove('hidden');
         });
+        
+        const defIcon = document.getElementById('profileDefaultIcon');
+        if(defIcon) defIcon.classList.add('hidden');
 
-        showToast('Profile picture successfully updated!');
+        if(typeof showToast === 'function') showToast('Profile picture successfully updated!');
     }
     closeCropModal();
 }
 
-// Remove picture option
 function removeProfilePic() {
     localStorage.removeItem('userProfilePic');
-    const defaultAvatar = "default-avatar.png"; // Tor default avatar path
     const avatarElements = document.querySelectorAll('.user-avatar-display');
     avatarElements.forEach(img => {
-        img.src = defaultAvatar;
+        img.src = '';
+        img.classList.add('hidden');
     });
+    
+    const defIcon = document.getElementById('profileDefaultIcon');
+    if(defIcon) defIcon.classList.remove('hidden');
+
     closeProfilePicModal();
-    showToast('Profile picture removed!');
+    if(typeof showToast === 'function') showToast('Profile picture removed!');
 }
         function openLeaderboardModal() {
     const modal = document.getElementById('leaderboardModal');
