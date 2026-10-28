@@ -711,6 +711,40 @@
             </div>
 
         </main>
+        <!-- Profile Pic Options Modal -->
+    <div id="profilePicModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 text-center space-y-4 shadow-2xl">
+            <h3 class="text-white font-bold text-base">Profile Picture</h3>
+            <div class="space-y-2">
+                <button onclick="triggerProfileUpload()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-sm">Upload New Photo</button>
+                <button onclick="removeProfilePic()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-red-400 font-semibold rounded-xl transition cursor-pointer text-sm">Remove Picture</button>
+            </div>
+            <button onclick="closeProfilePicModal()" class="text-slate-400 hover:text-white text-xs underline cursor-pointer">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Hidden File Input for Image Upload -->
+    <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="handleImageCropPreview(event)">
+
+    <!-- Crop/Preview Modal -->
+    <div id="imageCropModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 text-center space-y-4 shadow-2xl">
+            <h3 class="text-white font-bold text-base">Preview Picture</h3>
+            <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-emerald-500 shadow-md">
+                <img id="cropPreviewImg" src="" alt="Preview" class="w-full h-full object-cover">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeCropModal()" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition cursor-pointer text-xs">Cancel</button>
+                <button onclick="confirmAndSaveProfilePic()" class="w-1/2 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-xs">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
 
         <!-- Bottom Navigation Bar -->
         <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 absolute bottom-0 left-0 right-0 z-30 flex justify-around items-center">
