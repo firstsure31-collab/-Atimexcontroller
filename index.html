@@ -991,6 +991,16 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        function openLeaderboardModal() {
+    const modal = document.getElementById('leaderboardModal');
+    if (modal) modal.classList.remove('hidden');
+    // Ekhane online database (Firebase) theke top referrers data fetch kore render korar logic bosbe
+}
+
+function closeLeaderboardModal() {
+    const modal = document.getElementById('leaderboardModal');
+    if (modal) modal.classList.add('hidden');
+}
         // 1. Auto Slide Animation (3s Interval)
 let currentHomeSlide = 0;
 let homeSlideInterval = null;
