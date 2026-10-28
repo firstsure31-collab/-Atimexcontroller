@@ -197,6 +197,42 @@
                     <p class="text-xs text-slate-300">You are ready to perform daily tasks and earn rewards!</p>
                 </div>
 
+                <!-- 🌟 AUTO-SLIDING BANNER (16:9) -->
+                <div class="mt-4 px-1">
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-700/50 shadow-xl bg-slate-900" id="homeBannerSlider">
+                        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-100 scale-100">
+                            <img src="21k.jpeg" alt="Banner 1" class="w-full h-full object-cover">
+                        </div>
+                        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+                            <img src="daily income.jpeg" alt="Banner 2" class="w-full h-full object-cover">
+                        </div>
+                        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+                            <img src="free jersy.jpeg" alt="Banner 3" class="w-full h-full object-cover">
+                        </div>
+                        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+                            <img src="coming soon.jpeg" alt="Banner 4" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🏆 LEADERBOARD TRIGGER CARD -->
+                <div onclick="openLeaderboardModal()" class="mt-3 px-1">
+                    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/40 rounded-2xl p-4 flex items-center justify-between shadow-lg cursor-pointer hover:border-indigo-400 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl font-bold">
+                                🏆
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-sm">টপ রেফার লিডারবোর্ড</h4>
+                                <p class="text-slate-400 text-[10px]">কে সবচেয়ে বেশি রেফার করেছে দেখুন!</p>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
+                            দেখুন <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Stats Summary -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3">
@@ -217,7 +253,12 @@
                             <div class="text-base font-bold text-slate-100"><span id="taskCountVal">0</span> Tasks</div>
                         </div>
                     </div>
-                 </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
       <!-- 2. WALLET / WITHDRAW TAB -->
             <div id="tabWallet" class="tab-content hidden space-y-4">
                 <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 text-center">
