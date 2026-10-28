@@ -215,23 +215,156 @@
                     </div>
                 </div>
 
-                <!-- 🏆 LEADERBOARD TRIGGER CARD -->
-                <div onclick="openLeaderboardModal()" class="mt-3 px-1">
-                    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/40 rounded-2xl p-4 flex items-center justify-between shadow-lg cursor-pointer hover:border-indigo-400 transition-all">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl font-bold">
-                                🏆
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-sm">টপ রেফার লিডারবোর্ড</h4>
-                                <p class="text-slate-400 text-[10px]">কে সবচেয়ে বেশি রেফার করেছে দেখুন!</p>
-                            </div>
-                        </div>
-                        <div class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
-                            দেখুন <i class="fa-solid fa-arrow-right ml-1"></i>
-                        </div>
+                <!-- 🏆 LEADERBOARD MODAL (Modern & Premium Design) -->
+<div id="leaderboardModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        
+        <!-- Modal Header -->
+        <div class="bg-slate-900/90 backdrop-blur border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <!-- LOGO OPTION: Ekhane tui logo pic bosate parbi -->
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center overflow-hidden">
+                    <img src="YOUR_LOGO_HERE.jpg" alt="Logo" class="w-full h-full object-cover">
+                </div>
+                <span class="text-base font-extrabold tracking-tight text-white">ATIMEX</span>
+            </div>
+            <button onclick="closeLeaderboardModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            
+            <!-- Top Banner Card -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 text-center text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-emerald-500/20 text-8xl font-black">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h3 class="text-lg font-black tracking-wide uppercase">Today's Top Stars</h3>
+                <p class="text-xs text-emerald-100 font-medium mt-0.5">REFERRAL LEADERBOARD</p>
+                
+                <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-emerald-500/30">
+                    <div class="bg-slate-950/20 rounded-xl p-2 backdrop-blur-sm">
+                        <div class="text-[10px] uppercase tracking-wider text-emerald-200">Total Referrals</div>
+                        <div class="text-base font-black">307</div>
+                    </div>
+                    <div class="bg-slate-950/20 rounded-xl p-2 backdrop-blur-sm">
+                        <div class="text-[10px] uppercase tracking-wider text-emerald-200">Active Pool</div>
+                        <div class="text-base font-black">10/10</div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Leaderboard List -->
+            <div class="space-y-2.5" id="leaderboardListContainer">
+                
+                <!-- Rank 1 (Gold) -->
+                <div class="bg-gradient-to-r from-amber-500/10 via-slate-800/60 to-slate-800/60 border border-amber-500/40 rounded-2xl p-3 flex items-center justify-between shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black text-sm">
+                            🥇
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <!-- User Avatar / Logo Option -->
+                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-amber-500/50 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
+                                <img src="USER_AVATAR_1.jpg" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-xs">Hafizul Rajal (Boss)</h4>
+                                <p class="text-[10px] text-amber-400 font-medium">Winner Champion</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black px-3 py-1.5 rounded-xl">
+                        58 🏆
+                    </div>
+                </div>
+
+                <!-- Rank 2 (Silver) -->
+                <div class="bg-gradient-to-r from-slate-300/10 via-slate-800/60 to-slate-800/60 border border-slate-400/30 rounded-2xl p-3 flex items-center justify-between shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-slate-300/20 border border-slate-400/30 flex items-center justify-center text-slate-300 font-black text-sm">
+                            🥈
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-slate-400/40 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
+                                <img src="USER_AVATAR_2.jpg" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-xs">Mofassir Ansari</h4>
+                                <p class="text-[10px] text-slate-400 font-medium">Elite Referrer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-black px-3 py-1.5 rounded-xl">
+                        50 🏆
+                    </div>
+                </div>
+
+                <!-- Rank 3 (Bronze) -->
+                <div class="bg-gradient-to-r from-orange-500/10 via-slate-800/60 to-slate-800/60 border border-orange-500/30 rounded-2xl p-3 flex items-center justify-between shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-sm">
+                            🥉
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-orange-500/40 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
+                                <img src="USER_AVATAR_3.jpg" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-xs">Tawfique Ahmed</h4>
+                                <p class="text-[10px] text-orange-400 font-medium">Top Referrer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-black px-3 py-1.5 rounded-xl">
+                        41 🏆
+                    </div>
+                </div>
+
+                <!-- Rank 4 -->
+                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-bold text-xs">
+                            #4
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full bg-slate-700 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
+                                <img src="USER_AVATAR_4.jpg" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-xs">Tariqul Islam</h4>
+                                <p class="text-[10px] text-slate-400">ATIMEX Leader</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-emerald-400 text-xs font-bold">35 🏆</div>
+                </div>
+
+                <!-- Rank 5 -->
+                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-bold text-xs">
+                            #5
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full bg-slate-700 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
+                                <img src="USER_AVATAR_5.jpg" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-xs">Anwar</h4>
+                                <p class="text-[10px] text-slate-400">ATIMEX Leader</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-emerald-400 text-xs font-bold">32 🏆</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <!-- 🎡 Lucky Spin Wheel Card -->
                 <div onclick="openSpinModal()" class="cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 p-3.5 rounded-2xl flex items-center justify-between shadow-lg my-3 transition transform active:scale-95">
