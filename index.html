@@ -1120,21 +1120,39 @@
     <!-- JAVASCRIPT LOGIC -->
     <script>
         let selectedBase64Image = "";
+        function confirmAndSaveProfilePic() {
+    if (selectedBase64Image) {
+        localStorage.setItem('userProfilePic', selectedBase64Image);
+        
+        // Update all avatars
+        const avatarElements = document.querySelectorAll('.user-avatar-display');
+        avatarElements.forEach(img => {
+            img.src = selectedBase64Image;
+            img.classList.remove('hidden');
+        });
+        
+        const defIcon = document.getElementById('profileDefaultIcon');
+        if(defIcon) defIcon.classList.add('hidden');
 
-// Profile avatar-e click korle options modal open hobe
-function openProfilePicOptions() {
-    document.getElementById('profilePicModal').classList.remove('hidden');
+        showToast('Profile picture successfully updated!');
+    }
+    closeCropModal();
 }
 
-function closeProfilePicModal() {
-    document.getElementById('profilePicModal').classList.add('hidden');
-}
+function removeProfilePic() {
+    localStorage.removeItem('userProfilePic');
+    const avatarElements = document.querySelectorAll('.user-avatar-display');
+    avatarElements.forEach(img => {
+        img.src = '';
+        img.classList.add('hidden');
+    });
+    
+    const defIcon = document.getElementById('profileDefaultIcon');
+    if(defIcon) defIcon.classList.remove('hidden');
 
-function triggerProfileUpload() {
     closeProfilePicModal();
-    document.getElementById('profileImageInput').click();
+    showToast('Profile picture removed!');
 }
-
 // File select korar por square preview dekhabe
 function handleImageCropPreview(event) {
     const file = event.target.files[0];
