@@ -1121,6 +1121,14 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    // Welcome Modal ebong Auth Modal-ke force kore direct bodyer vitor niye jabe
+    const welcomeModal = document.getElementById('welcomeModal');
+    const authModal = document.getElementById('authModal');
+    
+    if (welcomeModal) document.body.appendChild(welcomeModal);
+    if (authModal) document.body.appendChild(authModal);
+});
 let selectedBase64Image = "";
 
 function openProfilePicOptions() {
