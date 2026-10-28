@@ -239,8 +239,36 @@
                     <span class="bg-slate-950 text-amber-400 text-[10px] font-bold px-3 py-1.5 rounded-xl shadow">PLAY</span>
                 </div>
             </div>
+ <!-- Auto Sliding Banner (16:9 Aspect Ratio) -->
+<div class="mt-4 px-1">
+    <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-700/50 shadow-xl bg-slate-900" id="homeBannerSlider">
+        <!-- Slide 1 -->
+        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-100 scale-100">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80" alt="Banner 1" class="w-full h-full object-cover">
+        </div>
+        <!-- Slide 2 -->
+        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80" alt="Banner 2" class="w-full h-full object-cover">
+        </div>
+        <!-- Slide 3 -->
+        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80" alt="Banner 3" class="w-full h-full object-cover">
+        </div>
+        <!-- Slide 4 -->
+        <div class="home-slide absolute inset-0 transition-all duration-700 ease-in-out opacity-0 scale-95 pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80" alt="Banner 4" class="w-full h-full object-cover">
+        </div>
 
-            <!-- 2. WALLET / WITHDRAW TAB -->
+        <!-- Slider Dots Indicator -->
+        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            <span class="slider-dot w-2 h-2 rounded-full bg-emerald-400 transition-all duration-300"></span>
+            <span class="slider-dot w-2 h-2 rounded-full bg-white/40 transition-all duration-300"></span>
+            <span class="slider-dot w-2 h-2 rounded-full bg-white/40 transition-all duration-300"></span>
+            <span class="slider-dot w-2 h-2 rounded-full bg-white/40 transition-all duration-300"></span>
+        </div>
+    </div>
+</div>
+      <!-- 2. WALLET / WITHDRAW TAB -->
             <div id="tabWallet" class="tab-content hidden space-y-4">
                 <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 text-center">
                     <div class="text-xs text-slate-400 font-medium">Withdrawable Balance</div>
@@ -897,6 +925,57 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // 1. Auto Slide Animation (3s Interval)
+let currentHomeSlide = 0;
+let homeSlideInterval = null;
+
+function initHomeBannerSlider() {
+    const slides = document.querySelectorAll('.home-slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    if (slides.length === 0) return;
+
+    if (homeSlideInterval) clearInterval(homeSlideInterval);
+
+    homeSlideInterval = setInterval(() => {
+        // Purono slide hide kora
+        slides[currentHomeSlide].classList.remove('opacity-100', 'scale-100');
+        slides[currentHomeSlide].classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        if (dots[currentHomeSlide]) {
+            dots[currentHomeSlide].className = 'slider-dot w-2 h-2 rounded-full bg-white/40 transition-all duration-300';
+        }
+
+        // Index 1 barano
+        currentHomeSlide = (currentHomeSlide + 1) % slides.length;
+
+        // Notun slide show kora
+        slides[currentHomeSlide].classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        slides[currentHomeSlide].classList.add('opacity-100', 'scale-100');
+        if (dots[currentHomeSlide]) {
+            dots[currentHomeSlide].className = 'slider-dot w-4 h-2 rounded-full bg-emerald-400 transition-all duration-300';
+        }
+    }, 3000); // 3 seconds
+}
+
+// 2. Free Fire Style News Popup Logic
+function openGameNewsModal() {
+    const modal = document.getElementById('gameNewsModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeGameNewsModal() {
+    const modal = document.getElementById('gameNewsModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// Page Load e Slider ebong News Popup active kora
+document.addEventListener("DOMContentLoaded", function () {
+    initHomeBannerSlider();
+
+    // 1.5 second por News Popup automatic ashbe
+    setTimeout(() => {
+        openGameNewsModal();
+    }, 1500);
+});
 function openAdminModal() {
     const modal = document.getElementById('adminModal');
     if (modal) modal.classList.remove('hidden');
