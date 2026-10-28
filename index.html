@@ -118,20 +118,32 @@
 #homeBannerSlider img { transition: transform .8s ease, filter .8s ease; }
 #homeBannerSlider:hover img { transform:scale(1.035); filter:saturate(1.08); }
 
-/* Live animated welcome heading */
+/* Strong, visible live welcome animations */
 .welcome-live-text {
   display: inline-block;
-  background: linear-gradient(90deg,#ffffff 0%,#34d399 25%,#a7f3d0 50%,#ffffff 75%,#34d399 100%);
-  background-size: 250% auto;
+  background: linear-gradient(90deg,#ffffff 0%,#34d399 18%,#d1fae5 35%,#ffffff 50%,#10b981 68%,#ffffff 84%,#34d399 100%);
+  background-size: 300% 100%;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: welcomeShine 2.6s linear infinite, welcomeFloat 2.2s ease-in-out infinite;
-  text-shadow: 0 0 18px rgba(16,185,129,.14);
+  animation: welcomeShine 2.1s linear infinite, welcomeFloat 1.8s ease-in-out infinite, welcomeGlow 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 7px rgba(16,185,129,.55));
+  will-change: background-position, transform, filter;
+}
+.intro-title-live {
+  display: inline-block;
+  background: linear-gradient(90deg,#fff 0%,#34d399 20%,#fff 40%,#10b981 60%,#d1fae5 80%,#fff 100%);
+  background-size: 250% 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: welcomeShine 1.8s linear infinite, welcomeGlow 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(16,185,129,.65));
 }
 @keyframes welcomeShine { to { background-position: 250% center; } }
-@keyframes welcomeFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .welcome-live-text { animation: none; } }
+@keyframes welcomeFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.035); } }
+@keyframes welcomeGlow { 0%,100% { filter: drop-shadow(0 0 5px rgba(16,185,129,.35)); } 50% { filter: drop-shadow(0 0 15px rgba(52,211,153,.95)); } }
+@media (prefers-reduced-motion: reduce) { .welcome-live-text,.intro-title-live { animation: none; } }
 </style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
@@ -149,8 +161,8 @@
         </div>
 
         <!-- Title & Shimmering Subtitle -->
-        <h1 class="text-3xl font-black tracking-wider text-white mb-2 uppercase">
-          ATIMEX<span class="intro-text-shimmer"></span>
+        <h1 class="text-3xl font-black tracking-wider mb-2 uppercase">
+          <span class="intro-title-live">ATIMEX</span>
         </h1>
         <p class="text-xs text-slate-400 tracking-widest uppercase font-medium mb-6">
           Next-Gen Earning Platform
@@ -1583,10 +1595,13 @@ function startSpin() {
     const randomIndex = Math.floor(Math.random() * rewards.length);
 
     const degreePerSegment = 36;
-    // Wheel SVG is rotated -90deg and the pointer is at 12 o'clock.
-    // Align the chosen segment's center under the pointer; result text uses same selected index.
-    const pointerOffset = 18;
-    const extraDegree = (360 * 5) + (360 - (randomIndex * degreePerSegment + pointerOffset));
+    // The visible wheel sectors are centered clockwise at 0, 36, 72... degrees:
+    // ৳20 is centered at 3 o'clock, and the fixed pointer is at 12 o'clock (270°).
+    // Rotate the selected sector center to 270° so the displayed reward matches the pointer.
+    const selectedCenterAngle = randomIndex * degreePerSegment;
+    const pointerAngle = 270;
+    const targetOffset = ((pointerAngle - selectedCenterAngle) % 360 + 360) % 360;
+    const extraDegree = (360 * 5) + targetOffset;
     currentDegree += extraDegree;
 
     const wheel = document.getElementById('wheel');
