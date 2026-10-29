@@ -1515,14 +1515,31 @@ async function loadCloudUser(user, phone){
  await persistCloudUser(user.id,safePhone,saved,email);
 }
 window.onload = async function(){
- const welcomeModal=document.getElementById('welcomeModal');
- try{
-  const {data:{session},error}=await supabaseClient.auth.getSession();
-  if(error) throw error;
-  if(session?.user){await loadCloudUser(session.user,session.user.user_metadata?.phone||'');return;}
- }catch(e){console.error('Supabase session/data restore failed:',e);showToast('Cloud data load হয়নি: '+(e.message||'Supabase table/policy check করুন'),true);}
- localStorage.removeItem('currentLoggedInUser');window.appState.isLoggedIn=false;window.appState.userPhone='';
- if(welcomeModal)welcomeModal.classList.remove('hidden');
+    const welcomeModal = document.getElementById('welcomeModal');
+    
+    // Supabase auth state listener add kora jate refresh ba tab change korle session loss na hoy
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+            await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+        }
+    });
+
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+        if (session?.user) {
+            await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+            return;
+        }
+    } catch(e) {
+        console.error('Supabase session/data restore failed:', e);
+        showToast('Cloud data load hoyni: ' + (e.message || 'Supabase table/policy check korun'), true);
+    }
+    
+    localStorage.removeItem('currentLoggedInUser');
+    window.appState.isLoggedIn = false;
+    window.appState.userPhone = '';
+    if (welcomeModal) welcomeModal.classList.remove('hidden');
 };
 let authMode='login';
 function setAuthMode(mode){
