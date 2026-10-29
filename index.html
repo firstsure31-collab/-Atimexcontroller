@@ -1459,7 +1459,14 @@ let activeGateway = { method: 'bKash', number: '01940779877' };
 
 const SUPABASE_URL = 'https://hddswjhehlwbpytsgndm.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage
+    }
+});
 // Supabase email + password auth. Mobile number is saved as profile data, not used for login.
 function normalizeBangladeshPhone(v){
  const p=String(v||'').replace(/[\s()-]/g,'');
@@ -1517,10 +1524,17 @@ async function loadCloudUser(user, phone){
 window.onload = async function(){
     const welcomeModal = document.getElementById('welcomeModal');
     
-    // Supabase auth state listener add kora jate refresh ba tab change korle session loss na hoy
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-            await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+    // Restore saved Supabase session on refresh. Keep auth callbacks separate from Supabase calls
+    // to avoid blocking the auth state listener while profile data is being fetched/saved.
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event !== 'INITIAL_SESSION' && session?.user) {
+            setTimeout(() => {
+                loadCloudUser(session.user, session.user.user_metadata?.phone || '')
+                    .catch(e => {
+                        console.error('Supabase auth-state profile sync failed:', e);
+                        showToast('Login session আছে, কিন্তু cloud profile load হয়নি: ' + (e.message || 'Supabase table/policy check করুন'), true);
+                    });
+            }, 0);
         }
     });
 
@@ -1528,14 +1542,24 @@ window.onload = async function(){
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (error) throw error;
         if (session?.user) {
-            await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+            try {
+                await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+            } catch (profileError) {
+                console.error('Supabase profile restore failed:', profileError);
+                // Keep the valid Supabase session even if profile sync temporarily fails.
+                window.appState.isLoggedIn = true;
+                window.appState.userPhone = session.user.user_metadata?.phone || '';
+                document.getElementById('authModal')?.classList.add('hidden');
+                document.getElementById('welcomeModal')?.classList.add('hidden');
+                showToast('Login session restore হয়েছে, তবে cloud profile load হয়নি: ' + (profileError.message || 'Supabase table/policy check করুন'), true);
+            }
             return;
         }
     } catch(e) {
-        console.error('Supabase session/data restore failed:', e);
-        showToast('Cloud data load hoyni: ' + (e.message || 'Supabase table/policy check korun'), true);
+        console.error('Supabase session restore failed:', e);
+        showToast('Session restore হয়নি: ' + (e.message || 'Supabase settings check করুন'), true);
     }
-    
+
     localStorage.removeItem('currentLoggedInUser');
     window.appState.isLoggedIn = false;
     window.appState.userPhone = '';
