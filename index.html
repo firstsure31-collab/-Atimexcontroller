@@ -1558,15 +1558,18 @@ async function handleAuthSubmit(){
    data=signup.data;
   }
   const localPhone=localPhoneNumber(phone);
-  const raw=localStorage.getItem('user_'+localPhone);
-  const oldSaved=raw?JSON.parse(raw):null;
-  const name=authMode==='register'?nick:(data.user.user_metadata?.nickname||oldSaved?.nickname||'User'+localPhone.slice(-4));
-  const saved={...(oldSaved||{}),phone:localPhone,nickname:name,progressData:(oldSaved&&oldSaved.progressData)||defaultProgressData(),avatar:oldSaved?.avatar||localStorage.getItem('userProfilePic')||null};
+  if(authMode==='login'){
+   // Existing account: restore the cloud copy first; never overwrite it with stale local data.
+   await loadCloudUser(data.user,localPhone);
+   showToast('Login সফল! Supabase থেকে data load হয়েছে।');
+   return;
+  }
+  const saved={phone:localPhone,nickname:nick,progressData:defaultProgressData(),avatar:localStorage.getItem('userProfilePic')||null};
   await persistCloudUser(data.user.id,localPhone,saved);
   localStorage.setItem('user_'+localPhone,JSON.stringify(saved));
-  localStorage.setItem('atimexNickname',name);
+  localStorage.setItem('atimexNickname',nick);
   applySavedUser(saved,localPhone);
-  showToast(authMode==='register'?'Registration সফল! Account ও progress cloud-এ save হয়েছে।':'Login সফল! Cloud data load হয়েছে।');
+  showToast('Registration সফল! Account ও progress Supabase-এ save হয়েছে।');
  }catch(e){
   console.error('Supabase '+authMode+' error:',e);
   showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
