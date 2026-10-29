@@ -145,6 +145,7 @@
 @keyframes welcomeGlow { 0%,100% { filter: drop-shadow(0 0 5px rgba(16,185,129,.35)); } 50% { filter: drop-shadow(0 0 15px rgba(52,211,153,.95)); } }
 @media (prefers-reduced-motion: reduce) { .welcome-live-text,.intro-title-live { animation: none; } }
 </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 
@@ -793,13 +794,10 @@
                         <label class="text-[11px] text-slate-400 mb-1 block">Phone Number</label>
                         <input type="tel" id="authPhone" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="শুধু সংখ্যা (Numbers)" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login / Register</button>
-                    <button onclick="showForgotPasswordInfo()" class="w-full text-emerald-300 text-[11px] underline">পাসওয়ার্ড ভুলে গেছেন?</button>
-                    <p class="text-[9px] text-slate-500 text-center">OTP/API সংযোগ না হওয়া পর্যন্ত password reset চালু নয়।</p>
+                    <div><label class="text-[11px] text-slate-400 mb-1 block">SMS OTP</label><input type="text" id="authOtp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="৬ ডিজিটের OTP" class="hidden w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500"></div>
+                    <button id="authOtpButton" onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">OTP পাঠান / লগইন করুন</button>
+                    <button id="authResendButton" onclick="resendPhoneOtp()" class="hidden w-full text-emerald-300 text-[11px] underline">আবার OTP পাঠান</button>
+                    <p class="text-[9px] text-slate-500 text-center">SMS OTP-এর জন্য Supabase Phone Auth ও SMS provider চালু থাকতে হবে।</p>
                 </div>
             </div>
         </div>
@@ -1445,57 +1443,74 @@ window.appState = window.appState || {
 
 let activeGateway = { method: 'bKash', number: '01940779877' };
 
-// Page load hole session check korbe ebong data restore korbe
-window.onload = function() {
-    const welcomeModal = document.getElementById('welcomeModal');
-    let currentPhone = localStorage.getItem('currentLoggedInUser');
-    
-    if (currentPhone) {
-        let savedUserJSON = localStorage.getItem('user_' + currentPhone);
-        if (savedUserJSON) {
-            let savedUser = JSON.parse(savedUserJSON);
-            
-            // Session and appState restore kora
-            window.appState.isLoggedIn = true;
-            window.appState.userPhone = currentPhone;
-            
-            if (savedUser.progressData) {
-                if (savedUser.progressData.balance !== undefined) window.appState.balance = savedUser.progressData.balance;
-                if (savedUser.progressData.totalEarned !== undefined) window.appState.totalEarned = savedUser.progressData.totalEarned;
-                if (savedUser.progressData.completedTasks !== undefined) window.appState.completedTasks = savedUser.progressData.completedTasks;
-                if (savedUser.progressData.isActive !== undefined) window.appState.isActive = savedUser.progressData.isActive;
-                if (savedUser.progressData.spinsLeft !== undefined) window.appState.spinsLeft = savedUser.progressData.spinsLeft;
-                if (savedUser.progressData.hasBoughtStarter !== undefined) window.appState.hasBoughtStarter = savedUser.progressData.hasBoughtStarter;
-            }
-            
-            const profilePhoneEl = document.getElementById('profilePhone');
-            if (profilePhoneEl) profilePhoneEl.innerText = currentPhone;
-            
-            if (welcomeModal) welcomeModal.classList.add('hidden');
-            const authModal = document.getElementById('authModal');
-            if (authModal) authModal.classList.add('hidden');
-            
-            updateBalanceDisplays();
-            updateReferralUi();
-            if (!localStorage.getItem('noticeSeen_' + currentPhone)) {
-              const notice = document.getElementById('firstVisitNotice');
-              if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
-            }
-            updateSpinUI();
-            updateReferralUi();
-            if (!localStorage.getItem('noticeSeen_' + phone)) {
-              const notice = document.getElementById('firstVisitNotice');
-              if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
-            }
-            if (window.appState.isActive) {
-                activateAccountUIOnly();
-            }
-            showToast('অ্যাকাউন্ট রিকভার করা হয়েছে!');
-        }
-    } else {
-        if(welcomeModal) welcomeModal.classList.remove('hidden');
-    }
+const SUPABASE_URL = 'https://hddswjhehlwbpytsgndm.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let otpSentPhone = '', otpSentNickname = '', otpRequestInProgress = false;
+
+window.onload = async function() {
+ const welcomeModal=document.getElementById('welcomeModal');
+ const {data:{session},error}=await supabaseClient.auth.getSession();
+ if(error) console.error('Supabase session check failed:',error);
+ if(session?.user?.phone){
+  const n=session.user.phone, phone=n.startsWith('+880')?'0'+n.slice(4):n;
+  localStorage.setItem('currentLoggedInUser',phone);
+  const raw=localStorage.getItem('user_'+phone);
+  const saved=raw?JSON.parse(raw):{phone,nickname:session.user.user_metadata?.nickname||'User'+phone.slice(-4),progressData:{}};
+  window.appState.isLoggedIn=true;window.appState.userPhone=phone;window.appState.nickname=saved.nickname||'User'+phone.slice(-4);
+  const p=saved.progressData||{};
+  if(p.balance!==undefined)window.appState.balance=p.balance;if(p.totalEarned!==undefined)window.appState.totalEarned=p.totalEarned;
+  if(p.completedTasks!==undefined)window.appState.completedTasks=p.completedTasks;if(p.isActive!==undefined)window.appState.isActive=p.isActive;
+  if(p.spinsLeft!==undefined)window.appState.spinsLeft=p.spinsLeft;if(p.hasBoughtStarter!==undefined)window.appState.hasBoughtStarter=p.hasBoughtStarter;
+  const ph=document.getElementById('profilePhone');if(ph)ph.innerText=phone;
+  const ne=document.getElementById('profileNickname');if(ne)ne.innerText=window.appState.nickname;
+  if(welcomeModal)welcomeModal.classList.add('hidden');document.getElementById('authModal')?.classList.add('hidden');
+  updateBalanceDisplays();updateReferralUi();
+  if(!localStorage.getItem('noticeSeen_'+phone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
+  updateSpinUI();if(window.appState.isActive)activateAccountUIOnly();
+ }else{localStorage.removeItem('currentLoggedInUser');window.appState.isLoggedIn=false;window.appState.userPhone='';if(welcomeModal)welcomeModal.classList.remove('hidden');}
 };
+
+// Supabase SMS OTP authentication; progress data remains local to this browser.
+function normalizeBangladeshPhone(v){const p=v.replace(/[\s()-]/g,'');if(/^01[3-9]\d{8}$/.test(p))return '+88'+p;if(/^\+8801[3-9]\d{8}$/.test(p))return p;return '';}
+async function handleAuthSubmit(){
+ if(otpRequestInProgress)return;
+ const phone=normalizeBangladeshPhone(document.getElementById('authPhone').value.trim()),otp=document.getElementById('authOtp');
+ const nick=(document.getElementById('authNickname')?.value||'').trim().slice(0,24),btn=document.getElementById('authOtpButton');
+ if(!phone){showToast('সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)!',true);return;}
+ otpRequestInProgress=true;if(btn)btn.disabled=true;
+ try{
+  if(otp.classList.contains('hidden')){
+   otpSentPhone=phone;otpSentNickname=nick;
+   const {error}=await supabaseClient.auth.signInWithOtp({phone,options:{data:{nickname:nick||'User'+phone.slice(-4)}}});
+   if(error)throw error;otp.classList.remove('hidden');btn.innerText='OTP যাচাই করে লগইন করুন';
+   document.getElementById('authResendButton')?.classList.remove('hidden');showToast('SMS-এ OTP পাঠানো হয়েছে।');otp.focus();
+  }else{
+   const token=otp.value.trim();if(!/^\d{6}$/.test(token)){showToast('৬ ডিজিটের OTP দিন!',true);return;}
+   const {data,error}=await supabaseClient.auth.verifyOtp({phone:otpSentPhone||phone,token,type:'sms'});if(error)throw error;if(!data.user)throw new Error('Supabase user পাওয়া যায়নি।');
+   const localPhone=phone.startsWith('+880')?'0'+phone.slice(4):phone,name=otpSentNickname||data.user.user_metadata?.nickname||'User'+localPhone.slice(-4);
+   const {error:pe}=await supabaseClient.from('profiles').update({nickname:name}).eq('id',data.user.id);if(pe)console.warn('Profile nickname sync failed:',pe.message);
+   const raw=localStorage.getItem('user_'+localPhone),saved=raw?JSON.parse(raw):{phone:localPhone,nickname:name,progressData:{balance:0,totalEarned:0,completedTasks:0,isActive:false,spinsLeft:0,hasBoughtStarter:false}};
+   saved.phone=localPhone;saved.nickname=name;if(!saved.progressData)saved.progressData={balance:0,totalEarned:0,completedTasks:0,isActive:false,spinsLeft:0,hasBoughtStarter:false};
+   localStorage.setItem('user_'+localPhone,JSON.stringify(saved));localStorage.setItem('currentLoggedInUser',localPhone);
+   window.appState.isLoggedIn=true;window.appState.userPhone=localPhone;window.appState.nickname=name;
+   const p=saved.progressData;window.appState.balance=p.balance||0;window.appState.totalEarned=p.totalEarned||0;window.appState.completedTasks=p.completedTasks||0;
+   window.appState.isActive=!!p.isActive;window.appState.spinsLeft=p.spinsLeft||0;window.appState.hasBoughtStarter=!!p.hasBoughtStarter;
+   const ph=document.getElementById('profilePhone');if(ph)ph.innerText=localPhone;const ne=document.getElementById('profileNickname');if(ne)ne.innerText=name;
+   document.getElementById('authModal').classList.add('hidden');document.getElementById('welcomeModal')?.classList.add('hidden');
+   updateBalanceDisplays();updateSpinUI();updateReferralUi();if(window.appState.isActive)activateAccountUIOnly();
+   if(!localStorage.getItem('noticeSeen_'+localPhone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
+   otp.value='';showToast('OTP যাচাই সফল! লগইন হয়েছে।');
+  }
+ }catch(e){console.error('Supabase phone OTP error:',e);showToast('OTP কাজ করেনি: '+(e.message||'Supabase/SMS সেটিংস যাচাই করুন'),true);}
+ finally{otpRequestInProgress=false;if(btn)btn.disabled=false;}
+}
+async function resendPhoneOtp(){
+ const phone=normalizeBangladeshPhone(document.getElementById('authPhone').value.trim());
+ if(!phone||phone!==otpSentPhone){showToast('আগের একই মোবাইল নম্বরটি দিন!',true);return;}
+ try{const {error}=await supabaseClient.auth.signInWithOtp({phone,options:{data:{nickname:otpSentNickname||'User'+phone.slice(-4)}}});if(error)throw error;showToast('নতুন OTP পাঠানো হয়েছে。');}
+ catch(e){showToast('OTP আবার পাঠানো যায়নি: '+(e.message||'SMS সেটিংস যাচাই করুন'),true);}
+}
 
 function saveAllProgress() {
     let currentPhone = window.appState.userPhone || localStorage.getItem('currentLoggedInUser');
@@ -1623,103 +1638,6 @@ function startSpin() {
         saveAllProgress();
         showToast(`অভিনন্দন! আপনি ৳${wonAmount} জিতেছেন!`);
     }, 4000);
-}
-
-// Strict Authentication (Only Number check & localStorage persistence)
-function handleAuthSubmit() {
-    const phone = document.getElementById('authPhone').value.trim();
-    const pass = document.getElementById('authPass').value.trim();
-    const nicknameInput = document.getElementById('authNickname');
-    const nickname = nicknameInput ? nicknameInput.value.trim().slice(0,24) : '';
-    const phoneRegex = /^01[3-9]\d{8}$/;
-    
-    if (!phoneRegex.test(phone)) {
-        showToast('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!', true);
-        return;
-    }
-    if (!pass) {
-        showToast('পাসওয়ার্ড দিন!', true);
-        return;
-    }
-
-    // Check pass is strictly numbers only
-    const passRegex = /^\d+$/;
-    if (!passRegex.test(pass)) {
-        showToast('পাসওয়ার্ডে শুধুমাত্র সংখ্যা (Numbers) ব্যবহার করতে হবে!', true);
-        return;
-    }
-
-    let savedUserJSON = localStorage.getItem('user_' + phone);
-
-    if (savedUserJSON) {
-        let userData = JSON.parse(savedUserJSON);
-        if (userData.password === pass) {
-            localStorage.setItem('currentLoggedInUser', phone);
-            window.appState.isLoggedIn = true;
-            window.appState.userPhone = phone;
-            
-            if (userData.progressData) {
-                if (userData.progressData.balance !== undefined) window.appState.balance = userData.progressData.balance;
-                if (userData.progressData.totalEarned !== undefined) window.appState.totalEarned = userData.progressData.totalEarned;
-                if (userData.progressData.completedTasks !== undefined) window.appState.completedTasks = userData.progressData.completedTasks;
-                if (userData.progressData.isActive !== undefined) window.appState.isActive = userData.progressData.isActive;
-                if (userData.progressData.spinsLeft !== undefined) window.appState.spinsLeft = userData.progressData.spinsLeft;
-                if (userData.progressData.hasBoughtStarter !== undefined) window.appState.hasBoughtStarter = userData.progressData.hasBoughtStarter;
-            }
-
-            const profilePhoneEl = document.getElementById('profilePhone');
-            if (profilePhoneEl) profilePhoneEl.innerText = phone;
-            document.getElementById('authModal').classList.add('hidden');
-            
-            updateBalanceDisplays();
-            updateSpinUI();
-            if (window.appState.isActive) {
-                activateAccountUIOnly();
-            }
-            showToast('লগইন সফল হয়েছে!');
-        } else {
-            showToast('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।', true);
-        }
-    } else {
-        let newUser = {
-            phone: phone,
-            nickname: nickname || 'User' + phone.slice(-4),
-            password: pass,
-            progressData: {
-                balance: 0,
-                totalEarned: 0.00,
-                completedTasks: 0,
-                isActive: false,
-                spinsLeft: 0,
-                hasBoughtStarter: false
-            }
-        };
-        localStorage.setItem('user_' + phone, JSON.stringify(newUser));
-        localStorage.setItem('currentLoggedInUser', phone);
-        
-        window.appState.isLoggedIn = true;
-        window.appState.userPhone = phone;
-        window.appState.nickname = nickname || 'User' + phone.slice(-4);
-        const nickEl = document.getElementById('profileNickname');
-        if (nickEl) nickEl.innerText = window.appState.nickname;
-        window.appState.balance = 0;
-        window.appState.totalEarned = 0.00;
-        window.appState.completedTasks = 0;
-        window.appState.isActive = false;
-        window.appState.spinsLeft = 0;
-        window.appState.hasBoughtStarter = false;
-
-        const profilePhoneEl = document.getElementById('profilePhone');
-        if (profilePhoneEl) profilePhoneEl.innerText = phone;
-        document.getElementById('authModal').classList.add('hidden');
-        
-        updateBalanceDisplays();
-        updateSpinUI();
-        updateReferralUi();
-        const notice = document.getElementById('firstVisitNotice');
-        if (notice) { notice.classList.remove('hidden'); notice.classList.add('flex'); }
-        showToast('অ্যাকাউন্ট তৈরি হয়েছে। এটি এখনো local demo; online account নয়।');
-    }
 }
 
 function openPaymentModal() {
@@ -1874,14 +1792,13 @@ function selectWithdrawMethod(method) {
     if(target) target.classList.add('border-pink-500');
 }
 
-function logout() {
+async function logout() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) { showToast('লগআউট করা যায়নি: ' + error.message, true); return; }
     localStorage.removeItem('currentLoggedInUser');
-    window.appState.isLoggedIn = false;
-    window.appState.userPhone = '';
+    window.appState.isLoggedIn = false; window.appState.userPhone = '';
     document.getElementById('authModal').classList.remove('hidden');
-    showToast('লগআউট সফল হয়েছে!');
-    // Ebar auto page refresh hoye jabe
-    location.reload();
+    showToast('লগআউট সফল হয়েছে!'); location.reload();
 }
 
 function showToast(msg, isError = false) {
