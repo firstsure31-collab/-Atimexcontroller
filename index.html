@@ -1462,9 +1462,9 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 // Supabase email + password auth. Mobile number is saved as profile data, not used for login.
 function normalizeBangladeshPhone(v){
- const p=String(v||'').replace(/[\\s()-]/g,'');
- if(/^01[3-9]\\d{8}$/.test(p)) return p;
- if(/^\\+8801[3-9]\\d{8}$/.test(p)) return '0'+p.slice(4);
+ const p=String(v||'').replace(/[\s()-]/g,'');
+ if(/^01[3-9]\d{8}$/.test(p)) return p;
+ if(/^\+8801[3-9]\d{8}$/.test(p)) return '0'+p.slice(4);
  return '';
 }
 function localPhoneNumber(phone){ return phone || ''; }
@@ -1547,7 +1547,7 @@ async function handleAuthSubmit(){
  const nick=(document.getElementById('authNickname')?.value||'').trim().slice(0,24);
  const btn=document.getElementById('authPasswordButton');
  if(btn&&btn.disabled)return;
- if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){showToast('সঠিক Gmail/Email address দিন!',true);return;}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('সঠিক Gmail/Email address দিন!',true);return;}
  if(pass.length<6||pass.length>72){showToast('Password কমপক্ষে ৬ অক্ষরের হতে হবে!',true);return;}
  if(authMode==='register'){
   if(!nick){showToast('আপনার নাম লিখুন!',true);return;}
