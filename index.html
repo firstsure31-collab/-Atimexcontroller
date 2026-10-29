@@ -1586,18 +1586,28 @@ function applySavedUser(saved, phone){
  if(safePhone&&!localStorage.getItem('noticeSeen_'+safePhone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
 }
 async function persistCloudUser(userId, phone, saved, email){
- const safePhone=phone||saved.phone||'';
- const nickname=saved.nickname||window.appState.nickname||'User';
- const payload={id:userId,email:email||saved.email||null,phone:safePhone||null,nickname,app_data:{
-  ...saved,
-  email:email||saved.email||null,
-  phone:safePhone||null,
-  nickname,
-  progressData:saved.progressData||defaultProgressData(),
-  avatar:saved.avatar||localStorage.getItem('userProfilePic')||null
- },updated_at:new Date().toISOString()};
- const {error}=await supabaseClient.from('profiles').upsert(payload,{onConflict:'id'});
- if(error) throw error;
+    const safePhone = phone || saved.phone || '';
+    const safeEmail = email || saved.email || null;
+    const nickname = saved.nickname || window.appState.nickname || 'User';
+    
+    const payload = {
+        id: userId,
+        email: safeEmail,
+        phone: safePhone,
+        nickname: nickname,
+        app_data: {
+          ...saved,
+          email: safeEmail,
+          phone: safePhone,
+          nickname,
+          progressData: saved.progressData || defaultProgressData(),
+          avatar: saved.avatar || localStorage.getItem('userProfilePic') || null
+        },
+        updated_at: new Date().toISOString()
+    };
+    
+    const { error } = await supabaseClient.from('profiles').upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
 }
 async function loadCloudUser(user, phone){
  const {data:row,error}=await supabaseClient.from('profiles').select('id,email,phone,nickname,app_data').eq('id',user.id).maybeSingle();
