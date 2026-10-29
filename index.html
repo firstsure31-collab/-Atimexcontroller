@@ -1557,6 +1557,10 @@ async function saveAllProgress(){
  }catch(e){console.error('Progress cloud save failed:',e);if(typeof showToast==='function')showToast('Cloud save হয়নি: '+(e.message||'Supabase settings check করুন'),true);}
 }
 
+function showForgotPasswordInfo(){
+ showToast('পাসওয়ার্ড ভুলে গেলে এখন automated reset নেই। Supabase Dashboard থেকে account reset করতে হবে।',true);
+}
+
 function closeWelcomeOpenAuth() {
     document.getElementById('welcomeModal').classList.add('hidden');
     document.getElementById('authModal').classList.remove('hidden');
