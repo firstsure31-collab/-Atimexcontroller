@@ -784,23 +784,29 @@
                     <h3 class="text-lg font-bold text-white" id="authTitle">Login Account</h3>
                     <p class="text-xs text-slate-400">আপনার মোবাইল নম্বর দিয়ে লগইন করুন</p>
                 </div>
-
                 <div class="space-y-3">
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Nickname</label>
-                        <input type="text" id="authNickname" maxlength="24" placeholder="আপনার Nickname" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="authLoginTab" type="button" onclick="setAuthMode('login')" class="py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold">Login</button>
+                        <button id="authRegisterTab" type="button" onclick="setAuthMode('register')" class="py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Register</button>
+                    </div>
+                    <div id="authNicknameWrap" class="hidden">
+                        <label class="text-[11px] text-slate-400 mb-1 block">Name</label>
+                        <input type="text" id="authNickname" maxlength="24" autocomplete="name" placeholder="আপনার নাম" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Phone Number</label>
-                        <input type="tel" id="authPhone" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="tel" id="authPhone" autocomplete="tel" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="শুধু সংখ্যা (Numbers)" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="password" id="authPass" autocomplete="current-password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="৬-১২ সংখ্যার Password" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
-                    <button id="authPasswordButton" onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login / Register</button>
-                    <button onclick="showForgotPasswordInfo()" class="w-full text-emerald-300 text-[11px] underline">পাসওয়ার্ড ভুলে গেছেন?</button>
-                    <p class="text-[9px] text-slate-500 text-center">Phone + Password login (OTP ছাড়া)। নতুন account খুলতে Supabase Phone confirmations বন্ধ থাকতে হবে।</p>
+                    <div id="authConfirmWrap" class="hidden">
+                        <label class="text-[11px] text-slate-400 mb-1 block">Confirm Password</label>
+                        <input type="password" id="authConfirmPass" autocomplete="new-password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="Password আবার লিখুন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <button id="authPasswordButton" onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login</button>
+                    <p class="text-[9px] text-slate-500 text-center">Account ও progress Supabase cloud-এ save হবে। নতুন account খুলতে Supabase Phone provider চালু এবং Phone confirmations বন্ধ থাকতে হবে।</p>
                 </div>
             </div>
         </div>
@@ -1475,8 +1481,10 @@ function applySavedUser(saved, phone){
  if(!localStorage.getItem('noticeSeen_'+phone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
 }
 async function persistCloudUser(userId, phone, saved){
- const payload={id:userId,phone,nickname:saved.nickname||window.appState.nickname||'User'+phone.slice(-4),app_data:{
-  nickname:saved.nickname||window.appState.nickname||'User'+phone.slice(-4),
+ const nickname=saved.nickname||window.appState.nickname||'User'+phone.slice(-4);
+ const payload={id:userId,phone,nickname,app_data:{
+  ...saved,
+  nickname,
   progressData:saved.progressData||defaultProgressData(),
   avatar:saved.avatar||localStorage.getItem('userProfilePic')||null
  },updated_at:new Date().toISOString()};
@@ -1508,38 +1516,63 @@ window.onload = async function(){
  localStorage.removeItem('currentLoggedInUser');window.appState.isLoggedIn=false;window.appState.userPhone='';
  if(welcomeModal)welcomeModal.classList.remove('hidden');
 };
+let authMode='login';
+function setAuthMode(mode){
+ authMode=mode==='register'?'register':'login';
+ const register=authMode==='register';
+ document.getElementById('authTitle').innerText=register?'Create Account':'Login Account';
+ document.getElementById('authNicknameWrap').classList.toggle('hidden',!register);
+ document.getElementById('authConfirmWrap').classList.toggle('hidden',!register);
+ document.getElementById('authPass').autocomplete=register?'new-password':'current-password';
+ document.getElementById('authPasswordButton').innerText=register?'Create Account':'Login';
+ document.getElementById('authLoginTab').className=register?'py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold':'py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold';
+ document.getElementById('authRegisterTab').className=register?'py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold':'py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold';
+}
 async function handleAuthSubmit(){
  const rawPhone=document.getElementById('authPhone')?.value.trim()||'';
  const phone=normalizeBangladeshPhone(rawPhone);
- const pass=document.getElementById('authPass')?.value.trim()||'';
+ const pass=document.getElementById('authPass')?.value||'';
+ const confirmPass=document.getElementById('authConfirmPass')?.value||'';
  const nick=(document.getElementById('authNickname')?.value||'').trim().slice(0,24);
  const btn=document.getElementById('authPasswordButton');
  if(btn&&btn.disabled)return;
  if(!phone){showToast('সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)!',true);return;}
- if(!pass){showToast('পাসওয়ার্ড দিন!',true);return;}
  if(!/^\d{6,12}$/.test(pass)){showToast('পাসওয়ার্ড ৬-১২ সংখ্যার হতে হবে!',true);return;}
- if(btn)btn.disabled=true;
+ if(authMode==='register'){
+  if(!nick){showToast('আপনার নাম লিখুন!',true);return;}
+  if(pass!==confirmPass){showToast('Password এবং Confirm Password মিলছে না!',true);return;}
+ }
+ if(btn){btn.disabled=true;btn.innerText=authMode==='register'?'Creating...':'Logging in...';}
  try{
-  let data=null;
-  const login=await supabaseClient.auth.signInWithPassword({phone,password:pass});
-  if(!login.error&&login.data?.user){data=login.data;}
-  else{
-   const signup=await supabaseClient.auth.signUp({phone,password:pass,options:{data:{nickname:nick||'User'+phone.slice(-4)}}});
-   if(signup.error)throw new Error(signup.error.message);
-   if(!signup.data?.session||!signup.data?.user)throw new Error('Supabase Dashboard-এ Phone confirmations বন্ধ করুন, নইলে নতুন account-এ OTP চাইবে।');
+  let data;
+  if(authMode==='login'){
+   const login=await supabaseClient.auth.signInWithPassword({phone,password:pass});
+   if(login.error)throw login.error;
+   if(!login.data?.user)throw new Error('Login হয়নি। নম্বর ও password যাচাই করুন।');
+   data=login.data;
+  }else{
+   const signup=await supabaseClient.auth.signUp({phone,password:pass,options:{data:{nickname:nick}}});
+   if(signup.error)throw signup.error;
+   if(!signup.data?.user)throw new Error('Supabase account তৈরি করতে পারেনি। Phone provider settings check করুন।');
+   if(!signup.data?.session)throw new Error('Account তৈরি হয়েছে, কিন্তু Supabase Phone confirmations চালু থাকায় OTP/session লাগছে। Dashboard-এ Phone confirmations বন্ধ করুন অথবা OTP verification যোগ করতে হবে।');
    data=signup.data;
   }
   const localPhone=localPhoneNumber(phone);
   const raw=localStorage.getItem('user_'+localPhone);
   const oldSaved=raw?JSON.parse(raw):null;
-  const name=nick||data.user.user_metadata?.nickname||oldSaved?.nickname||'User'+localPhone.slice(-4);
+  const name=authMode==='register'?nick:(data.user.user_metadata?.nickname||oldSaved?.nickname||'User'+localPhone.slice(-4));
   const saved={...(oldSaved||{}),phone:localPhone,nickname:name,progressData:(oldSaved&&oldSaved.progressData)||defaultProgressData(),avatar:oldSaved?.avatar||localStorage.getItem('userProfilePic')||null};
   await persistCloudUser(data.user.id,localPhone,saved);
   localStorage.setItem('user_'+localPhone,JSON.stringify(saved));
+  localStorage.setItem('atimexNickname',name);
   applySavedUser(saved,localPhone);
-  showToast('Login সফল! ডেটা Supabase-এ save হয়েছে।');
- }catch(e){console.error('Supabase phone/password auth error:',e);showToast('Login হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);}
- finally{if(btn)btn.disabled=false;}
+  showToast(authMode==='register'?'Registration সফল! Account ও progress cloud-এ save হয়েছে।':'Login সফল! Cloud data load হয়েছে।');
+ }catch(e){
+  console.error('Supabase '+authMode+' error:',e);
+  showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
+ }finally{
+  if(btn){btn.disabled=false;btn.innerText=authMode==='register'?'Create Account':'Login';}
+ }
 }
 async function saveAllProgress(){
  const phone=window.appState.userPhone||localStorage.getItem('currentLoggedInUser');
@@ -1557,9 +1590,6 @@ async function saveAllProgress(){
  }catch(e){console.error('Progress cloud save failed:',e);if(typeof showToast==='function')showToast('Cloud save হয়নি: '+(e.message||'Supabase settings check করুন'),true);}
 }
 
-function showForgotPasswordInfo(){
- showToast('পাসওয়ার্ড ভুলে গেলে এখন automated reset নেই। Supabase Dashboard থেকে account reset করতে হবে।',true);
-}
 
 function closeWelcomeOpenAuth() {
     document.getElementById('welcomeModal').classList.add('hidden');
