@@ -4,6 +4,7 @@
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
+  email text,
   phone text,
   nickname text,
   app_data jsonb not null default '{}'::jsonb,
@@ -11,6 +12,7 @@ create table if not exists public.profiles (
 );
 
 alter table public.profiles
+  add column if not exists email text,
   add column if not exists phone text,
   add column if not exists nickname text,
   add column if not exists app_data jsonb not null default '{}'::jsonb,
