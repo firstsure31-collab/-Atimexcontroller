@@ -185,6 +185,28 @@
 @keyframes welcomeLogoOrbit { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .welcome-logo-frame::before, .header-logo-frame::before { animation: none; } }
 
+/* Wallet withdrawal cards: provider-colored neon line orbiting the card edge */
+.withdraw-provider-btn {
+  isolation: isolate; position: relative; overflow: hidden;
+  --wallet-neon: #ec4899;
+  border-color: color-mix(in srgb, var(--wallet-neon) 55%, #334155);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--wallet-neon) 10%, transparent);
+}
+.withdraw-provider-btn#btnWbKash { --wallet-neon: #ff2d95; }
+.withdraw-provider-btn#btnWNagad { --wallet-neon: #ff7a18; }
+.withdraw-provider-btn#btnWRocket { --wallet-neon: #b34cff; }
+.withdraw-provider-btn#btnWVISA { --wallet-neon: #287bff; }
+.withdraw-provider-btn::before {
+  content: ""; position: absolute; width: 220%; height: 220%; left: -60%; top: -60%;
+  z-index: 0; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 72%, var(--wallet-neon) 80%, #ffffff 84%, var(--wallet-neon) 88%, transparent 96% 100%);
+  animation: walletNeonOrbit 2.4s linear infinite;
+}
+.withdraw-provider-btn > * { position: relative; z-index: 1; }
+.withdraw-provider-btn:hover { box-shadow: 0 0 10px color-mix(in srgb, var(--wallet-neon) 38%, transparent); }
+@keyframes walletNeonOrbit { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .withdraw-provider-btn::before { animation: none; } }
+
 /* Strong, visible live welcome animations */
 .welcome-live-text {
   display: inline-block;
@@ -1978,9 +2000,10 @@ function handleWithdraw() {
 
 function selectWithdrawMethod(method) {
     const btns = document.querySelectorAll('.withdraw-provider-btn');
-    btns.forEach(btn => btn.classList.remove('border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
+    btns.forEach(btn => btn.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
     const target = document.getElementById('btnW' + method);
-    if(target) target.classList.add('border-pink-500');
+    const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500' }[method];
+    if (target && borderClass) target.classList.add('active', borderClass);
 }
 
 async function logout() {
