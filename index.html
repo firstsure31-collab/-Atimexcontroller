@@ -782,7 +782,7 @@
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full space-y-4 shadow-2xl relative">
                 <div class="text-center space-y-1">
                     <h3 class="text-lg font-bold text-white" id="authTitle">Login Account</h3>
-                    <p class="text-xs text-slate-400">আপনার মোবাইল নম্বর দিয়ে লগইন করুন</p>
+                    <p class="text-xs text-slate-400" id="authSubtitle">আপনার email দিয়ে লগইন করুন</p>
                 </div>
                 <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-2">
@@ -794,19 +794,23 @@
                         <input type="text" id="authNickname" maxlength="24" autocomplete="name" placeholder="আপনার নাম" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Phone Number</label>
-                        <input type="tel" id="authPhone" autocomplete="tel" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <label class="text-[11px] text-slate-400 mb-1 block">Gmail / Email</label>
+                        <input type="email" id="authEmail" autocomplete="email" placeholder="you@gmail.com" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div id="authPhoneWrap" class="hidden">
+                        <label class="text-[11px] text-slate-400 mb-1 block">Mobile Number (Payment-এর জন্য)</label>
+                        <input type="tel" id="authPhone" autocomplete="tel" inputmode="tel" placeholder="01XXXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" autocomplete="current-password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="৬-১২ সংখ্যার Password" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="password" id="authPass" autocomplete="current-password" minlength="6" maxlength="72" placeholder="Password দিন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div id="authConfirmWrap" class="hidden">
                         <label class="text-[11px] text-slate-400 mb-1 block">Confirm Password</label>
-                        <input type="password" id="authConfirmPass" autocomplete="new-password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="Password আবার লিখুন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <input type="password" id="authConfirmPass" autocomplete="new-password" minlength="6" maxlength="72" placeholder="Password আবার লিখুন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <button id="authPasswordButton" onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login</button>
-                    <p class="text-[9px] text-slate-500 text-center">Account ও progress Supabase cloud-এ save হবে। নতুন account খুলতে Supabase Phone provider চালু এবং Phone confirmations বন্ধ থাকতে হবে।</p>
+                    <p class="text-[9px] text-slate-500 text-center">আপনার account, mobile number ও progress Supabase-এ আলাদাভাবে save হবে।</p>
                 </div>
             </div>
         </div>
@@ -1456,34 +1460,38 @@ let activeGateway = { method: 'bKash', number: '01940779877' };
 const SUPABASE_URL = 'https://hddswjhehlwbpytsgndm.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-// Supabase phone + password auth. No OTP UI or OTP calls.
+// Supabase email + password auth. Mobile number is saved as profile data, not used for login.
 function normalizeBangladeshPhone(v){
- const p=String(v||'').replace(/[\s()-]/g,'');
- if(/^01[3-9]\d{8}$/.test(p)) return '+88'+p;
- if(/^\+8801[3-9]\d{8}$/.test(p)) return p;
+ const p=String(v||'').replace(/[\\s()-]/g,'');
+ if(/^01[3-9]\\d{8}$/.test(p)) return p;
+ if(/^\\+8801[3-9]\\d{8}$/.test(p)) return '0'+p.slice(4);
  return '';
 }
-function localPhoneNumber(phone){ return phone && phone.startsWith('+880') ? '0'+phone.slice(4) : phone; }
+function localPhoneNumber(phone){ return phone || ''; }
 function defaultProgressData(){return {balance:0,totalEarned:0,completedTasks:0,isActive:false,spinsLeft:0,hasBoughtStarter:false};}
 function applySavedUser(saved, phone){
  const p=(saved&&saved.progressData)||defaultProgressData();
- window.appState.isLoggedIn=true;window.appState.userPhone=phone;
- window.appState.nickname=(saved&&saved.nickname)||'User'+phone.slice(-4);
+ const safePhone=phone||saved.phone||'';
+ window.appState.isLoggedIn=true;window.appState.userPhone=safePhone;
+ window.appState.nickname=(saved&&saved.nickname)||'User';
  window.appState.balance=Number(p.balance)||0;window.appState.totalEarned=Number(p.totalEarned)||0;
  window.appState.completedTasks=Number(p.completedTasks)||0;window.appState.isActive=!!p.isActive;
  window.appState.spinsLeft=Number(p.spinsLeft)||0;window.appState.hasBoughtStarter=!!p.hasBoughtStarter;
- localStorage.setItem('currentLoggedInUser',phone);
- const ph=document.getElementById('profilePhone');if(ph)ph.innerText=phone;
+ if(safePhone)localStorage.setItem('currentLoggedInUser',safePhone);else localStorage.removeItem('currentLoggedInUser');
+ const ph=document.getElementById('profilePhone');if(ph)ph.innerText=safePhone||'Mobile number not added';
  const ne=document.getElementById('profileNickname');if(ne)ne.innerText=window.appState.nickname;
  if(saved&&saved.avatar){localStorage.setItem('userProfilePic',saved.avatar);document.querySelectorAll('.user-avatar-display').forEach(img=>{img.src=saved.avatar;img.classList.remove('hidden');});document.getElementById('profileDefaultIcon')?.classList.add('hidden');}
  document.getElementById('authModal')?.classList.add('hidden');document.getElementById('welcomeModal')?.classList.add('hidden');
  updateBalanceDisplays();updateSpinUI();updateReferralUi();if(window.appState.isActive)activateAccountUIOnly();
- if(!localStorage.getItem('noticeSeen_'+phone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
+ if(safePhone&&!localStorage.getItem('noticeSeen_'+safePhone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
 }
-async function persistCloudUser(userId, phone, saved){
- const nickname=saved.nickname||window.appState.nickname||'User'+phone.slice(-4);
- const payload={id:userId,phone,nickname,app_data:{
+async function persistCloudUser(userId, phone, saved, email){
+ const safePhone=phone||saved.phone||'';
+ const nickname=saved.nickname||window.appState.nickname||'User';
+ const payload={id:userId,email:email||saved.email||null,phone:safePhone||null,nickname,app_data:{
   ...saved,
+  email:email||saved.email||null,
+  phone:safePhone||null,
   nickname,
   progressData:saved.progressData||defaultProgressData(),
   avatar:saved.avatar||localStorage.getItem('userProfilePic')||null
@@ -1492,26 +1500,26 @@ async function persistCloudUser(userId, phone, saved){
  if(error) throw error;
 }
 async function loadCloudUser(user, phone){
- const {data:row,error}=await supabaseClient.from('profiles').select('id,phone,nickname,app_data').eq('id',user.id).maybeSingle();
+ const {data:row,error}=await supabaseClient.from('profiles').select('id,email,phone,nickname,app_data').eq('id',user.id).maybeSingle();
  if(error) throw error;
- const localRaw=localStorage.getItem('user_'+phone);
- const local=localRaw?JSON.parse(localRaw):{phone,nickname:user.user_metadata?.nickname||'User'+phone.slice(-4),progressData:defaultProgressData()};
+ const safePhone=row?.phone||user.user_metadata?.phone||phone||'';
+ const email=user.email||row?.email||'';
+ const localKey=safePhone?'user_'+safePhone:'user_email_'+email.toLowerCase();
+ const localRaw=localStorage.getItem(localKey);
+ const local=localRaw?JSON.parse(localRaw):{phone:safePhone,email,nickname:user.user_metadata?.nickname||'User',progressData:defaultProgressData()};
  const cloudData=row&&row.app_data&&typeof row.app_data==='object'?row.app_data:{};
- const saved={...local,...cloudData,phone,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'+phone.slice(-4)};
+ const saved={...local,...cloudData,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  if(!saved.progressData)saved.progressData=defaultProgressData();
- localStorage.setItem('user_'+phone,JSON.stringify(saved));
- applySavedUser(saved,phone);
- await persistCloudUser(user.id,phone,saved);
+ localStorage.setItem(localKey,JSON.stringify(saved));
+ applySavedUser(saved,safePhone);
+ await persistCloudUser(user.id,safePhone,saved,email);
 }
 window.onload = async function(){
  const welcomeModal=document.getElementById('welcomeModal');
  try{
   const {data:{session},error}=await supabaseClient.auth.getSession();
   if(error) throw error;
-  if(session?.user){
-   const phone=localPhoneNumber(session.user.phone||'');
-   if(phone){await loadCloudUser(session.user,phone);return;}
-  }
+  if(session?.user){await loadCloudUser(session.user,session.user.user_metadata?.phone||'');return;}
  }catch(e){console.error('Supabase session/data restore failed:',e);showToast('Cloud data load হয়নি: '+(e.message||'Supabase table/policy check করুন'),true);}
  localStorage.removeItem('currentLoggedInUser');window.appState.isLoggedIn=false;window.appState.userPhone='';
  if(welcomeModal)welcomeModal.classList.remove('hidden');
@@ -1521,7 +1529,9 @@ function setAuthMode(mode){
  authMode=mode==='register'?'register':'login';
  const register=authMode==='register';
  document.getElementById('authTitle').innerText=register?'Create Account':'Login Account';
+ document.getElementById('authSubtitle').innerText=register?'নতুন account খুলতে তথ্য দিন':'আপনার email দিয়ে লগইন করুন';
  document.getElementById('authNicknameWrap').classList.toggle('hidden',!register);
+ document.getElementById('authPhoneWrap').classList.toggle('hidden',!register);
  document.getElementById('authConfirmWrap').classList.toggle('hidden',!register);
  document.getElementById('authPass').autocomplete=register?'new-password':'current-password';
  document.getElementById('authPasswordButton').innerText=register?'Create Account':'Login';
@@ -1529,44 +1539,48 @@ function setAuthMode(mode){
  document.getElementById('authRegisterTab').className=register?'py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold':'py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold';
 }
 async function handleAuthSubmit(){
+ const email=(document.getElementById('authEmail')?.value||'').trim().toLowerCase();
  const rawPhone=document.getElementById('authPhone')?.value.trim()||'';
- const phone=normalizeBangladeshPhone(rawPhone);
+ const phone=authMode==='register'?normalizeBangladeshPhone(rawPhone):'';
  const pass=document.getElementById('authPass')?.value||'';
  const confirmPass=document.getElementById('authConfirmPass')?.value||'';
  const nick=(document.getElementById('authNickname')?.value||'').trim().slice(0,24);
  const btn=document.getElementById('authPasswordButton');
  if(btn&&btn.disabled)return;
- if(!phone){showToast('সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)!',true);return;}
- if(!/^\d{6,12}$/.test(pass)){showToast('পাসওয়ার্ড ৬-১২ সংখ্যার হতে হবে!',true);return;}
+ if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){showToast('সঠিক Gmail/Email address দিন!',true);return;}
+ if(pass.length<6||pass.length>72){showToast('Password কমপক্ষে ৬ অক্ষরের হতে হবে!',true);return;}
  if(authMode==='register'){
   if(!nick){showToast('আপনার নাম লিখুন!',true);return;}
+  if(!phone){showToast('সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)!',true);return;}
   if(pass!==confirmPass){showToast('Password এবং Confirm Password মিলছে না!',true);return;}
  }
  if(btn){btn.disabled=true;btn.innerText=authMode==='register'?'Creating...':'Logging in...';}
  try{
   let data;
   if(authMode==='login'){
-   const login=await supabaseClient.auth.signInWithPassword({phone,password:pass});
+   const login=await supabaseClient.auth.signInWithPassword({email,password:pass});
    if(login.error)throw login.error;
-   if(!login.data?.user)throw new Error('Login হয়নি। নম্বর ও password যাচাই করুন।');
+   if(!login.data?.user)throw new Error('Login হয়নি। Email ও password যাচাই করুন।');
    data=login.data;
   }else{
-   const signup=await supabaseClient.auth.signUp({phone,password:pass,options:{data:{nickname:nick}}});
+   const signup=await supabaseClient.auth.signUp({email,password:pass,options:{data:{nickname:nick,phone}}});
    if(signup.error)throw signup.error;
-   if(!signup.data?.user)throw new Error('Supabase account তৈরি করতে পারেনি। Phone provider settings check করুন।');
-   if(!signup.data?.session)throw new Error('Account তৈরি হয়েছে, কিন্তু Supabase Phone confirmations চালু থাকায় OTP/session লাগছে। Dashboard-এ Phone confirmations বন্ধ করুন অথবা OTP verification যোগ করতে হবে।');
+   if(!signup.data?.user)throw new Error('Supabase account তৈরি করতে পারেনি। Email provider settings check করুন।');
    data=signup.data;
+   if(!data.session){
+    showToast('Registration request হয়েছে। Gmail inbox থেকে email confirm করে তারপর Login করুন।');
+    return;
+   }
   }
-  const localPhone=localPhoneNumber(phone);
+  const localPhone=authMode==='register'?phone:(data.user.user_metadata?.phone||'');
   if(authMode==='login'){
-   // Existing account: restore the cloud copy first; never overwrite it with stale local data.
    await loadCloudUser(data.user,localPhone);
-   showToast('Login সফল! Supabase থেকে data load হয়েছে।');
+   showToast('Login সফল! আপনার cloud data load হয়েছে।');
    return;
   }
-  const saved={phone:localPhone,nickname:nick,progressData:defaultProgressData(),avatar:localStorage.getItem('userProfilePic')||null};
-  await persistCloudUser(data.user.id,localPhone,saved);
-  localStorage.setItem('user_'+localPhone,JSON.stringify(saved));
+  const saved={phone:localPhone,email,nickname:nick,progressData:defaultProgressData(),avatar:localStorage.getItem('userProfilePic')||null};
+  await persistCloudUser(data.user.id,localPhone,saved,email);
+  localStorage.setItem(localPhone?'user_'+localPhone:'user_email_'+email,JSON.stringify(saved));
   localStorage.setItem('atimexNickname',nick);
   applySavedUser(saved,localPhone);
   showToast('Registration সফল! Account ও progress Supabase-এ save হয়েছে।');
@@ -1589,7 +1603,7 @@ async function saveAllProgress(){
   localStorage.setItem('user_'+phone,JSON.stringify(saved));
   const {data:{user},error:authError}=await supabaseClient.auth.getUser();
   if(authError)throw authError;
-  if(user)await persistCloudUser(user.id,phone,saved);
+  if(user)await persistCloudUser(user.id,phone,saved,user.email||saved.email);
  }catch(e){console.error('Progress cloud save failed:',e);if(typeof showToast==='function')showToast('Cloud save হয়নি: '+(e.message||'Supabase settings check করুন'),true);}
 }
 
