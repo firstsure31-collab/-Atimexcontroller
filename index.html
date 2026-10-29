@@ -1452,9 +1452,9 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 // Supabase phone + password auth. No OTP UI or OTP calls.
 function normalizeBangladeshPhone(v){
- const p=String(v||'').replace(/[\\s()-]/g,'');
- if(/^01[3-9]\\d{8}$/.test(p)) return '+88'+p;
- if(/^\+8801[3-9]\\d{8}$/.test(p)) return p;
+ const p=String(v||'').replace(/[\s()-]/g,'');
+ if(/^01[3-9]\d{8}$/.test(p)) return '+88'+p;
+ if(/^\+8801[3-9]\d{8}$/.test(p)) return p;
  return '';
 }
 function localPhoneNumber(phone){ return phone && phone.startsWith('+880') ? '0'+phone.slice(4) : phone; }
@@ -1517,7 +1517,7 @@ async function handleAuthSubmit(){
  if(btn&&btn.disabled)return;
  if(!phone){showToast('সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)!',true);return;}
  if(!pass){showToast('পাসওয়ার্ড দিন!',true);return;}
- if(!/^\\d{6,12}$/.test(pass)){showToast('পাসওয়ার্ড ৬-১২ সংখ্যার হতে হবে!',true);return;}
+ if(!/^\d{6,12}$/.test(pass)){showToast('পাসওয়ার্ড ৬-১২ সংখ্যার হতে হবে!',true);return;}
  if(btn)btn.disabled=true;
  try{
   let data=null;
