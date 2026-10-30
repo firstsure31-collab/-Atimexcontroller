@@ -185,6 +185,24 @@
 @keyframes welcomeLogoOrbit { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .welcome-logo-frame::before, .header-logo-frame::before { animation: none; } }
 
+/* Layout safety: keep every tab in a vertical, app-width flow */
+#appContainer { width: 100%; max-width: 448px; min-width: 0; overflow: hidden; }
+#appContainer > main { width: 100%; min-width: 0; }
+.tab-content:not(.hidden) {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+#tabHome > * {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+#tabHome .grid { min-width: 0; }
+#tabHome { overflow-x: hidden; }
+
 /* Provider cards: thin colored neon orbit on the card edge */
 .withdraw-provider-btn{isolation:isolate;position:relative;overflow:hidden;border:2px solid transparent!important;--wallet-neon:#ff2d95;background:#1e293b}
 .withdraw-provider-btn#btnWbKash{--wallet-neon:#ff2d95}
