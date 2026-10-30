@@ -203,39 +203,48 @@
 #tabHome .grid { min-width: 0; }
 #tabHome { overflow-x: hidden; }
 
-/* Wallet-only colored orbit: the light itself travels around each provider card border */
-.withdraw-provider-btn{
-  --wallet-neon:#ff2d95;
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  border:2px solid color-mix(in srgb,var(--wallet-neon) 42%,#334155)!important;
-  background:#1e293b;
+/* Wallet-only neon border orbit: masked ring, never crosses the card interior */
+@property --wallet-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
 }
-.withdraw-provider-btn#btnWbKash{--wallet-neon:#ff2d95}
-.withdraw-provider-btn#btnWNagad{--wallet-neon:#ff7a18}
-.withdraw-provider-btn#btnWRocket{--wallet-neon:#b34cff}
-.withdraw-provider-btn#btnWVISA{--wallet-neon:#287bff}
-.withdraw-provider-btn::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:3;
-  border-radius:inherit;
-  pointer-events:none;
-  background:conic-gradient(from 0deg,transparent 0deg 300deg,var(--wallet-neon) 322deg,#fff 330deg,var(--wallet-neon) 338deg,transparent 350deg 360deg);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
-  animation:walletNeonOrbit 2s linear infinite;
+.withdraw-provider-btn {
+  --wallet-neon: #ff2d95;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb,var(--wallet-neon) 55%,#334155) !important;
+  background: #1e293b;
 }
-.withdraw-provider-btn>*{position:relative;z-index:1}
-.withdraw-provider-btn:hover,.withdraw-provider-btn.active{
-  box-shadow:0 0 10px color-mix(in srgb,var(--wallet-neon) 38%,transparent);
+.withdraw-provider-btn#btnWbKash { --wallet-neon: #ff2d95; }
+.withdraw-provider-btn#btnWNagad { --wallet-neon: #ff7a18; }
+.withdraw-provider-btn#btnWRocket { --wallet-neon: #b34cff; }
+.withdraw-provider-btn#btnWVISA { --wallet-neon: #287bff; }
+.withdraw-provider-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--wallet-angle), transparent 0deg 300deg, var(--wallet-neon) 322deg, #fff 330deg, var(--wallet-neon) 338deg, transparent 350deg 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: walletBorderOrbit 2.4s linear infinite;
 }
-@keyframes walletNeonOrbit{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.withdraw-provider-btn::before{animation:none}}
-#userBadge.status-active .status-dot{background:#22c55e}
-#userBadge.status-inactive .status-dot{background:#ef4444}
+.withdraw-provider-btn > * { position: relative; z-index: 1; }
+.withdraw-provider-btn:hover,
+.withdraw-provider-btn.active {
+  box-shadow: 0 0 10px color-mix(in srgb,var(--wallet-neon) 35%,transparent);
+}
+@keyframes walletBorderOrbit { to { --wallet-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .withdraw-provider-btn::before { animation: none; }
+}
 
 /* Strong, visible live welcome animations */
 .welcome-live-text {
