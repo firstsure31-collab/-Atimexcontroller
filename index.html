@@ -203,16 +203,35 @@
 #tabHome .grid { min-width: 0; }
 #tabHome { overflow-x: hidden; }
 
-/* Provider cards: thin colored neon orbit on the card edge */
-.withdraw-provider-btn{isolation:isolate;position:relative;overflow:hidden;border:2px solid transparent!important;--wallet-neon:#ff2d95;background:#1e293b}
+/* Wallet-only colored orbit: the light itself travels around each provider card border */
+.withdraw-provider-btn{
+  --wallet-neon:#ff2d95;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border:2px solid color-mix(in srgb,var(--wallet-neon) 42%,#334155)!important;
+  background:#1e293b;
+}
 .withdraw-provider-btn#btnWbKash{--wallet-neon:#ff2d95}
 .withdraw-provider-btn#btnWNagad{--wallet-neon:#ff7a18}
 .withdraw-provider-btn#btnWRocket{--wallet-neon:#b34cff}
 .withdraw-provider-btn#btnWVISA{--wallet-neon:#287bff}
-.withdraw-provider-btn::before{content:"";position:absolute;inset:-100%;z-index:0;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 72%,var(--wallet-neon) 79%,#fff 82%,var(--wallet-neon) 85%,transparent 93% 100%);animation:walletNeonOrbit 2.4s linear infinite}
-.withdraw-provider-btn::after{content:"";position:absolute;inset:2px;z-index:1;border-radius:8px;background:#1e293b;pointer-events:none}
-.withdraw-provider-btn>*{position:relative;z-index:2}
-.withdraw-provider-btn:hover,.withdraw-provider-btn.active{box-shadow:0 0 11px color-mix(in srgb,var(--wallet-neon) 38%,transparent)}
+.withdraw-provider-btn::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  border-radius:inherit;
+  pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0deg 300deg,var(--wallet-neon) 322deg,#fff 330deg,var(--wallet-neon) 338deg,transparent 350deg 360deg);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
+  animation:walletNeonOrbit 2s linear infinite;
+}
+.withdraw-provider-btn>*{position:relative;z-index:1}
+.withdraw-provider-btn:hover,.withdraw-provider-btn.active{
+  box-shadow:0 0 10px color-mix(in srgb,var(--wallet-neon) 38%,transparent);
+}
 @keyframes walletNeonOrbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.withdraw-provider-btn::before{animation:none}}
 #userBadge.status-active .status-dot{background:#22c55e}
