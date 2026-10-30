@@ -185,27 +185,20 @@
 @keyframes welcomeLogoOrbit { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .welcome-logo-frame::before, .header-logo-frame::before { animation: none; } }
 
-/* Wallet withdrawal cards: provider-colored neon line orbiting the card edge */
-.withdraw-provider-btn {
-  isolation: isolate; position: relative; overflow: hidden;
-  --wallet-neon: #ec4899;
-  border-color: color-mix(in srgb, var(--wallet-neon) 55%, #334155);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--wallet-neon) 10%, transparent);
-}
-.withdraw-provider-btn#btnWbKash { --wallet-neon: #ff2d95; }
-.withdraw-provider-btn#btnWNagad { --wallet-neon: #ff7a18; }
-.withdraw-provider-btn#btnWRocket { --wallet-neon: #b34cff; }
-.withdraw-provider-btn#btnWVISA { --wallet-neon: #287bff; }
-.withdraw-provider-btn::before {
-  content: ""; position: absolute; width: 220%; height: 220%; left: -60%; top: -60%;
-  z-index: 0; pointer-events: none;
-  background: conic-gradient(from 0deg, transparent 0 72%, var(--wallet-neon) 80%, #ffffff 84%, var(--wallet-neon) 88%, transparent 96% 100%);
-  animation: walletNeonOrbit 2.4s linear infinite;
-}
-.withdraw-provider-btn > * { position: relative; z-index: 1; }
-.withdraw-provider-btn:hover { box-shadow: 0 0 10px color-mix(in srgb, var(--wallet-neon) 38%, transparent); }
-@keyframes walletNeonOrbit { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .withdraw-provider-btn::before { animation: none; } }
+/* Provider cards: thin colored neon orbit on the card edge */
+.withdraw-provider-btn{isolation:isolate;position:relative;overflow:hidden;border:2px solid transparent!important;--wallet-neon:#ff2d95;background:#1e293b}
+.withdraw-provider-btn#btnWbKash{--wallet-neon:#ff2d95}
+.withdraw-provider-btn#btnWNagad{--wallet-neon:#ff7a18}
+.withdraw-provider-btn#btnWRocket{--wallet-neon:#b34cff}
+.withdraw-provider-btn#btnWVISA{--wallet-neon:#287bff}
+.withdraw-provider-btn::before{content:"";position:absolute;inset:-100%;z-index:0;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 72%,var(--wallet-neon) 79%,#fff 82%,var(--wallet-neon) 85%,transparent 93% 100%);animation:walletNeonOrbit 2.4s linear infinite}
+.withdraw-provider-btn::after{content:"";position:absolute;inset:2px;z-index:1;border-radius:8px;background:#1e293b;pointer-events:none}
+.withdraw-provider-btn>*{position:relative;z-index:2}
+.withdraw-provider-btn:hover,.withdraw-provider-btn.active{box-shadow:0 0 11px color-mix(in srgb,var(--wallet-neon) 38%,transparent)}
+@keyframes walletNeonOrbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.withdraw-provider-btn::before{animation:none}}
+#userBadge.status-active .status-dot{background:#22c55e}
+#userBadge.status-inactive .status-dot{background:#ef4444}
 
 /* Strong, visible live welcome animations */
 .welcome-live-text {
@@ -285,8 +278,8 @@
                     <div class="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Main Balance</div>
                     <div class="text-sm font-bold text-emerald-400" id="headerBalance">৳ <span id="balanceVal">0.00</span></div>
                 </div>
-                <div id="userBadge" class="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <div id="userBadge" class="status-inactive bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5">
+                    <span class="status-dot w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                     <span id="badgeText">Inactive</span>
                 </div>
             </div>
@@ -390,121 +383,24 @@
                 <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-emerald-500/30">
                     <div class="bg-slate-950/20 rounded-xl p-2 backdrop-blur-sm">
                         <div class="text-[10px] uppercase tracking-wider text-emerald-200">Total Referrals</div>
-                        <div class="text-base font-black">307</div>
+                        <div class="text-base font-black" id="leaderboardTotalReferrals">—</div>
                     </div>
                     <div class="bg-slate-950/20 rounded-xl p-2 backdrop-blur-sm">
                         <div class="text-[10px] uppercase tracking-wider text-emerald-200">Active Pool</div>
-                        <div class="text-base font-black">10/10</div>
+                        <div class="text-base font-black" id="leaderboardActivePool">—</div>
                     </div>
                 </div>
             </div>
 
             <!-- Leaderboard List -->
             <div class="space-y-2.5" id="leaderboardListContainer">
-                
-                <!-- Rank 1 (Gold) -->
-                <div class="bg-gradient-to-r from-amber-500/10 via-slate-800/60 to-slate-800/60 border border-amber-500/40 rounded-2xl p-3 flex items-center justify-between shadow-md">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black text-sm">
-                            🥇
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <!-- User Avatar / Logo Option -->
-                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-amber-500/50 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
-                                <img src="USER_AVATAR_1.jpg" alt="User" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-xs">Hafizul Rajal (Boss)</h4>
-                                <p class="text-[10px] text-amber-400 font-medium">Winner Champion</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black px-3 py-1.5 rounded-xl">
-                        58 🏆
-                    </div>
-                </div>
-
-                <!-- Rank 2 (Silver) -->
-                <div class="bg-gradient-to-r from-slate-300/10 via-slate-800/60 to-slate-800/60 border border-slate-400/30 rounded-2xl p-3 flex items-center justify-between shadow-md">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-300/20 border border-slate-400/30 flex items-center justify-center text-slate-300 font-black text-sm">
-                            🥈
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-slate-400/40 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
-                                <img src="USER_AVATAR_2.jpg" alt="User" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-xs">Mofassir Ansari</h4>
-                                <p class="text-[10px] text-slate-400 font-medium">Elite Referrer</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-black px-3 py-1.5 rounded-xl">
-                        50 🏆
-                    </div>
-                </div>
-
-                <!-- Rank 3 (Bronze) -->
-                <div class="bg-gradient-to-r from-orange-500/10 via-slate-800/60 to-slate-800/60 border border-orange-500/30 rounded-2xl p-3 flex items-center justify-between shadow-md">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-sm">
-                            🥉
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-full bg-slate-700 border border-orange-500/40 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
-                                <img src="USER_AVATAR_3.jpg" alt="User" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-xs">Tawfique Ahmed</h4>
-                                <p class="text-[10px] text-orange-400 font-medium">Top Referrer</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-black px-3 py-1.5 rounded-xl">
-                        41 🏆
-                    </div>
-                </div>
-
-                <!-- Rank 4 -->
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-bold text-xs">
-                            #4
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-full bg-slate-700 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
-                                <img src="USER_AVATAR_4.jpg" alt="User" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-xs">Tariqul Islam</h4>
-                                <p class="text-[10px] text-slate-400">ATIMEX Leader</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-emerald-400 text-xs font-bold">35 🏆</div>
-                </div>
-
-                <!-- Rank 5 -->
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-bold text-xs">
-                            #5
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-full bg-slate-700 overflow-hidden flex items-center justify-center text-xs text-white font-bold">
-                                <img src="USER_AVATAR_5.jpg" alt="User" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-xs">Anwar</h4>
-                                <p class="text-[10px] text-slate-400">ATIMEX Leader</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-emerald-400 text-xs font-bold">32 🏆</div>
-                </div>
-
+              <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-center text-xs text-slate-400">
+                এখনো কোনো যাচাইকৃত referral data পাওয়া যায়নি।
+              </div>
             </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -1292,7 +1188,10 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        function closeFirstVisitNotice(){const n=document.getElementById('firstVisitNotice');if(n){n.classList.add('hidden');n.classList.remove('flex');}}
+document.addEventListener("DOMContentLoaded", function() {
+  const notice=document.getElementById('firstVisitNotice');
+  if(notice){notice.classList.remove('hidden');notice.classList.add('flex');}
     // Welcome Modal ebong Auth Modal-ke force kore direct bodyer vitor niye jabe
     const welcomeModal = document.getElementById('welcomeModal');
     const authModal = document.getElementById('authModal');
@@ -1582,7 +1481,7 @@ function applySavedUser(saved, phone){
  const ne=document.getElementById('profileNickname');if(ne)ne.innerText=window.appState.nickname;
  if(saved&&saved.avatar){localStorage.setItem('userProfilePic',saved.avatar);document.querySelectorAll('.user-avatar-display').forEach(img=>{img.src=saved.avatar;img.classList.remove('hidden');});document.getElementById('profileDefaultIcon')?.classList.add('hidden');}
  document.getElementById('authModal')?.classList.add('hidden');document.getElementById('welcomeModal')?.classList.add('hidden');
- updateBalanceDisplays();updateSpinUI();updateReferralUi();if(window.appState.isActive)activateAccountUIOnly();
+ updateBalanceDisplays();updateSpinUI();updateReferralUi();updateAccountStatusBadge();if(window.appState.isActive)activateAccountUIOnly();
  if(safePhone&&!localStorage.getItem('noticeSeen_'+safePhone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
 }
 async function persistCloudUser(userId, phone, saved, email){
@@ -1900,6 +1799,13 @@ function handleActivationSubmit() {
     showToast('Request জমা দেওয়ার backend/API এখনো যুক্ত হয়নি। Payment যাচাই না হওয়া পর্যন্ত account active হবে না।', true);
 }
 
+function updateAccountStatusBadge(){
+ const badge=document.getElementById('userBadge'),dot=badge?.querySelector('.status-dot'),label=document.getElementById('badgeText');
+ const active=!!window.appState?.isActive;
+ if(badge){badge.className=active?'status-active bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5':'status-inactive bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5';}
+ if(dot)dot.className='status-dot w-2 h-2 rounded-full animate-pulse '+(active?'bg-green-500':'bg-red-500');
+ if(label)label.textContent=active?'Active':'Inactive';
+}
 function activateAccountUIOnly() {
     const userBadge = document.getElementById('userBadge');
     const badgeText = document.getElementById('badgeText');
@@ -1908,6 +1814,7 @@ function activateAccountUIOnly() {
     
     if (userBadge) userBadge.className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5";
     if (badgeText) badgeText.innerText = "Active";
+    updateAccountStatusBadge();
     if (activeBanner) activeBanner.classList.add('hidden');
     if (statusBanner) statusBanner.classList.remove('hidden');
 }
@@ -2025,6 +1932,8 @@ async function logout() {
     showToast('লগআউট সফল হয়েছে!');location.reload();
 }
 
+let toastTimer=null;
+function dismissToast(){const t=document.getElementById('toast');if(t)t.classList.add('hidden');if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}}
 function showToast(msg, isError = false) {
     const toast = document.getElementById('toast');
     const toastMsg = document.getElementById('toastMsg');
@@ -2036,7 +1945,8 @@ function showToast(msg, isError = false) {
         : "fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 z-50";
 
     toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 3000);
+    if(toastTimer)clearTimeout(toastTimer);
+    toastTimer=setTimeout(() => toast.classList.add('hidden'), 5000);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
