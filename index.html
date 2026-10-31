@@ -41,7 +41,7 @@ function selectWithdrawMethod(method){window.appState.selectedMethod=method;docu
 
 
 function openDepositForCustom(){const a=document.getElementById('paymentAmount');if(a)a.value='';openPaymentModal();}
-function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a&&!a.value)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
+function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
 function handlePackageBuy(price){const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
 
 
@@ -685,7 +685,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 </div>
             </div>
 
-<div id="typingTaskCard" class="bg-slate-800/60 border border-violet-500/30 rounded-2xl p-4 space-y-3"><h4 class="font-bold text-white text-sm">Typing Speed Challenge · Free</h4><p class="text-xs text-slate-400">15 seconds · Win ৳50 with at least 95% accuracy and enough text.</p><p id="typingPrompt" class="text-[11px] leading-relaxed text-slate-200 bg-slate-950 rounded-xl p-3">Press Start to receive a difficult typing passage.</p><textarea id="typingInput" disabled rows="4" placeholder="Type here..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea><div class="flex justify-between text-xs text-slate-400"><span id="typingTimer">15s</span><span id="typingScore">Accuracy: —</span></div><button id="typingStartBtn" onclick="startTypingChallenge()" class="w-full py-2.5 bg-violet-600 rounded-xl text-white text-xs font-bold">Start Free Typing Task</button></div>
+<div id="typingTaskCard" class="hidden bg-slate-800/60 border border-violet-500/30 rounded-2xl p-4 space-y-3"><h4 class="font-bold text-white text-sm">Typing Speed Challenge · Free</h4><p class="text-xs text-slate-400">15 seconds · Win ৳50 with at least 95% accuracy and enough text.</p><p id="typingPrompt" class="text-[11px] leading-relaxed text-slate-200 bg-slate-950 rounded-xl p-3">Press Start to receive a difficult typing passage.</p><textarea id="typingInput" disabled rows="4" placeholder="Type here..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea><div class="flex justify-between text-xs text-slate-400"><span id="typingTimer">15s</span><span id="typingScore">Accuracy: —</span></div><button id="typingStartBtn" onclick="startTypingChallenge()" class="w-full py-2.5 bg-violet-600 rounded-xl text-white text-xs font-bold">Start Free Typing Task</button></div>
             <!-- 4. SERVER / VIP PACKAGES TAB -->
             <div id="tabServer" class="tab-content hidden space-y-3">
                 <div class="space-y-3 pt-2">
@@ -914,16 +914,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
             <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
               <div class="font-bold text-emerald-400 mb-1 flex items-center gap-1.5 text-[11px]">
-                <i class="fa-solid fa-circle-info"></i> ডিপোজিট ও চার্জ তালিকা:
+                <i class="fa-solid fa-circle-info"></i> ডিপোজিট amount:
               </div>
-              <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-300 font-medium">
-                <div>• ৳100 (Active) = ৳110 (৳10 Charge)</div>
-                <div>• ৳300 Plan = ৳310 (৳10 Charge)</div>
-                <div>• ৳500 Plan = ৳520 (৳20 Charge)</div>
-                <div>• ৳800 Plan = ৳830 (৳30 Charge)</div>
-                <div>• ৳1000 Plan = ৳1040 (৳40 Charge)</div>
-                <div>• ৳2000 Plan = ৳2050 (৳50 Charge)</div>
-              </div>
+              <p class="text-[10px] text-slate-300">Account active করতে কোনো extra charge নেই। নিচে amount লিখে payment details দিন।</p>
             </div>
 
             <div class="space-y-3">
