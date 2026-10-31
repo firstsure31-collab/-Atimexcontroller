@@ -26,6 +26,19 @@
                 }
             }
         }
+
+// ATIMEX request UI; local ledger records submissions pending payment verification.
+function showAppNotice(title,body){const m=document.getElementById('appNoticeModal');if(!m)return;document.getElementById('appNoticeTitle').textContent=title;document.getElementById('appNoticeBody').textContent=body;m.classList.remove('hidden');}
+function closeAppNotice(){document.getElementById('appNoticeModal')?.classList.add('hidden');}
+function saveLocalTransaction(entry){const key='atimex_transactions_'+(window.appState.userPhone||'guest');const rows=JSON.parse(localStorage.getItem(key)||'[]');rows.unshift({...entry,id:'ATX-'+Date.now(),date:new Date().toLocaleString()});localStorage.setItem(key,JSON.stringify(rows.slice(0,100)));}
+function openTransactionHistory(){const key='atimex_transactions_'+(window.appState.userPhone||'guest');const rows=JSON.parse(localStorage.getItem(key)||'[]');const box=document.getElementById('transactionHistoryList');if(!box)return;box.innerHTML=rows.length?rows.map(x=>'<div class="rounded-xl border border-slate-700 p-3"><div class="flex justify-between gap-2"><b>'+String(x.type).replace(/[<>]/g,'')+'</b><span>৳'+Number(x.amount||0).toFixed(2)+'</span></div><div class="text-[10px] text-slate-400">'+String(x.date||'')+' · '+String(x.status||'Pending')+'</div></div>').join(''):'<p>এখনো কোনো transaction নেই।</p>';document.getElementById('transactionModal')?.classList.remove('hidden');}
+function closeTransactionHistory(){document.getElementById('transactionModal')?.classList.add('hidden');}
+function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
+function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
+function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('সর্বনিম্ন withdraw ৳100।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
+function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
+function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Bank / Card Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder=method==='VISA'?'Bank / Card number':'01XXXXXXXXX';}
+
     </script>
     <!-- FontAwesome CDN for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -262,6 +275,13 @@
   outline-offset:3px;
 }
 
+/* Safe wallet click layer and selected glow */
+.withdraw-provider-btn{pointer-events:auto;cursor:pointer;touch-action:manipulation}
+.withdraw-provider-btn::before{pointer-events:none!important}
+.withdraw-provider-btn>*{pointer-events:none}
+.withdraw-provider-btn.active{outline:2px solid var(--wallet-neon);outline-offset:1px;box-shadow:0 0 14px color-mix(in srgb,var(--wallet-neon) 48%,transparent),inset 0 0 0 1px var(--wallet-neon)}
+.glow-info-box{border:1px solid #34d399;background:linear-gradient(120deg,rgba(16,185,129,.12),rgba(59,130,246,.08));box-shadow:0 0 14px rgba(16,185,129,.2);animation:noticePulse 2s ease-in-out infinite}
+@keyframes noticePulse{50%{box-shadow:0 0 22px rgba(16,185,129,.42)}}
 /* Strong, visible live welcome animations */
 .welcome-live-text {
   display: inline-block;
@@ -512,7 +532,7 @@
                 </div>
 
                 <!-- Live Countdown Timer Box (Initially Hidden) -->
-                <div id="withdrawTimerBox" class="hidden bg-slate-900 border border-amber-500/30 rounded-2xl p-3 text-center space-y-1 mb-3">
+                <div id="withdrawTimerBox" class="hidden glow-info-box rounded-2xl p-3 text-center space-y-1 mb-3">
                     <div class="text-[11px] font-bold text-amber-400 flex items-center justify-center gap-1.5">
                       <i class="fa-solid fa-clock animate-spin"></i> Poroborti Withdraw-er Somoy Baki:
                     </div>
@@ -538,7 +558,7 @@
                     <div>• ৳10000+ = 2% Admin Fee</div>
                   </div>
                   <div class="text-[9.5px] text-amber-300/80 pt-1 border-t border-amber-500/20 italic">
-                    * উইথড্র রিকোয়েস্ট দেওয়ার 1 থেকে 6 ঘণ্টার মধ্যে টাকা অ্যাকাউন্টে পৌঁছে যাবে।
+                    প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে withdraw request প্রসেস করা হবে।
                   </div>
                 </div>
 
@@ -969,6 +989,9 @@
           </div>
         </div>
 
+<div id="appNoticeModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-emerald-400/50 bg-slate-900 p-5 shadow-2xl relative"><button onclick="closeAppNotice()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><div id="appNoticeTitle" class="font-bold text-emerald-300 text-sm mb-2"></div><p id="appNoticeBody" class="text-xs text-slate-200 leading-relaxed"></p></div></div>
+<div id="socialModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-blue-400/40 bg-slate-900 p-5 relative space-y-3"><button onclick="closeSocialModal()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm">Telegram Updates</h3><p class="text-xs text-slate-300">অ্যাপের সকল আপডেট জানতে এই গ্রুপে Join করুন।</p><a href="https://t.me/atimex247" target="_blank" rel="noopener" class="block rounded-xl bg-blue-500 py-2.5 text-center text-xs font-bold text-white">Join Telegram</a></div></div>
+<div id="transactionModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-sm max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 relative"><button onclick="closeTransactionHistory()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm mb-3">Transaction History</h3><div id="transactionHistoryList" class="space-y-2 text-xs text-slate-300"></div></div></div>
         <!-- 4. ADMIN MODAL -->
         <div id="adminModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl">
