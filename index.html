@@ -1727,7 +1727,7 @@ async function handleAuthSubmit(){
   if(btn){btn.disabled=false;btn.innerText=authMode==='register'?'Create Account':'Login';}
  }
 }
-async function saveAllProgress(){
+async async function saveAllProgress(){
  const phone=window.appState.userPhone||localStorage.getItem('currentLoggedInUser');
  if(!phone)return;
  try{
