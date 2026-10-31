@@ -39,6 +39,11 @@ function handleWithdraw(){const amount=Number(document.getElementById('withdrawA
 function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
 function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Bank / Card Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder=method==='VISA'?'Bank / Card number':'01XXXXXXXXX';}
 
+
+function openDepositForCustom(){const a=document.getElementById('paymentAmount');if(a)a.value='';openPaymentModal();}
+function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a&&!a.value)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
+function handlePackageBuy(price){const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
+
     </script>
     <!-- FontAwesome CDN for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -769,7 +774,7 @@ function selectWithdrawMethod(method){window.appState.selectedMethod=method;docu
                 <h3 class="font-bold text-slate-400 text-xs" id="profilePhone">01700000000</h3>
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
 
-                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
+                <div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-3 space-y-2"><div class="text-xs font-bold text-emerald-300">Deposit / Add Balance</div><p class="text-[10px] text-slate-300">Send Money করার পর Sender Number ও TrxID জমা দিন। যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।</p><button onclick="openDepositForCustom()" class="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white">Deposit Now</button></div><div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
                     <a href="https://t.me/Atimex" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
                         <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram @Atimex999</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
