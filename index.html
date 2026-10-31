@@ -113,29 +113,35 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   to { background-position: 200% center; }
 }
 
-/* Red Glowing Beat Animation for Inactive Notice/Popup */
+/* Inactive account banner: pulse the border gently without scaling or spilling glow over nearby UI. */
 .red-beat-popup {
-  animation: redPopupBeat 1.2s infinite ease-in-out !important;
+  position: relative;
+  animation: redPopupBeat 2.2s ease-in-out infinite !important;
+  will-change: box-shadow, border-color;
 }
 
 @keyframes redPopupBeat {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
-    border-color: #ef4444 !important;
-    transform: scale(1);
+  0%, 100% {
+    box-shadow: 0 0 2px rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.68) !important;
+    transform: none;
   }
   50% {
-    box-shadow: 0 0 25px 8px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.16);
     border-color: #f87171 !important;
-    transform: scale(1.02);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 0 10px rgba(239, 68, 68, 0.2);
-    border-color: #ef4444 !important;
-    transform: scale(1);
+    transform: none;
   }
 }
-    
+
+@media (prefers-reduced-motion: reduce) {
+  .red-beat-popup {
+    animation: none !important;
+    box-shadow: none;
+    border-color: #ef4444 !important;
+    transform: none;
+  }
+}
+
 /* ATIMEX enhancement layer */
 #totalReferChip { position:fixed; right:10px; top:82px; z-index:40; }
 #firstVisitNotice { animation: noticeIn .45s ease-out both; }
