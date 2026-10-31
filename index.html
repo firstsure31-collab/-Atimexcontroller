@@ -246,6 +246,22 @@
   .withdraw-provider-btn::before { animation: none; }
 }
 
+/* Keep wallet provider controls clickable above the animated border, and show selection clearly */
+.withdraw-provider-btn { cursor:pointer; touch-action:manipulation; }
+.withdraw-provider-btn::before { pointer-events:none !important; }
+.withdraw-provider-btn.active {
+  outline:2px solid var(--wallet-neon);
+  outline-offset:1px;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--wallet-neon) 22%,transparent),
+             0 0 14px color-mix(in srgb,var(--wallet-neon) 48%,transparent),
+             inset 0 0 0 1px color-mix(in srgb,var(--wallet-neon) 40%,transparent);
+}
+.withdraw-provider-btn.active > div:first-child { filter:brightness(1.035); }
+.withdraw-provider-btn:focus-visible {
+  outline:2px solid var(--wallet-neon);
+  outline-offset:3px;
+}
+
 /* Strong, visible live welcome animations */
 .welcome-live-text {
   display: inline-block;
