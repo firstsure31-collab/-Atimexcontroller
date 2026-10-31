@@ -35,54 +35,7 @@ function openTransactionHistory(){const key='atimex_transactions_'+(window.appSt
 function closeTransactionHistory(){document.getElementById('transactionModal')?.classList.add('hidden');}
 function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
 function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
-function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('সর্বনিম্ন withdraw ৳100।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
-function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
-function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Bank / Card Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder=method==='VISA'?'Bank / Card number':'01XXXXXXXXX';}
-
-
-function openDepositForCustom(){const a=document.getElementById('paymentAmount');if(a)a.value='';openPaymentModal();}
-function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
-function handlePackageBuy(price){const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
-
-
-const typingSamples=["Precision matters when every second counts; carefully reproduce punctuation, capitalization, and the exact sequence of words. A single missed character can change the meaning of a sentence.","Reliable systems are built from patient testing, consistent habits, and clear documentation. Focus on accuracy first, then maintain a steady typing rhythm.","The quick brown fox jumps over the lazy dog, but complex work requires more than speed: punctuation, numbers 2048, and symbols must be correct."];
-let typingTargetText="",typingClock=null,typingDeadline=0;
-function startTypingChallenge(){if(!window.appState.isActive){showToast("আগে account active করুন।",true);openPaymentModal();return;}const key="atimex_typing_free_"+(window.appState.userPhone||"guest");if(localStorage.getItem(key)){showToast("Free challenge ইতিমধ্যে শেষ করেছেন।",true);return;}typingTargetText=typingSamples[Math.floor(Math.random()*typingSamples.length)];document.getElementById("typingPrompt").textContent=typingTargetText;const input=document.getElementById("typingInput");input.value="";input.disabled=false;input.focus();typingDeadline=Date.now()+15000;document.getElementById("typingStartBtn").disabled=true;document.getElementById("typingStartBtn").textContent="Typing...";if(typingClock)clearInterval(typingClock);typingClock=setInterval(()=>{const sec=Math.max(0,Math.ceil((typingDeadline-Date.now())/1000));document.getElementById("typingTimer").textContent=sec+"s";if(sec===0)finishTypingChallenge();},200);}
-function finishTypingChallenge(){if(typingClock)clearInterval(typingClock);typingClock=null;const input=document.getElementById("typingInput");input.disabled=true;const typed=input.value;let matches=0;for(let i=0;i<Math.min(typed.length,typingTargetText.length);i++)if(typed[i]===typingTargetText[i])matches++;const accuracy=typed.length?Math.round(matches/typed.length*100):0;document.getElementById("typingScore").textContent="Accuracy: "+accuracy+"%";document.getElementById("typingStartBtn").disabled=false;document.getElementById("typingStartBtn").textContent="Free task used";localStorage.setItem("atimex_typing_free_"+(window.appState.userPhone||"guest"),"1");if(typed===typingTargetText||(typed.length>=typingTargetText.length*.8&&accuracy>=95)){window.appState.balance+=50;window.appState.totalEarned+=50;window.appState.completedTasks+=1;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:"Typing challenge reward",amount:50,status:"Credited"});showAppNotice("Challenge won!","৳50 wallet balance-এ যোগ হয়েছে।");}else showAppNotice("Challenge complete","সময় শেষ। Accuracy "+accuracy+"%; প্রয়োজনীয় score হয়নি।");}
-document.getElementById("typingInput")?.addEventListener("input",()=>{const el=document.getElementById("typingInput");document.getElementById("typingScore").textContent="Typed: "+el.value.length+"/"+typingTargetText.length;});
-
-    </script>
-    <!-- FontAwesome CDN for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-        /* Custom scrollbar for mobile container */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #059669;
-            border-radius: 4px;
-        }
-/* Welcome Intro Overlay & Animations */
-#welcomeIntro {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease;
-}
+async function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value),method=window.appState.selectedMethod||'bKash';let payout={};if(method==='VISA'){payout={bankName:document.getElementById('withdrawBankName')?.value.trim(),accountHolder:document.getElementById('withdrawBankHolder')?.value.trim(),accountNumber:document.getElementById('withdrawBankAccount')?.value.trim(),branch:document.getElementById('withdrawBankBranch')?.value.trim()};if(!payout.bankName||!payout.accountHolder||!/^[0-9]{8,24}$/.test(payout.accountNumber)){showToast('Bank name, account holder ও সঠিক account number দিন।',true);return;}}else{payout={accountNumber:(document.getElementById('withdrawNum')?.value||'').trim()};if(!/^[0-9]{8,20}$/.test(payout.accountNumber)){showToast('সঠিক payout account number দিন।',true);return;}}if(!Number.isFinite(amount)||amount<100){showToast('সর্বনিম্ন withdraw ৳100।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}const phone=window.appState.userPhone||localStorage.getItem('currentLoggedInUser')||'',req={id:'wd_'+Date.now(),method:method==='VISA'?'Bank Transfer':method,amount,payout,phone,nickname:window.appState.nickname||'',status:'Pending',createdAt:new Date().toISOString()};const raw=phone?localStorage.getItem('user_'+phone):null,saved=raw?JSON.parse(raw):{phone,nickname:req.nickname};saved.withdrawalRequests=Array.isArray(saved.withdrawalRequests)?saved.withdrawalRequests:[];saved.withdrawalRequests.push(req);if(phone)localStorage.setItem('user_'+phone,JSON.stringify(saved));window.appState.balance-=amount;updateBalanceDisplays();saveLocalTransaction({type:'Withdraw request · '+req.method,amount,status:'Pending',payoutDetails:payout,requestId:req.id});await saveAllProgress();showAppNotice('Withdraw request জমা হয়েছে','আপনার payout details request-এ সংরক্ষণ করা হয়েছে।');}
 
 #welcomeIntro.fade-out {
   opacity: 0;
@@ -630,10 +583,10 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 mb-1 block font-medium">Account Number</label>
-                            <input type="number" id="withdrawNum" placeholder="017XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                            <input type="tel" inputmode="numeric" id="withdrawNum" placeholder="01XXXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
+                            <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
                             <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button onclick="handleWithdraw()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">Submit Withdrawal Request</button>
@@ -930,11 +883,11 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                     <span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span>
                   </div>
                   <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">bKash Free</span>
+                    <span class="text-[11px] font-bold text-slate-200">bKash Active · 019****9877</span>
                   </div>
                 </button>
                        
-                <button type="button" onclick="selectPaymentProvider('Nagad', '01731567xxx')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" onclick="showToast('Nagad Coming Soon',true)" id="btnNagad" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
                   <div class="bg-white h-14 flex items-center justify-center p-2">
                     <span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span>
@@ -944,7 +897,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                   </div>
                 </button>
 
-                <button type="button" onclick="selectPaymentProvider('Rocket', '01731567xxx')" id="btnRocket" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" onclick="showToast('Rocket Coming Soon',true)" id="btnRocket" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
                   <div class="bg-white h-14 flex items-center justify-center p-2">
                     <div class="flex items-center gap-1 text-purple-700 font-black text-base">
@@ -957,12 +910,12 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                   </div>
                 </button>
 
-                <button type="button" onclick="selectPaymentProvider('VISA', '4840 6100 3163 4357')" id="btnVISA" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" onclick="showToast('Bank Deposit Coming Soon',true)" id="btnVISA" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2">
-                    <span class="text-blue-700 font-black text-2xl italic tracking-wider">VISA</span>
+                    <span class="text-blue-700 font-black text-xl tracking-wider">BANK</span>
                   </div>
                   <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">VISA / Card</span>
+                    <span class="text-[11px] font-bold text-slate-200">Bank · Coming Soon</span>
                   </div>
                 </button>
               </div>
@@ -2006,13 +1959,7 @@ function handleWithdraw() {
     showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
 }
 
-function selectWithdrawMethod(method) {
-    const btns = document.querySelectorAll('.withdraw-provider-btn');
-    btns.forEach(btn => btn.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
-    const target = document.getElementById('btnW' + method);
-    const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500' }[method];
-    if (target && borderClass) target.classList.add('active', borderClass);
-}
+function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method),color={bKash:'border-pink-500',Nagad:'border-orange-500',Rocket:'border-purple-500',VISA:'border-blue-500'}[method];if(target)target.classList.add('active',color);document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
 async function logout() {
     try { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; }
