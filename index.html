@@ -2047,27 +2047,40 @@ function activateAccount() {
 
 function switchTab(tabId) {
     const tabs = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
+    const target = document.getElementById(tabId);
+    if (!target) return;
+    const currentTab = tabs.find(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+    });
+    if (currentTab === tabId) return;
+
     const transition = document.getElementById('atimexTabTransition');
     const finishSwitch = () => {
         tabs.forEach(id => document.getElementById(id)?.classList.add('hidden'));
-        document.getElementById(tabId)?.classList.remove('hidden');
+        target.classList.remove('hidden');
         const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
         navs.forEach(navId => {
             const btn = document.getElementById(navId);
-            if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
+            if (btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
         });
         const map = {'tabHome':'navHome','tabWallet':'navWallet','tabTasks':'navTasks','tabServer':'navServer','tabProfile':'navProfile'};
         const activeBtn = document.getElementById(map[tabId]);
-        if(activeBtn) activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
+        if (activeBtn) activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
     };
-    if (!transition || !document.getElementById(tabId)?.classList.contains('hidden')) { finishSwitch(); return; }
+
+    if (!transition) { finishSwitch(); return; }
+    if (window.atimexTabSwitchTimer) clearTimeout(window.atimexTabSwitchTimer);
     transition.classList.remove('hidden');
+    transition.setAttribute('aria-hidden', 'false');
     transition.classList.add('atimex-transition-show');
-    setTimeout(() => {
+    window.atimexTabSwitchTimer = setTimeout(() => {
         finishSwitch();
         transition.classList.remove('atimex-transition-show');
         transition.classList.add('hidden');
-    }, 650);
+        transition.setAttribute('aria-hidden', 'true');
+        window.atimexTabSwitchTimer = null;
+    }, 560);
 }
 
 function runTask(taskNum) {
@@ -2367,17 +2380,19 @@ function handleWithdraw() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
     </script>
-<!-- ATIMEX tab-switch loading wordmark -->
+<!-- ATIMEX tab-switch loader: animated wordmark, no page reload -->
 <style>
-#atimexTabTransition{position:fixed;inset:0;z-index:100000;background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
-#atimexTabTransition.atimex-transition-show{opacity:1;pointer-events:auto;animation:atimexTransitionFade .65s ease both}
-#atimexTabTransition .atimex-transition-word{font-weight:900;letter-spacing:.12em;font-size:clamp(25px,6vw,38px);background:linear-gradient(90deg,#d1fae5,#fff,#34d399,#fff);background-size:250% 100%;color:transparent;-webkit-background-clip:text;background-clip:text;animation:atimexWordShine .7s linear infinite,atimexWordPulse .7s ease-in-out infinite alternate}
-#atimexTabTransition .atimex-transition-line{height:3px;width:150px;margin:18px auto 0;border-radius:9px;background:linear-gradient(90deg,transparent,#34d399,#fff,#10b981,transparent);background-size:200% 100%;animation:atimexWordShine .55s linear infinite;box-shadow:0 0 14px rgba(16,185,129,.6)}
-@keyframes atimexTransitionFade{0%{opacity:0}15%,85%{opacity:1}100%{opacity:0}}
-@keyframes atimexWordShine{to{background-position:200% 0}}
-@keyframes atimexWordPulse{to{transform:scale(1.035);filter:drop-shadow(0 0 12px rgba(16,185,129,.7))}}
-@media(prefers-reduced-motion:reduce){#atimexTabTransition .atimex-transition-word,#atimexTabTransition .atimex-transition-line{animation:none}}
+#atimexTabTransition{position:fixed;inset:0;z-index:100000;background:radial-gradient(ellipse at center,rgba(7,40,43,.96) 0%,rgba(2,6,23,.985) 72%);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;backdrop-filter:blur(7px)}
+#atimexTabTransition.hidden{display:none!important}
+#atimexTabTransition.atimex-transition-show{display:flex!important;visibility:visible;opacity:1;pointer-events:auto;animation:atimexLoaderIn .56s cubic-bezier(.2,.8,.2,1) both}
+#atimexTabTransition .atimex-loader-logo{font-weight:900;letter-spacing:.14em;font-size:clamp(30px,7vw,48px);background:linear-gradient(100deg,#d1fae5 0%,#fff 28%,#34d399 50%,#fff 72%,#a7f3d0 100%);background-size:260% 100%;color:transparent;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 15px rgba(16,185,129,.42));animation:atimexLoaderShine .8s linear infinite,atimexLoaderPulse .56s ease-in-out infinite alternate}
+#atimexTabTransition .atimex-loader-caption{font-size:9px;letter-spacing:.23em;font-weight:800;color:#94a3b8;margin-top:8px}
+#atimexTabTransition .atimex-loader-line{height:3px;width:152px;margin:18px auto 0;border-radius:99px;background:linear-gradient(90deg,transparent,#10b981,#ecfdf5,#34d399,transparent);background-size:220% 100%;box-shadow:0 0 18px rgba(16,185,129,.7);animation:atimexLoaderShine .48s linear infinite}
+@keyframes atimexLoaderIn{0%{opacity:0;transform:scale(.94)}18%,82%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.025)}}
+@keyframes atimexLoaderShine{to{background-position:220% 0}}
+@keyframes atimexLoaderPulse{to{transform:scale(1.045);filter:drop-shadow(0 0 24px rgba(16,185,129,.85))}}
+@media(prefers-reduced-motion:reduce){#atimexTabTransition .atimex-loader-logo,#atimexTabTransition .atimex-loader-line{animation:none}}
 </style>
-<div id="atimexTabTransition" class="hidden" aria-hidden="true"><div class="text-center"><div class="atimex-transition-word">ATIMEX</div><div class="atimex-transition-line"></div></div></div>
+<div id="atimexTabTransition" class="hidden" aria-hidden="true"><div class="text-center"><div class="atimex-loader-logo">ATIMEX</div><div class="atimex-loader-caption">NEXT-GEN EARNING PLATFORM</div><div class="atimex-loader-line"></div></div></div><div class="atimex-transition-line"></div></div></div>
 </body>
 </html>
