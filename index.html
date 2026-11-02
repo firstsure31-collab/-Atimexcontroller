@@ -353,6 +353,8 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @media (prefers-reduced-motion: reduce) { .welcome-live-text,.intro-title-live { animation: none; } }
 
 /* ATIMEX wallet confirmation flow */
+#withdrawReviewPage.hidden{display:none!important}
+#withdrawResultPage.hidden{display:none!important}
 .withdraw-flow-page{position:fixed;inset:0;z-index:120;overflow-y:auto;background:#f4f5f8;color:#1c2430;font-family:Arial,system-ui,sans-serif}
 .withdraw-flow-shell{width:100%;max-width:520px;min-height:100%;margin:0 auto;background:#f7f7fa;box-shadow:0 0 55px rgba(2,6,23,.22)}
 .withdraw-flow-topbar{display:flex;align-items:center;gap:13px;padding:17px 18px;background:linear-gradient(135deg,#bb1458,#e52c78);color:#fff;box-shadow:0 8px 28px rgba(190,24,93,.2)}
@@ -376,7 +378,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 .withdraw-flow-note{margin-top:15px;border:1px solid #f4c9da;background:#fff3f7;border-radius:15px;padding:13px 14px;color:#79435a;font-size:11px;line-height:1.65}
 .withdraw-flow-hold-wrap{margin-top:20px;background:#fff;border:1px solid #e7e9ef;border-radius:19px;padding:16px;box-shadow:0 9px 28px rgba(30,41,59,.05)}
 .withdraw-flow-hold-btn{position:relative;isolation:isolate;overflow:hidden;width:100%;min-height:56px;border:0;border-radius:15px;background:linear-gradient(100deg,#b81558,#e12b76);color:#fff;font-size:11px;font-weight:950;letter-spacing:1.15px;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 9px 20px rgba(190,24,93,.22);cursor:pointer}
-.withdraw-flow-hold-btn:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.38),rgba(255,255,255,.05));transform:scaleX(0);transform-origin:left;transition:transform 1.45s linear}
+.withdraw-flow-hold-btn:before{content:"";position:absolute;z-index:0;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.38),rgba(255,255,255,.05));transform:scaleX(0);transform-origin:left;transition:transform 1.45s linear}
 .withdraw-flow-hold-btn.is-holding:before{transform:scaleX(1)}
 .withdraw-flow-hold-btn span{position:relative;z-index:1;pointer-events:none}
 .withdraw-flow-hold-hint{min-height:17px;margin-top:10px;text-align:center;font-size:10px;color:#8992a2}
@@ -1061,14 +1063,14 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
               <button type="button" onclick="handleActivationSubmit()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-check"></i>
-                <span>VERIFY PAYMENT</span>
+                <span>SUBMIT FOR VERIFICATION</span>
               </button>
             </div>
 
           </div>
         </div>
 
-<div id="appNoticeModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-emerald-400/50 bg-slate-900 p-5 shadow-2xl relative"><button onclick="closeAppNotice()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><div id="appNoticeTitle" class="font-bold text-emerald-300 text-sm mb-2"></div><p id="appNoticeBody" class="text-xs text-slate-200 leading-relaxed"></p></div></div>
+<div id="appNoticeModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-emerald-400/50 bg-slate-900 p-5 shadow-2xl relative"><button onclick="closeAppNotice()" aria-label="Close message" class="absolute right-3 top-2 text-slate-400 hover:text-white text-xl">×</button><div id="appNoticeTitle" class="font-bold text-emerald-300 text-sm mb-2"></div><p id="appNoticeBody" class="text-xs text-slate-200 leading-relaxed"></p></div></div>
 <div id="socialModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-blue-400/40 bg-slate-900 p-5 relative space-y-3"><button onclick="closeSocialModal()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm">Telegram Updates</h3><p class="text-xs text-slate-300">অ্যাপের সকল আপডেট জানতে এই গ্রুপে Join করুন।</p><a href="https://t.me/atimex247" target="_blank" rel="noopener" class="block rounded-xl bg-blue-500 py-2.5 text-center text-xs font-bold text-white">Join Telegram</a></div></div>
 <div id="transactionModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-sm max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 relative"><button onclick="closeTransactionHistory()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm mb-3">Transaction History</h3><div id="transactionHistoryList" class="space-y-2 text-xs text-slate-300"></div></div></div>
         
@@ -1077,8 +1079,8 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   <div class="withdraw-flow-shell">
     <header class="withdraw-flow-topbar">
       <button type="button" class="withdraw-flow-back" onclick="closeWithdrawVerification()" aria-label="Go back">‹</button>
-      <div><div class="withdraw-flow-brand">ATIMEX</div><div class="withdraw-flow-subbrand">Wallet · Secure Review</div></div>
-      <div class="withdraw-flow-secure"><i class="fa-solid fa-shield-halved"></i> SECURE</div>
+      <div><div class="withdraw-flow-brand">ATIMEX</div><div class="withdraw-flow-subbrand">Wallet · Request Review</div></div>
+      <div class="withdraw-flow-secure"><i class="fa-solid fa-shield-halved"></i> REVIEW</div>
     </header>
     <main class="withdraw-flow-content">
       <div class="withdraw-flow-kicker">Withdrawal confirmation</div>
