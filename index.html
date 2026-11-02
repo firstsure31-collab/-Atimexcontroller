@@ -2047,33 +2047,27 @@ function activateAccount() {
 
 function switchTab(tabId) {
     const tabs = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
-    tabs.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.classList.add('hidden');
-    });
-
-    const targetEl = document.getElementById(tabId);
-    if(targetEl) targetEl.classList.remove('hidden');
-
-    const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
-    navs.forEach(navId => {
-        const btn = document.getElementById(navId);
-        if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
-    });
-
-    const activeNavMap = {
-        'tabHome': 'navHome',
-        'tabWallet': 'navWallet',
-        'tabTasks': 'navTasks',
-        'tabServer': 'navServer',
-        'tabProfile': 'navProfile'
-    };
-
-    const activeNavId = activeNavMap[tabId];
-    if(activeNavId) {
-        const activeBtn = document.getElementById(activeNavId);
+    const transition = document.getElementById('atimexTabTransition');
+    const finishSwitch = () => {
+        tabs.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+        document.getElementById(tabId)?.classList.remove('hidden');
+        const navs = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
+        navs.forEach(navId => {
+            const btn = document.getElementById(navId);
+            if(btn) btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
+        });
+        const map = {'tabHome':'navHome','tabWallet':'navWallet','tabTasks':'navTasks','tabServer':'navServer','tabProfile':'navProfile'};
+        const activeBtn = document.getElementById(map[tabId]);
         if(activeBtn) activeBtn.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
-    }
+    };
+    if (!transition || !document.getElementById(tabId)?.classList.contains('hidden')) { finishSwitch(); return; }
+    transition.classList.remove('hidden');
+    transition.classList.add('atimex-transition-show');
+    setTimeout(() => {
+        finishSwitch();
+        transition.classList.remove('atimex-transition-show');
+        transition.classList.add('hidden');
+    }, 650);
 }
 
 function runTask(taskNum) {
@@ -2248,7 +2242,7 @@ function openWithdrawVerification() {
   document.getElementById('withdrawReviewMethod').textContent = details.method === 'VISA' ? 'Bank transfer · ' + details.bankName : details.method;
   document.getElementById('withdrawReviewNumber').textContent = details.accountNumber;
   document.getElementById('withdrawReviewDate').textContent = details.date.toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
-  document.getElementById('withdrawReviewAvailable').textContent = formatAtimexMoney(details.balance);
+  document.getElementById('withdrawReviewAvailable').textContent = formatAtimexMoney(Math.max(0, details.balance - details.amount));
   const holdButton = document.getElementById('withdrawHoldButton');
   holdButton?.classList.remove('is-holding');
   if (holdButton) holdButton.disabled = false;
@@ -2302,6 +2296,17 @@ function submitWithdrawRequest() {
     accountName: details.accountName,
     requestedAt: new Date().toISOString()
   };
+  // Debit only after the hold-to-confirm action completes.
+  const currentBalance = Number(window.appState.balance || 0);
+  if (details.amount > currentBalance) {
+    withdrawRequestCompleted = false;
+    showToast('Balance পরিবর্তন হয়েছে—আবার review করুন।', true);
+    closeWithdrawVerification();
+    return;
+  }
+  window.appState.balance = currentBalance - details.amount;
+  updateBalanceDisplays();
+  saveAllProgress();
   saveLocalTransaction(entry);
   document.getElementById('withdrawReviewPage')?.classList.add('hidden');
   document.getElementById('withdrawResultAmount').textContent = formatAtimexMoney(details.amount);
@@ -2362,5 +2367,17 @@ function handleWithdraw() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
     </script>
+<!-- ATIMEX tab-switch loading wordmark -->
+<style>
+#atimexTabTransition{position:fixed;inset:0;z-index:100000;background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
+#atimexTabTransition.atimex-transition-show{opacity:1;pointer-events:auto;animation:atimexTransitionFade .65s ease both}
+#atimexTabTransition .atimex-transition-word{font-weight:900;letter-spacing:.12em;font-size:clamp(25px,6vw,38px);background:linear-gradient(90deg,#d1fae5,#fff,#34d399,#fff);background-size:250% 100%;color:transparent;-webkit-background-clip:text;background-clip:text;animation:atimexWordShine .7s linear infinite,atimexWordPulse .7s ease-in-out infinite alternate}
+#atimexTabTransition .atimex-transition-line{height:3px;width:150px;margin:18px auto 0;border-radius:9px;background:linear-gradient(90deg,transparent,#34d399,#fff,#10b981,transparent);background-size:200% 100%;animation:atimexWordShine .55s linear infinite;box-shadow:0 0 14px rgba(16,185,129,.6)}
+@keyframes atimexTransitionFade{0%{opacity:0}15%,85%{opacity:1}100%{opacity:0}}
+@keyframes atimexWordShine{to{background-position:200% 0}}
+@keyframes atimexWordPulse{to{transform:scale(1.035);filter:drop-shadow(0 0 12px rgba(16,185,129,.7))}}
+@media(prefers-reduced-motion:reduce){#atimexTabTransition .atimex-transition-word,#atimexTabTransition .atimex-transition-line{animation:none}}
+</style>
+<div id="atimexTabTransition" class="hidden" aria-hidden="true"><div class="text-center"><div class="atimex-transition-word">ATIMEX</div><div class="atimex-transition-line"></div></div></div>
 </body>
 </html>
