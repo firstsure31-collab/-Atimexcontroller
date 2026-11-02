@@ -351,6 +351,47 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @keyframes welcomeFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.035); } }
 @keyframes welcomeGlow { 0%,100% { filter: drop-shadow(0 0 5px rgba(16,185,129,.35)); } 50% { filter: drop-shadow(0 0 15px rgba(52,211,153,.95)); } }
 @media (prefers-reduced-motion: reduce) { .welcome-live-text,.intro-title-live { animation: none; } }
+
+/* ATIMEX wallet confirmation flow */
+#withdrawReviewPage.hidden{display:none!important}
+#withdrawResultPage.hidden{display:none!important}
+.withdraw-flow-page{position:fixed;inset:0;z-index:120;overflow-y:auto;background:#f4f5f8;color:#1c2430;font-family:Arial,system-ui,sans-serif}
+.withdraw-flow-shell{width:100%;max-width:520px;min-height:100%;margin:0 auto;background:#f7f7fa;box-shadow:0 0 55px rgba(2,6,23,.22)}
+.withdraw-flow-topbar{display:flex;align-items:center;gap:13px;padding:17px 18px;background:linear-gradient(135deg,#bb1458,#e52c78);color:#fff;box-shadow:0 8px 28px rgba(190,24,93,.2)}
+.withdraw-flow-back{width:38px;height:38px;border-radius:13px;background:rgba(255,255,255,.15);color:#fff;font-size:23px;display:grid;place-items:center;cursor:pointer}
+.withdraw-flow-brand{font-weight:950;letter-spacing:2px;font-size:18px}
+.withdraw-flow-subbrand{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.76);margin-top:2px}
+.withdraw-flow-secure{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.7px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);padding:7px 9px;border-radius:999px}
+.withdraw-flow-content{padding:22px 17px 30px}
+.withdraw-flow-kicker{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#bb1458;text-transform:uppercase}
+.withdraw-flow-title{font-size:23px;line-height:1.2;font-weight:900;color:#172033;margin-top:6px}
+.withdraw-flow-muted{font-size:12px;color:#748094;line-height:1.6}
+.withdraw-flow-card{margin-top:19px;background:#fff;border:1px solid #e7e9ef;border-radius:22px;overflow:hidden;box-shadow:0 12px 35px rgba(30,41,59,.07)}
+.withdraw-flow-amount{padding:22px 20px;background:linear-gradient(135deg,#fff,#fff5f8);border-bottom:1px solid #f0e5ea}
+.withdraw-flow-amount-label{font-size:10px;letter-spacing:1.1px;font-weight:900;color:#8b5268;text-transform:uppercase}
+.withdraw-flow-amount-value{font-size:36px;line-height:1.1;font-weight:950;letter-spacing:-1.3px;color:#b91558;margin-top:8px}
+.withdraw-flow-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid #f0f1f5}
+.withdraw-flow-row:last-child{border-bottom:0}
+.withdraw-flow-row-label{font-size:11px;color:#8791a2}
+.withdraw-flow-row-value{font-size:12px;font-weight:800;color:#202b3c;text-align:right;max-width:62%;overflow-wrap:anywhere}
+.withdraw-flow-available{color:#0b8e67}
+.withdraw-flow-note{margin-top:15px;border:1px solid #f4c9da;background:#fff3f7;border-radius:15px;padding:13px 14px;color:#79435a;font-size:11px;line-height:1.65}
+.withdraw-flow-hold-wrap{margin-top:20px;background:#fff;border:1px solid #e7e9ef;border-radius:19px;padding:16px;box-shadow:0 9px 28px rgba(30,41,59,.05)}
+.withdraw-flow-hold-btn{position:relative;isolation:isolate;overflow:hidden;width:100%;min-height:56px;border:0;border-radius:15px;background:linear-gradient(100deg,#b81558,#e12b76);color:#fff;font-size:11px;font-weight:950;letter-spacing:1.15px;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 9px 20px rgba(190,24,93,.22);cursor:pointer}
+.withdraw-flow-hold-btn:before{content:"";position:absolute;z-index:0;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.38),rgba(255,255,255,.05));transform:scaleX(0);transform-origin:left;transition:transform 1.45s linear}
+.withdraw-flow-hold-btn.is-holding:before{transform:scaleX(1)}
+.withdraw-flow-hold-btn span{position:relative;z-index:1;pointer-events:none}
+.withdraw-flow-hold-hint{min-height:17px;margin-top:10px;text-align:center;font-size:10px;color:#8992a2}
+.withdraw-flow-cancel{display:block;width:100%;margin-top:12px;padding:11px;border-radius:12px;color:#6f7887;font-weight:800;font-size:11px}
+.withdraw-result-page{position:fixed;inset:0;z-index:121;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:22px;background:radial-gradient(circle at 50% 20%,rgba(16,185,129,.16),transparent 36%),#07111f;color:#fff}
+.withdraw-result-card{width:100%;max-width:390px;border:1px solid rgba(52,211,153,.26);border-radius:28px;padding:32px 24px;background:linear-gradient(155deg,rgba(15,35,49,.98),rgba(8,18,32,.98));text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.38),0 0 45px rgba(16,185,129,.08)}
+.withdraw-result-word{font-size:42px;font-weight:1000;letter-spacing:5px;margin:9px 0 18px}
+.withdraw-result-check{width:62px;height:62px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;background:rgba(16,185,129,.14);border:1px solid rgba(52,211,153,.5);color:#34d399;font-size:27px;box-shadow:0 0 30px rgba(16,185,129,.18)}
+.withdraw-result-status{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;border:1px solid rgba(251,191,36,.3);background:rgba(245,158,11,.1);color:#fcd34d;font-size:9px;font-weight:900;letter-spacing:1px}
+.withdraw-result-detail{margin:18px 0;padding:14px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:11px;color:#cbd5e1;line-height:1.8}
+.withdraw-result-home{width:100%;margin-top:20px;padding:13px;border-radius:13px;background:#10b981;color:#04130e;font-size:11px;font-weight:950;letter-spacing:.5px}
+@media(prefers-reduced-motion:reduce){.withdraw-flow-hold-btn:before{transition:none}.withdraw-result-word{animation:none!important}}
+
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -667,7 +708,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
                             <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
-                        <button onclick="handleWithdraw()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">Submit Withdrawal Request</button>
+                        <button onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
                     </div>
                 </div>
             </div>
@@ -1022,16 +1063,72 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
               <button type="button" onclick="handleActivationSubmit()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-check"></i>
-                <span>VERIFY PAYMENT</span>
+                <span>SUBMIT FOR VERIFICATION</span>
               </button>
             </div>
 
           </div>
         </div>
 
-<div id="appNoticeModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-emerald-400/50 bg-slate-900 p-5 shadow-2xl relative"><button onclick="closeAppNotice()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><div id="appNoticeTitle" class="font-bold text-emerald-300 text-sm mb-2"></div><p id="appNoticeBody" class="text-xs text-slate-200 leading-relaxed"></p></div></div>
+<div id="appNoticeModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-emerald-400/50 bg-slate-900 p-5 shadow-2xl relative"><button onclick="closeAppNotice()" aria-label="Close message" class="absolute right-3 top-2 text-slate-400 hover:text-white text-xl">×</button><div id="appNoticeTitle" class="font-bold text-emerald-300 text-sm mb-2"></div><p id="appNoticeBody" class="text-xs text-slate-200 leading-relaxed"></p></div></div>
 <div id="socialModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-xs rounded-2xl border border-blue-400/40 bg-slate-900 p-5 relative space-y-3"><button onclick="closeSocialModal()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm">Telegram Updates</h3><p class="text-xs text-slate-300">অ্যাপের সকল আপডেট জানতে এই গ্রুপে Join করুন।</p><a href="https://t.me/atimex247" target="_blank" rel="noopener" class="block rounded-xl bg-blue-500 py-2.5 text-center text-xs font-bold text-white">Join Telegram</a></div></div>
 <div id="transactionModal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 flex items-center justify-center p-4"><div class="w-full max-w-sm max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 relative"><button onclick="closeTransactionHistory()" class="absolute right-3 top-2 text-slate-400 text-xl">×</button><h3 class="font-bold text-white text-sm mb-3">Transaction History</h3><div id="transactionHistoryList" class="space-y-2 text-xs text-slate-300"></div></div></div>
+        
+<!-- ATIMEX withdrawal review screen -->
+<div id="withdrawReviewPage" class="withdraw-flow-page hidden" aria-modal="true" role="dialog" aria-labelledby="withdrawReviewTitle">
+  <div class="withdraw-flow-shell">
+    <header class="withdraw-flow-topbar">
+      <button type="button" class="withdraw-flow-back" onclick="closeWithdrawVerification()" aria-label="Go back">‹</button>
+      <div><div class="withdraw-flow-brand">ATIMEX</div><div class="withdraw-flow-subbrand">Wallet · Request Review</div></div>
+      <div class="withdraw-flow-secure"><i class="fa-solid fa-shield-halved"></i> REVIEW</div>
+    </header>
+    <main class="withdraw-flow-content">
+      <div class="withdraw-flow-kicker">Withdrawal confirmation</div>
+      <h2 id="withdrawReviewTitle" class="withdraw-flow-title">Review your request</h2>
+      <p class="withdraw-flow-muted">নিচের তথ্যগুলো ভালোভাবে মিলিয়ে নিন। সব ঠিক থাকলে নিচের বাটনটি চেপে ধরে নিশ্চিত করুন।</p>
+      <section class="withdraw-flow-card" aria-label="Withdrawal details">
+        <div class="withdraw-flow-amount">
+          <div class="withdraw-flow-amount-label">Withdrawal amount</div>
+          <div id="withdrawReviewAmount" class="withdraw-flow-amount-value">৳0.00</div>
+          <div class="text-[10px] text-slate-500 mt-2">ATIMEX withdrawal request</div>
+        </div>
+        <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">User name</div><div class="withdraw-flow-row-value" id="withdrawReviewName">—</div></div>
+        <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Payment method</div><div class="withdraw-flow-row-value" id="withdrawReviewMethod">bKash</div></div>
+        <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Account / number</div><div class="withdraw-flow-row-value" id="withdrawReviewNumber">—</div></div>
+        <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Request date</div><div class="withdraw-flow-row-value" id="withdrawReviewDate">—</div></div>
+        <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Available amount</div><div class="withdraw-flow-row-value withdraw-flow-available" id="withdrawReviewAvailable">৳0.00</div></div>
+      </section>
+      <div class="withdraw-flow-note"><i class="fa-regular fa-clock mr-1"></i> Request জমা হওয়ার পর সাধারণত <b>১ থেকে ৬ ঘণ্টার মধ্যে</b> প্রসেস করা হবে। এটি request confirmation—টাকা পাঠানো সম্পন্ন হওয়ার নিশ্চয়তা নয়।</div>
+      <div class="withdraw-flow-hold-wrap">
+        <div class="text-[10px] font-black text-slate-700 tracking-widest mb-3">FINAL CONFIRMATION</div>
+        <button id="withdrawHoldButton" type="button" class="withdraw-flow-hold-btn" onpointerdown="beginWithdrawHold(event)" onpointerup="endWithdrawHold()" onpointerleave="endWithdrawHold()" onpointercancel="endWithdrawHold()" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();beginWithdrawHold(event)}" onkeyup="if(event.key===' '||event.key==='Enter')endWithdrawHold()" aria-label="Press and hold to confirm withdrawal"><span><i class="fa-solid fa-fingerprint mr-2"></i>PRESS &amp; HOLD TO CONFIRM</span></button>
+        <div id="withdrawHoldHint" class="withdraw-flow-hold-hint">প্রায় ১.৫ সেকেন্ড চেপে ধরে রাখুন</div>
+      </div>
+      <button type="button" class="withdraw-flow-cancel" onclick="closeWithdrawVerification()">Cancel and go back</button>
+    </main>
+  </div>
+</div>
+
+<!-- ATIMEX branded pending-request confirmation screen -->
+<div id="withdrawResultPage" class="withdraw-result-page hidden" aria-live="polite">
+  <section class="withdraw-result-card">
+    <div class="text-[9px] font-black uppercase tracking-[3px] text-emerald-300/70">ATIMEX Wallet</div>
+    <div class="withdraw-result-word intro-title-live">ATIMEX</div>
+    <div class="withdraw-result-check"><i class="fa-solid fa-check"></i></div>
+    <div class="withdraw-result-status"><i class="fa-solid fa-clock"></i> REQUEST SUBMITTED · PENDING</div>
+    <h2 class="text-xl font-black text-white mt-5">Request received</h2>
+    <p class="text-xs leading-6 text-slate-300 mt-2">তোমার withdrawal request সফলভাবে জমা হয়েছে। যাচাই ও processing শেষ হলে payout সম্পন্ন হবে।</p>
+    <div class="withdraw-result-detail">
+      <div class="flex justify-between gap-3"><span>Request amount</span><b id="withdrawResultAmount" class="text-white">৳0.00</b></div>
+      <div class="flex justify-between gap-3"><span>Method</span><b id="withdrawResultMethod" class="text-white">bKash</b></div>
+      <div class="flex justify-between gap-3"><span>Request ID</span><b id="withdrawResultId" class="text-emerald-300">ATX-—</b></div>
+      <div class="border-t border-white/10 mt-3 pt-3 text-amber-200">সম্ভাব্য processing time: ১–৬ ঘণ্টা।</div>
+    </div>
+    <p class="text-[9px] leading-5 text-slate-500">এই স্ক্রিনটি request জমা হওয়ার confirmation। Actual payout admin/payment provider থেকে সম্পন্ন ও যাচাই না হওয়া পর্যন্ত pending থাকবে।</p>
+    <button type="button" class="withdraw-result-home" onclick="closeWithdrawResult()">BACK TO ATIMEX</button>
+  </section>
+</div>
+
         <!-- 4. ADMIN MODAL -->
         <div id="adminModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl">
@@ -2080,6 +2177,187 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, 2200);
 });
+
+/* ATIMEX deposit / withdrawal confirmation flow */
+let withdrawHoldTimer = null;
+let withdrawPreviewData = null;
+let withdrawRequestCompleted = false;
+
+function formatAtimexMoney(value) {
+  const amount = Number(value || 0);
+  return '৳' + (Number.isFinite(amount) ? amount : 0).toFixed(2);
+}
+
+function selectWithdrawMethod(method) {
+  const allowed = ['bKash', 'Nagad', 'Rocket', 'VISA'];
+  if (!allowed.includes(method)) return;
+  window.appState.selectedMethod = method;
+  document.querySelectorAll('.withdraw-provider-btn').forEach(button => {
+    button.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500');
+  });
+  const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500' }[method];
+  const selectedButton = document.getElementById('btnW' + method);
+  if (selectedButton) selectedButton.classList.add('active', borderClass);
+  const numberField = document.getElementById('withdrawNum');
+  const bankFields = document.getElementById('withdrawBankFields');
+  const numberWrapper = numberField ? numberField.parentElement : null;
+  if (numberWrapper) numberWrapper.classList.toggle('hidden', method === 'VISA');
+  if (bankFields) bankFields.classList.toggle('hidden', method !== 'VISA');
+}
+
+function getWithdrawFormData() {
+  const method = window.appState.selectedMethod || 'bKash';
+  const amount = Number(document.getElementById('withdrawAmount')?.value);
+  const balance = Number(window.appState.balance || 0);
+  let accountNumber = '';
+  let accountName = window.appState.nickname || document.getElementById('profileNickname')?.textContent?.trim() || 'ATIMEX User';
+  let bankName = '';
+  if (method === 'VISA') {
+    bankName = document.getElementById('withdrawBankName')?.value?.trim() || '';
+    accountName = document.getElementById('withdrawBankHolder')?.value?.trim() || accountName;
+    accountNumber = document.getElementById('withdrawBankAccount')?.value?.trim() || '';
+    if (!bankName || !accountName || !/^[0-9]{8,24}$/.test(accountNumber)) {
+      showToast('ব্যাংকের নাম, account holder ও সঠিক account number দিন।', true);
+      return null;
+    }
+  } else {
+    accountNumber = document.getElementById('withdrawNum')?.value?.trim() || '';
+    if (!/^01[3-9][0-9]{8}$/.test(accountNumber)) {
+      showToast('সঠিক ১১ ডিজিটের mobile wallet number দিন।', true);
+      return null;
+    }
+  }
+  if (!Number.isFinite(amount) || amount < 100) {
+    showToast('সর্বনিম্ন withdraw ৳100।', true);
+    return null;
+  }
+  if (amount > balance) {
+    showToast('পর্যাপ্ত available balance নেই।', true);
+    return null;
+  }
+  return { method, amount, balance, accountNumber, accountName, bankName, date: new Date() };
+}
+
+function openWithdrawVerification() {
+  const details = getWithdrawFormData();
+  if (!details) return;
+  withdrawPreviewData = details;
+  withdrawRequestCompleted = false;
+  document.getElementById('withdrawReviewAmount').textContent = formatAtimexMoney(details.amount);
+  document.getElementById('withdrawReviewName').textContent = details.accountName;
+  document.getElementById('withdrawReviewMethod').textContent = details.method === 'VISA' ? 'Bank transfer · ' + details.bankName : details.method;
+  document.getElementById('withdrawReviewNumber').textContent = details.accountNumber;
+  document.getElementById('withdrawReviewDate').textContent = details.date.toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
+  document.getElementById('withdrawReviewAvailable').textContent = formatAtimexMoney(details.balance);
+  const holdButton = document.getElementById('withdrawHoldButton');
+  holdButton?.classList.remove('is-holding');
+  if (holdButton) holdButton.disabled = false;
+  const hint = document.getElementById('withdrawHoldHint');
+  if (hint) hint.textContent = 'প্রায় ১.৫ সেকেন্ড চেপে ধরে রাখুন';
+  document.getElementById('withdrawReviewPage')?.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeWithdrawVerification() {
+  endWithdrawHold();
+  document.getElementById('withdrawReviewPage')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  withdrawPreviewData = null;
+}
+
+function beginWithdrawHold(event) {
+  if (!withdrawPreviewData || withdrawRequestCompleted || withdrawHoldTimer) return;
+  if (event && typeof event.preventDefault === 'function') event.preventDefault();
+  const button = document.getElementById('withdrawHoldButton');
+  const hint = document.getElementById('withdrawHoldHint');
+  if (!button || button.disabled) return;
+  button.classList.add('is-holding');
+  if (hint) hint.textContent = 'ধরে রাখুন… request confirm হচ্ছে';
+  withdrawHoldTimer = setTimeout(submitWithdrawRequest, 1450);
+}
+
+function endWithdrawHold() {
+  if (withdrawHoldTimer) {
+    clearTimeout(withdrawHoldTimer);
+    withdrawHoldTimer = null;
+    const button = document.getElementById('withdrawHoldButton');
+    if (button && !withdrawRequestCompleted) button.classList.remove('is-holding');
+    const hint = document.getElementById('withdrawHoldHint');
+    if (hint && !withdrawRequestCompleted) hint.textContent = 'চেপে ধরে রাখুন—মাঝপথে ছেড়ে দিলে confirm হবে না';
+  }
+}
+
+function submitWithdrawRequest() {
+  withdrawHoldTimer = null;
+  if (!withdrawPreviewData || withdrawRequestCompleted) return;
+  withdrawRequestCompleted = true;
+  const details = withdrawPreviewData;
+  const requestId = 'ATX-WD-' + Date.now();
+  const entry = {
+    type: 'Withdraw request · ' + details.method,
+    amount: details.amount,
+    status: 'Submitted · Pending processing',
+    requestId,
+    account: details.accountNumber,
+    accountName: details.accountName,
+    requestedAt: new Date().toISOString()
+  };
+  saveLocalTransaction(entry);
+  document.getElementById('withdrawReviewPage')?.classList.add('hidden');
+  document.getElementById('withdrawResultAmount').textContent = formatAtimexMoney(details.amount);
+  document.getElementById('withdrawResultMethod').textContent = details.method;
+  document.getElementById('withdrawResultId').textContent = requestId;
+  document.getElementById('withdrawResultPage')?.classList.remove('hidden');
+  const hint = document.getElementById('withdrawHoldHint');
+  if (hint) hint.textContent = 'Request submitted';
+}
+
+function closeWithdrawResult() {
+  document.getElementById('withdrawResultPage')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  document.getElementById('withdrawAmount').value = '';
+  withdrawPreviewData = null;
+  withdrawRequestCompleted = false;
+  switchTab('tabWallet');
+  showToast('Withdrawal request pending verification.');
+}
+
+/* The request popup is informational; it never credits/debits a wallet by itself. */
+function handleActivationSubmit() {
+  const number = document.getElementById('depositNum')?.value?.trim() || '';
+  const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
+  const amount = Number(document.getElementById('paymentAmount')?.value || 100);
+  if (!/^01[3-9][0-9]{8}$/.test(number)) {
+    showToast('সঠিক ১১ ডিজিটের sender number দিন!', true);
+    return;
+  }
+  if (!/^[A-Z0-9]{8,20}$/.test(trxId)) {
+    showToast('সঠিক TrxID / reference দিন।', true);
+    return;
+  }
+  if (!Number.isFinite(amount) || amount < 100) {
+    showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
+    return;
+  }
+  saveLocalTransaction({
+    type: 'Deposit request · ' + (activeGateway?.method || 'bKash'),
+    amount,
+    status: 'Pending verification',
+    trxId,
+    sender: number,
+    requestedAt: new Date().toISOString()
+  });
+  closePaymentModal();
+  showAppNotice(
+    'Deposit request received',
+    'আপনার deposit request জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সাধারণত ১ থেকে ৬ ঘণ্টার মধ্যে প্রসেস করা হবে। Payment যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।'
+  );
+}
+
+function handleWithdraw() {
+  openWithdrawVerification();
+}
+
         function updateReferralUi() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
