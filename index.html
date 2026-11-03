@@ -2055,7 +2055,6 @@ function switchTab(tabId) {
     });
     if (current === tabId) return;
 
-    const overlay = document.getElementById('atimexTabTransition');
     const applyTab = () => {
         tabIds.forEach(id => document.getElementById(id)?.classList.add('hidden'));
         target.classList.remove('hidden');
@@ -2069,36 +2068,60 @@ function switchTab(tabId) {
         if (active) active.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
     };
 
-    if (!overlay) { applyTab(); return; }
+    // Build the loader at runtime: avoids CSS .hidden/markup-order conflicts entirely.
+    let overlay = document.getElementById('atimexTabTransition');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'atimexTabTransition';
+        overlay.innerHTML = '<div style="text-align:center"><div class="atimex-loader-logo">ATIMEX</div><div class="atimex-loader-caption">NEXT-GEN EARNING PLATFORM</div><div class="atimex-loader-line"></div></div>';
+        document.body.appendChild(overlay);
+    }
     if (window.atimexTabSwitchTimer) clearTimeout(window.atimexTabSwitchTimer);
+    if (overlay._atimexAnimation) overlay._atimexAnimation.cancel();
 
-    // Show the overlay using inline styles (not a class/keyframe that may be overridden).
+    Object.assign(overlay.style, {
+        position:'fixed', inset:'0', zIndex:'2147483647', display:'flex',
+        alignItems:'center', justifyContent:'center',
+        background:'radial-gradient(ellipse at center, rgba(7,40,43,.98), rgba(2,6,23,.995))',
+        opacity:'1', visibility:'visible', pointerEvents:'auto',
+        backdropFilter:'blur(7px)', transition:'none'
+    });
     overlay.classList.remove('hidden');
-    overlay.style.setProperty('display', 'flex', 'important');
-    overlay.style.setProperty('position', 'fixed', 'important');
-    overlay.style.setProperty('inset', '0', 'important');
-    overlay.style.setProperty('z-index', '2147483000', 'important');
-    overlay.style.setProperty('visibility', 'visible', 'important');
-    overlay.style.setProperty('opacity', '1', 'important');
-    overlay.style.setProperty('pointer-events', 'auto', 'important');
-    overlay.style.setProperty('transition', 'opacity 180ms ease', 'important');
-    overlay.setAttribute('aria-hidden', 'false');
+    overlay.setAttribute('aria-hidden','false');
 
-    // Force a paint before scheduling the tab change, so the loader is actually rendered.
+    const logo = overlay.querySelector('.atimex-loader-logo');
+    const caption = overlay.querySelector('.atimex-loader-caption');
+    const line = overlay.querySelector('.atimex-loader-line');
+    Object.assign(logo.style, {
+        fontWeight:'900', letterSpacing:'.14em', fontSize:'clamp(30px,7vw,48px)',
+        background:'linear-gradient(100deg,#d1fae5,#fff,#34d399,#fff,#a7f3d0)',
+        backgroundSize:'260% 100%', color:'transparent',
+        WebkitBackgroundClip:'text', backgroundClip:'text',
+        filter:'drop-shadow(0 0 15px rgba(16,185,129,.6))'
+    });
+    Object.assign(caption.style,{fontSize:'9px',letterSpacing:'.23em',fontWeight:'800',color:'#94a3b8',marginTop:'8px'});
+    Object.assign(line.style,{height:'3px',width:'152px',margin:'18px auto 0',borderRadius:'99px',
+        background:'linear-gradient(90deg,transparent,#10b981,#ecfdf5,#34d399,transparent)',
+        backgroundSize:'220% 100%',boxShadow:'0 0 18px rgba(16,185,129,.7)'});
+
+    // Animate actual elements via Web Animations API, independent of stylesheet timing.
+    overlay._atimexAnimation = overlay.animate(
+        [{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)',offset:.22},{opacity:1,transform:'scale(1)',offset:.82},{opacity:0,transform:'scale(1.025)'}],
+        {duration:900,easing:'ease-in-out',fill:'forwards'}
+    );
+    logo.animate([{backgroundPosition:'0% 0%',transform:'scale(.98)'},{backgroundPosition:'220% 0%',transform:'scale(1.045)'},{backgroundPosition:'0% 0%',transform:'scale(1)'}],{duration:850,iterations:1});
+    line.animate([{backgroundPosition:'0% 0%'},{backgroundPosition:'220% 0%'}],{duration:650,iterations:1});
+
     void overlay.offsetHeight;
     window.atimexTabSwitchTimer = setTimeout(() => {
         applyTab();
-        overlay.style.setProperty('opacity', '0', 'important');
-        overlay.style.setProperty('pointer-events', 'none', 'important');
-        setTimeout(() => {
-            overlay.style.setProperty('visibility', 'hidden', 'important');
-            overlay.style.setProperty('display', 'none', 'important');
-            overlay.classList.add('hidden');
-            overlay.setAttribute('aria-hidden', 'true');
-            overlay.style.removeProperty('transition');
-            window.atimexTabSwitchTimer = null;
-        }, 200);
-    }, 520);
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.visibility = 'hidden';
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden','true');
+        window.atimexTabSwitchTimer = null;
+    }, 900);
 }
 
 function runTask(taskNum) {
@@ -2398,16 +2421,5 @@ function handleWithdraw() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
     </script>
-<!-- ATIMEX tab-switch loader; visibility is controlled directly by switchTab -->
-<style>
-#atimexTabTransition{background:radial-gradient(ellipse at center,rgba(7,40,43,.97),rgba(2,6,23,.99))!important;align-items:center!important;justify-content:center!important;backdrop-filter:blur(7px)}
-#atimexTabTransition .atimex-loader-logo{font-weight:900;letter-spacing:.14em;font-size:clamp(30px,7vw,48px);background:linear-gradient(100deg,#d1fae5,#fff,#34d399,#fff,#a7f3d0);background-size:260% 100%;color:transparent;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 15px rgba(16,185,129,.42));animation:atimexLoaderShine .8s linear infinite,atimexLoaderPulse .56s ease-in-out infinite alternate}
-#atimexTabTransition .atimex-loader-caption{font-size:9px;letter-spacing:.23em;font-weight:800;color:#94a3b8;margin-top:8px}
-#atimexTabTransition .atimex-loader-line{height:3px;width:152px;margin:18px auto 0;border-radius:99px;background:linear-gradient(90deg,transparent,#10b981,#ecfdf5,#34d399,transparent);background-size:220% 100%;box-shadow:0 0 18px rgba(16,185,129,.7);animation:atimexLoaderShine .48s linear infinite}
-@keyframes atimexLoaderShine{to{background-position:220% 0}}
-@keyframes atimexLoaderPulse{to{transform:scale(1.045);filter:drop-shadow(0 0 24px rgba(16,185,129,.85))}}
-@media(prefers-reduced-motion:reduce){#atimexTabTransition .atimex-loader-logo,#atimexTabTransition .atimex-loader-line{animation:none}}
-</style>
-<div id="atimexTabTransition" class="hidden" aria-hidden="true"><div class="text-center"><div class="atimex-loader-logo">ATIMEX</div><div class="atimex-loader-caption">NEXT-GEN EARNING PLATFORM</div><div class="atimex-loader-line"></div></div></div>
 </body>
 </html>
