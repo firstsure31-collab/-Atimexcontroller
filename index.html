@@ -604,7 +604,14 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <div class="text-base font-bold text-slate-100"><span id="taskCountVal">0</span> Tasks</div>
                         </div>
                     </div>
-                </div>
+                                    <button type="button" id="dailyClaimOption" onclick="showToast('Daily claim feature will be added next.')" class="col-span-2 w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition">
+                        <span class="flex items-center gap-3 min-w-0">
+                            <span class="w-11 h-11 shrink-0 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-check"></i></span>
+                            <span class="min-w-0"><span class="block text-sm font-extrabold text-white">Claim Your Daily Price</span><span class="block text-[11px] text-slate-400 mt-1">Daily reward</span></span>
+                        </span>
+                        <i class="fa-solid fa-chevron-right text-emerald-300"></i>
+                    </button>
+</div>
 
             </div>
 
@@ -2147,6 +2154,7 @@ function runTask(taskNum) {
             window.appState.totalEarned += 10.00;
             window.appState.completedTasks += 1;
 
+            saveLocalTransaction({type:'Task reward',amount:10,status:'Credited'});
             updateBalanceDisplays();
             saveAllProgress();
             showToast('৳10.00 রেওয়ার্ড যোগ করা হয়েছে!');
