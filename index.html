@@ -1883,8 +1883,7 @@ function handlePackageBuy(price) {
         return;
     }
     if (!window.appState?.isActive) {
-        showToast('প্যাকেজ কিনতে আগে account active করুন।', true);
-        openPaymentModal(); // ৳100 activation deposit; package is not selected.
+        alert('আগে account active করুন।');
         return;
     }
     openPaymentModal(plan.price);
