@@ -2483,6 +2483,8 @@ function submitWithdrawRequest() {
   document.getElementById('withdrawResultPage')?.classList.remove('hidden');
   const hint = document.getElementById('withdrawHoldHint');
   if (hint) hint.textContent = 'Request submitted';
+  // The request and balance change are saved before refreshing the page.
+  setTimeout(() => { window.location.reload(); }, 1400);
 }
 
 function closeWithdrawResult() {
@@ -2581,6 +2583,8 @@ async function handleActivationSubmit() {
       'আপনার deposit request জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সাধারণত ১ থেকে ৬ ঘণ্টার মধ্যে প্রসেস করা হবে। Payment যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।'
     );
   }
+  // Refresh once after the successful submission; request details are saved first.
+  setTimeout(() => { window.location.reload(); }, 1400);
 }
 
 function handleWithdraw() {
