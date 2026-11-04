@@ -815,6 +815,29 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
                     </div>
 
+                    <!-- Admin Payment Requests Section -->
+<div id="admin-payments-section" style="padding: 20px; background: #1f2937; border-radius: 8px; color: white; margin-top: 20px;">
+  <h2 style="font-size: 18px; margin-bottom: 15px;">Pending Payment Requests</h2>
+  
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 1px solid #374151;">
+          <th style="padding: 8px;">Type</th>
+          <th style="padding: 8px;">Amount</th>
+          <th style="padding: 8px;">TrxID</th>
+          <th style="padding: 8px;">Sender</th>
+          <th style="padding: 8px;">Status</th>
+          <th style="padding: 8px;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="payment-requests-table-body">
+        <!-- JS-er maddhome ekhane request ashbe -->
+      </tbody>
+    </table>
+  </div>
+</div>
+                
 <a href="https://www.facebook.com/atimex247" target="_blank" rel="noopener" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition"><span><i class="fa-brands fa-facebook text-blue-400 mr-2"></i>Facebook Page</span><span class="flex gap-2"><button type="button" onclick="event.preventDefault();event.stopPropagation();navigator.clipboard.writeText('https://www.facebook.com/atimex247');showToast('Facebook link copied')" class="text-emerald-300">Copy</button><i class="fa-solid fa-angle-right text-slate-500"></i></span></a>
 <a href="https://t.me/atimex999" target="_blank" rel="noopener" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition"><span><i class="fa-solid fa-headset text-emerald-400 mr-2"></i>24/7 Support · Deposit / Withdraw help</span><i class="fa-solid fa-angle-right text-slate-500"></i></a>
                     <!-- Enhanced Profile Options -->
@@ -2755,6 +2778,112 @@ function closeDailyClaim(){document.getElementById('dailyClaimModal')?.classList
 function updateReferralUi() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
+        // 1. Payment requests database theke ane UI-te dekhano & Admin verify kora
+async function loadPaymentRequests() {
+  const section = document.getElementById('admin-payments-section');
+  if (!section) return;
+
+  // Current logged-in user check kora
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    section.style.display = 'none'; // Login na thakle hide thakbe
+    return;
+  }
+
+  // User-ti admin_users table-e ache kina check kora
+  const { data: adminCheck } = await supabase
+    .from('admin_users')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!adminCheck) {
+    section.style.display = 'none'; // Admin na hole section hide thakbe
+    return;
+  }
+
+  // Jodi Admin hoy, tahole section show korbe
+  section.style.display = 'block';
+
+  const tableBody = document.getElementById('payment-requests-table-body');
+  if (!tableBody) return;
+
+  const { data: requests, error } = await supabase
+    .from('payment_requests')
+    .select('*')
+    .order('id', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching requests:", error);
+    return;
+  }
+
+  tableBody.innerHTML = '';
+
+  if (requests.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="6" style="padding: 10px; text-align: center;">No payment requests found.</td></tr>';
+    return;
+  }
+
+  requests.forEach(req => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #374151';
+    
+    tr.innerHTML = `
+      <td style="padding: 8px;">${req.request_type || 'N/A'}</td>
+      <td style="padding: 8px;">${req.amount || 0}</td>
+      <td style="padding: 8px;">${req.trx_id || 'N/A'}</td>
+      <td style="padding: 8px;">${req.sender_number || 'N/A'}</td>
+      <td style="padding: 8px;">
+        <span style="padding: 2px 6px; border-radius: 4px; font-size: 12px; background: ${req.status === 'approved' ? '#10B981' : req.status === 'rejected' ? '#EF4444' : '#F59E0B'}">
+          ${req.status || 'pending'}
+        </span>
+      </td>
+      <td style="padding: 8px;">
+        ${req.status === 'pending' || !req.status ? `
+          <button onclick="handleApprove('${req.id}')" style="background: #10B981; color: white; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; margin-right: 4px;">Approve</button>
+          <button onclick="handleReject('${req.id}')" style="background: #EF4444; color: white; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Reject</button>
+        ` : 'Processed'}
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+// 2. Approve Request Action
+async function handleApprove(requestId) {
+  if (!confirm("Are you sure you want to APPROVE this request?")) return;
+
+  const { data, error } = await supabase.rpc('approve_payment_request', {
+    p_request_id: requestId
+  });
+
+  if (error) {
+    alert("Error approving request: " + error.message);
+  } else {
+    alert(data?.message || "Approved successfully!");
+    loadPaymentRequests(); // Refresh table data
+  }
+}
+
+// 3. Reject Request Action
+async function handleReject(requestId) {
+  if (!confirm("Are you sure you want to REJECT this request?")) return;
+
+  const { data, error } = await supabase.rpc('reject_payment_request', {
+    p_request_id: requestId
+  });
+
+  if (error) {
+    alert("Error rejecting request: " + error.message);
+  } else {
+    alert(data?.message || "Rejected successfully!");
+    loadPaymentRequests(); // Refresh table data
+  }
+}
+
+// Page load hole request load korar trigger
+document.addEventListener('DOMContentLoaded', loadPaymentRequests);
     </script>
 </body>
 </html>
