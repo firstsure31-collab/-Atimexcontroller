@@ -793,7 +793,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 <div class="flex items-start justify-between gap-3"><div><p class="text-[10px] font-bold tracking-wider text-orange-300">08 · VIP PACKAGE</p><h3 class="mt-1 text-sm font-extrabold text-white">MOST PREMIUM VIP PLAN</h3><p class="mt-2 text-2xl font-black text-amber-300">৳১০,০০০</p></div><button onclick="openVipSupport(10000)" class="shrink-0 rounded-xl bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 shadow-md shadow-amber-500/20">Buy Now</button></div>
 <div class="mt-3 space-y-2 border-t border-slate-700 pt-3 text-xs"><div class="flex justify-between"><span class="text-slate-400">বিনিয়োগ</span><b>৳১০,০০০</b></div><div class="flex justify-between"><span class="text-slate-400">মেয়াদ</span><b>২০ দিন</b></div><div class="flex justify-between"><span class="text-slate-400">দৈনিক পেমেন্ট</span><b>৳১,২৫০</b></div><div class="flex justify-between"><span class="text-slate-400">মোট পেমেন্ট</span><b class="text-emerald-300">৳২৫,০০০</b></div><div class="flex justify-between"><span class="text-slate-400">আসল টাকা</span><b>৳১০,০০০</b></div><div class="flex justify-between"><span class="text-slate-400">মোট লাভ</span><b class="text-amber-300">৳১৫,০০০</b></div></div></article>
 </div></div>
-<div id="vipSupportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-amber-500/40 bg-slate-900 p-5 text-center shadow-2xl shadow-amber-950/30"><button onclick="closeVipSupport()" class="absolute right-3 top-3 text-slate-400" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="text-3xl">👑</div><h3 class="mt-2 font-extrabold text-amber-300">VIP Support</h3><p id="vipSupportAmount" class="mt-2 text-sm text-white"></p><p class="mt-3 text-sm text-slate-300">এই প্যাকেজটি কিনতে হলে আমাদের সাপোর্টে যোগাযোগ করুন।</p><button onclick="closeVipSupport()" class="mt-4 w-full rounded-xl bg-amber-400 py-2.5 text-xs font-bold text-slate-950">ঠিক আছে</button></div></div>
+<div id="vipSupportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-amber-500/40 bg-slate-900 p-5 text-center shadow-2xl shadow-amber-950/30"><button onclick="closeVipSupport()" class="absolute right-3 top-3 text-slate-400" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="text-3xl">👑</div><h3 class="mt-2 font-extrabold text-amber-300">VIP Support</h3><p id="vipSupportAmount" class="mt-2 text-sm text-white"></p><p class="mt-3 text-sm text-slate-300">এই প্যাকেজটি কিনতে হলে আমাদের 24/7 সাপোর্টে যোগাযোগ করুন।</p><div class="mt-4 grid grid-cols-2 gap-2"><button onclick="closeVipSupport()" class="rounded-xl border border-slate-600 bg-slate-800 py-2.5 text-xs font-bold text-slate-200">ঠিক আছে</button><a href="https://t.me/atimex999" target="_blank" rel="noopener" class="flex items-center justify-center gap-1 rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white"><i class="fa-brands fa-telegram"></i> যোগাযোগ করুন</a></div></div></div>
 <!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content hidden space-y-4">
 <div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
@@ -1846,15 +1846,23 @@ function updateSpinUI() {
     if (textEl) textEl.innerText = `Spins Left: ${window.appState.spinsLeft}`;
 }
 
+const VIP_PACKAGE_DETAILS = {
+    300:  { id:'starter-vip',   name:'STARTER VIP PLAN',   price:300,  durationDays:20, dailyAmount:30,   statedTotal:600 },
+    500:  { id:'standard-vip',  name:'STANDARD VIP PLAN',  price:500,  durationDays:20, dailyAmount:55,   statedTotal:1100 },
+    800:  { id:'advanced-vip',  name:'ADVANCED VIP PLAN',  price:800,  durationDays:25, dailyAmount:72,   statedTotal:1800 },
+    1000: { id:'gold-vip',      name:'GOLD VIP PLAN',      price:1000, durationDays:25, dailyAmount:100,  statedTotal:2500 },
+    2000: { id:'platinum-vip',  name:'PLATINUM VIP PLAN',  price:2000, durationDays:30, dailyAmount:150,  statedTotal:4500 },
+    3000: { id:'diamond-vip',   name:'DIAMOND VIP PLAN',   price:3000, durationDays:28, dailyAmount:250,  statedTotal:7000 }
+};
+let selectedVipPackage = null;
+
 function handlePackageBuy(price) {
-    showToast(`৳${price} টাকার প্যাকেজ কিনতে পর্যাপ্ত ডিপোজিট করুন। ওয়ালেটে নেওয়া হচ্ছে...`, true);
-    setTimeout(() => {
-        if (typeof openPaymentModal === 'function') {
-            openPaymentModal();
-        } else if (typeof switchTab === 'function') {
-            switchTab('tabWallet');
-        }
-    }, 1000);
+    const plan = VIP_PACKAGE_DETAILS[Number(price)];
+    if (!plan) {
+        showToast('এই প্যাকেজটি এখন পাওয়া যাচ্ছে না।', true);
+        return;
+    }
+    openPaymentModal(plan.price);
 }
 
 function buyCustomPackage(price, spinCount, type = '') {
@@ -1932,12 +1940,47 @@ function startSpin() {
     }, 4000);
 }
 
-function openPaymentModal() {
-    document.getElementById('paymentModal').classList.remove('hidden');
+function openPaymentModal(packagePrice = null) {
+    const amountInput = document.getElementById('paymentAmount');
+    const amountLabel = document.querySelector('label[for="paymentAmount"]');
+    const amountHelp = amountInput?.parentElement?.querySelector('p');
+    const plan = packagePrice == null ? null : VIP_PACKAGE_DETAILS[Number(packagePrice)];
+
+    selectedVipPackage = plan ? { ...plan } : null;
+
+    if (amountInput) {
+        amountInput.readOnly = !!plan;
+        amountInput.min = plan ? String(plan.price) : '100';
+        amountInput.value = plan ? String(plan.price) : '100';
+        amountInput.classList.toggle('opacity-80', !!plan);
+        amountInput.classList.toggle('cursor-not-allowed', !!plan);
+        amountInput.setAttribute('aria-readonly', plan ? 'true' : 'false');
+    }
+    if (amountLabel) amountLabel.textContent = plan
+        ? 'নির্বাচিত প্যাকেজের নির্দিষ্ট Deposit Amount (৳)'
+        : 'Deposit Amount (৳)';
+    if (amountHelp) amountHelp.textContent = plan
+        ? plan.name + ' · নির্ধারিত ৳' + plan.price.toLocaleString('en-BD') + ' — amount পরিবর্তন করা যাবে না।'
+        : 'Account active করতে ৳100। কোনো extra activation charge নেই।';
+
+    document.getElementById('paymentModal')?.classList.remove('hidden');
 }
 
 function closePaymentModal() {
-    document.getElementById('paymentModal').classList.add('hidden');
+    document.getElementById('paymentModal')?.classList.add('hidden');
+    selectedVipPackage = null;
+    const amountInput = document.getElementById('paymentAmount');
+    if (amountInput) {
+        amountInput.readOnly = false;
+        amountInput.min = '100';
+        amountInput.value = '100';
+        amountInput.classList.remove('opacity-80', 'cursor-not-allowed');
+        amountInput.setAttribute('aria-readonly', 'false');
+    }
+    const amountLabel = document.querySelector('label[for="paymentAmount"]');
+    const amountHelp = amountInput?.parentElement?.querySelector('p');
+    if (amountLabel) amountLabel.textContent = 'Deposit Amount (৳)';
+    if (amountHelp) amountHelp.textContent = 'Account active করতে ৳100। কোনো extra activation charge নেই।';
 }
 
 function selectPaymentProvider(method, num) {
@@ -2338,11 +2381,13 @@ function closeWithdrawResult() {
   showToast('Withdrawal request pending verification.');
 }
 
-/* The request popup is informational; it never credits/debits a wallet by itself. */
-function handleActivationSubmit() {
+/* Deposit submissions stay pending until an admin verifies the payment. */
+async function handleActivationSubmit() {
   const number = document.getElementById('depositNum')?.value?.trim() || '';
   const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
   const amount = Number(document.getElementById('paymentAmount')?.value || 100);
+  const packagePlan = selectedVipPackage ? { ...selectedVipPackage } : null;
+
   if (!/^01[3-9][0-9]{8}$/.test(number)) {
     showToast('সঠিক ১১ ডিজিটের sender number দিন!', true);
     return;
@@ -2355,19 +2400,73 @@ function handleActivationSubmit() {
     showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
     return;
   }
-  saveLocalTransaction({
-    type: 'Deposit request · ' + (activeGateway?.method || 'bKash'),
+  if (packagePlan && amount !== Number(packagePlan.price)) {
+    showToast('প্যাকেজের নির্ধারিত amount পরিবর্তন করা যাবে না। আবার Buy Now চাপুন।', true);
+    return;
+  }
+
+  if (packagePlan && (!window.appState?.isLoggedIn || !window.appState?.userPhone)) {
+    showToast('প্যাকেজ request জমা দিতে আগে Login করুন।', true);
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const requestId = 'ATX-' + (packagePlan ? 'VIP-' : 'DEP-') + Date.now();
+  const request = {
+    requestId,
+    requestType: packagePlan ? 'vip_package' : 'custom_deposit',
+    packageId: packagePlan?.id || null,
+    packageName: packagePlan?.name || null,
+    packageDurationDays: packagePlan?.durationDays || null,
+    packageDailyAmount: packagePlan?.dailyAmount || null,
+    packageStatedTotal: packagePlan?.statedTotal || null,
     amount,
-    status: 'Pending verification',
+    method: activeGateway?.method || 'bKash',
+    senderNumber: number,
     trxId,
-    sender: number,
-    requestedAt: new Date().toISOString()
+    status: 'Pending admin verification',
+    requestedAt: now,
+    userPhone: window.appState?.userPhone || '',
+    userNickname: window.appState?.nickname || 'User'
+  };
+
+  if (packagePlan) {
+    // Store the pending order with the user's profile data for a future admin review screen.
+    const phone = window.appState.userPhone;
+    const userKey = 'user_' + phone;
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(userKey) || '{}'); } catch (_) { saved = {}; }
+    const pending = Array.isArray(saved.pendingVipPackageRequests) ? saved.pendingVipPackageRequests : [];
+    pending.unshift(request);
+    saved.pendingVipPackageRequests = pending.slice(0, 100);
+    localStorage.setItem(userKey, JSON.stringify(saved));
+    await saveAllProgress();
+  }
+
+  saveLocalTransaction({
+    type: packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + request.method,
+    amount,
+    status: 'Pending admin verification',
+    requestId,
+    packageId: request.packageId,
+    packageName: request.packageName,
+    trxId,
+    sender: number
   });
+
   closePaymentModal();
-  showAppNotice(
-    'Deposit request received',
-    'আপনার deposit request জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সাধারণত ১ থেকে ৬ ঘণ্টার মধ্যে প্রসেস করা হবে। Payment যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।'
-  );
+  if (packagePlan) {
+    showAppNotice(
+      'VIP package request জমা হয়েছে',
+      packagePlan.name + ' · ৳' + packagePlan.price.toLocaleString('en-BD') +
+      '। আপনার payment reference pending অবস্থায় রাখা হয়েছে। Admin payment যাচাই ও confirm না করা পর্যন্ত package active হবে না এবং কোনো package earning wallet-এ যোগ হবে না। Request ID: ' + requestId
+    );
+  } else {
+    showAppNotice(
+      'Deposit request received',
+      'আপনার deposit request জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সাধারণত ১ থেকে ৬ ঘণ্টার মধ্যে প্রসেস করা হবে। Payment যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।'
+    );
+  }
 }
 
 function handleWithdraw() {
