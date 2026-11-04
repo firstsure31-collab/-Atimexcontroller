@@ -1882,6 +1882,11 @@ function handlePackageBuy(price) {
         showToast('এই প্যাকেজটি এখন পাওয়া যাচ্ছে না।', true);
         return;
     }
+    if (!window.appState?.isActive) {
+        showToast('প্যাকেজ কিনতে আগে account active করুন।', true);
+        openPaymentModal(); // ৳100 activation deposit; package is not selected.
+        return;
+    }
     openPaymentModal(plan.price);
 }
 
@@ -2068,7 +2073,7 @@ function switchTab(tabId) {
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
     if (!target) return;
-    if (!window.appState?.isActive && !['tabHome', 'tabProfile'].includes(tabId)) {
+    if (!window.appState?.isActive && !['tabHome', 'tabProfile', 'tabServer'].includes(tabId)) {
         showToast('Main features unlock করতে আগে account activate করুন।', true);
         openPaymentModal();
         return;
