@@ -1645,9 +1645,17 @@ async function redeemSecretCode() {
             return;
         }
         const newBalance = Number(result.balance);
-        window.appState.balance = Number.isFinite(newBalance) ? newBalance : Number(window.appState.balance || 0) + 50;
+        window.appState.balance = Number.isFinite(newBalance) ? Math.max(Number(window.appState.balance || 0), newBalance) : Number(window.appState.balance || 0) + 50;
         updateBalanceDisplays();
-        await saveAllProgress();
+        // The RPC already saved the credited balance in Supabase. Avoid stale saveAllProgress overwrites.
+        const phone = window.appState.userPhone || localStorage.getItem('currentLoggedInUser');
+        if (phone) {
+            const key = 'user_' + phone;
+            const raw = localStorage.getItem(key);
+            const saved = raw ? JSON.parse(raw) : { phone };
+            saved.progressData = { ...(saved.progressData || defaultProgressData()), balance: window.appState.balance, isActive: !!window.appState.isActive };
+            localStorage.setItem(key, JSON.stringify(saved));
+        }
         saveLocalTransaction({ type: 'Secret code reward', amount: 50, status: 'Credited', code });
         closeRedeemCodeModal();
         showToast('৳50 wallet balance-এ যোগ হয়েছে!');
@@ -1775,8 +1783,13 @@ async function loadCloudUser(user, phone){
  const localRaw=localStorage.getItem(localKey);
  const local=localRaw?JSON.parse(localRaw):{phone:safePhone,email,nickname:user.user_metadata?.nickname||'User',progressData:defaultProgressData()};
  const cloudData=row&&row.app_data&&typeof row.app_data==='object'?row.app_data:{};
- const saved={...local,...cloudData,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
- if(!saved.progressData)saved.progressData=defaultProgressData();
+ const localProgress=local.progressData&&typeof local.progressData==='object'?local.progressData:{};
+ const cloudProgress=cloudData.progressData&&typeof cloudData.progressData==='object'?cloudData.progressData:{};
+ const mergedProgress={...defaultProgressData(),...localProgress,...cloudProgress};
+ // Retain higher locally saved balance if cloud data is incomplete or was partially overwritten.
+ mergedProgress.balance=Math.max(Number(localProgress.balance)||0,Number(cloudProgress.balance)||0);
+ if(typeof cloudProgress.isActive!=='boolean' && typeof localProgress.isActive==='boolean') mergedProgress.isActive=localProgress.isActive;
+ const saved={...local,...cloudData,progressData:mergedProgress,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  localStorage.setItem(localKey,JSON.stringify(saved));
  applySavedUser(saved,safePhone);
  await persistCloudUser(user.id,safePhone,saved,email);
