@@ -2247,6 +2247,20 @@ function activateAccount() {
     showToast('অ্যাকাউন্ট সফলভাবে অ্যাক্টিভ করা হয়েছে!');
 }
 
+function removeLegacyProfilePaymentTable() {
+    const profile = document.getElementById('tabProfile');
+    if (!profile) return;
+    profile.querySelectorAll('table').forEach(table => {
+        const headings = Array.from(table.querySelectorAll('thead th, tr:first-child th, tr:first-child td'))
+            .map(cell => (cell.textContent || '').trim().toLowerCase());
+        const required = ['type', 'amount', 'trxid', 'sender', 'status', 'action'];
+        if (required.every((heading, index) => headings[index] === heading)) {
+            const wrapper = table.closest('.overflow-x-auto, .overflow-hidden, .rounded-xl') || table;
+            wrapper.remove();
+        }
+    });
+}
+
 function switchTab(tabId) {
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
@@ -2256,81 +2270,31 @@ function switchTab(tabId) {
         openPaymentModal();
         return;
     }
-    const current = tabIds.find(id => {
-        const node = document.getElementById(id);
-        return node && !node.classList.contains('hidden');
+
+    tabIds.forEach(id => {
+        const tab = document.getElementById(id);
+        if (tab) tab.classList.toggle('hidden', id !== tabId);
     });
-    if (current === tabId) return;
 
-    const applyTab = () => {
-        tabIds.forEach(id => document.getElementById(id)?.classList.add('hidden'));
-        target.classList.remove('hidden');
-        const navIds = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
-        navIds.forEach(id => {
-            const nav = document.getElementById(id);
-            if (nav) nav.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer";
-        });
-        const map = {tabHome:'navHome',tabWallet:'navWallet',tabTasks:'navTasks',tabServer:'navServer',tabProfile:'navProfile'};
-        const active = document.getElementById(map[tabId]);
-        if (active) active.className = "nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer";
-    };
+    const navIds = ['navHome', 'navWallet', 'navTasks', 'navServer', 'navProfile'];
+    const activeNavId = ({tabHome:'navHome',tabWallet:'navWallet',tabTasks:'navTasks',tabServer:'navServer',tabProfile:'navProfile'})[tabId];
+    navIds.forEach(id => {
+        const nav = document.getElementById(id);
+        if (!nav) return;
+        nav.className = id === activeNavId
+            ? 'nav-btn active flex flex-col items-center gap-1 text-emerald-400 cursor-pointer'
+            : 'nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer';
+    });
 
-    // Build the loader at runtime: avoids CSS .hidden/markup-order conflicts entirely.
-    let overlay = document.getElementById('atimexTabTransition');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'atimexTabTransition';
-        overlay.innerHTML = '<div style="text-align:center"><div class="atimex-loader-logo">ATIMEX</div><div class="atimex-loader-caption">NEXT-GEN EARNING PLATFORM</div><div class="atimex-loader-line"></div></div>';
-        document.body.appendChild(overlay);
+    // Remove any stale full-screen transition layer left by an older tab switch.
+    const staleOverlay = document.getElementById('atimexTabTransition');
+    if (staleOverlay) {
+        staleOverlay.getAnimations().forEach(animation => animation.cancel());
+        staleOverlay.remove();
     }
-    if (window.atimexTabSwitchTimer) clearTimeout(window.atimexTabSwitchTimer);
-    if (overlay._atimexAnimation) overlay._atimexAnimation.cancel();
 
-    Object.assign(overlay.style, {
-        position:'fixed', inset:'0', zIndex:'2147483647', display:'flex',
-        alignItems:'center', justifyContent:'center',
-        background:'radial-gradient(ellipse at center, rgba(7,40,43,.98), rgba(2,6,23,.995))',
-        opacity:'1', visibility:'visible', pointerEvents:'auto',
-        backdropFilter:'blur(7px)', transition:'none'
-    });
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden','false');
-
-    const logo = overlay.querySelector('.atimex-loader-logo');
-    const caption = overlay.querySelector('.atimex-loader-caption');
-    const line = overlay.querySelector('.atimex-loader-line');
-    Object.assign(logo.style, {
-        fontWeight:'900', letterSpacing:'.14em', fontSize:'clamp(30px,7vw,48px)',
-        background:'linear-gradient(100deg,#d1fae5,#fff,#34d399,#fff,#a7f3d0)',
-        backgroundSize:'260% 100%', color:'transparent',
-        WebkitBackgroundClip:'text', backgroundClip:'text',
-        filter:'drop-shadow(0 0 15px rgba(16,185,129,.6))'
-    });
-    Object.assign(caption.style,{fontSize:'9px',letterSpacing:'.23em',fontWeight:'800',color:'#94a3b8',marginTop:'8px'});
-    Object.assign(line.style,{height:'3px',width:'152px',margin:'18px auto 0',borderRadius:'99px',
-        background:'linear-gradient(90deg,transparent,#10b981,#ecfdf5,#34d399,transparent)',
-        backgroundSize:'220% 100%',boxShadow:'0 0 18px rgba(16,185,129,.7)'});
-
-    // Animate actual elements via Web Animations API, independent of stylesheet timing.
-    overlay._atimexAnimation = overlay.animate(
-        [{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)',offset:.22},{opacity:1,transform:'scale(1)',offset:.82},{opacity:0,transform:'scale(1.025)'}],
-        {duration:900,easing:'ease-in-out',fill:'forwards'}
-    );
-    logo.animate([{backgroundPosition:'0% 0%',transform:'scale(.98)'},{backgroundPosition:'220% 0%',transform:'scale(1.045)'},{backgroundPosition:'0% 0%',transform:'scale(1)'}],{duration:850,iterations:1});
-    line.animate([{backgroundPosition:'0% 0%'},{backgroundPosition:'220% 0%'}],{duration:650,iterations:1});
-
-    void overlay.offsetHeight;
-    window.atimexTabSwitchTimer = setTimeout(() => {
-        applyTab();
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
-        overlay.style.visibility = 'hidden';
-        overlay.style.display = 'none';
-        overlay.setAttribute('aria-hidden','true');
-        window.atimexTabSwitchTimer = null;
-    }, 900);
+    if (tabId === 'tabProfile') removeLegacyProfilePaymentTable();
 }
-
 function runTask(taskNum) {
     if(!window.appState.isActive) {
         showToast('আগে অ্যাকাউন্ট অ্যাক্টিভ করুন!', true);
