@@ -1163,6 +1163,39 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
           </div>
         </div>
 
+        <!-- Admin Panel Toggle Button (Shudhu Admin-er jonno show korbe) -->
+<div id="admin-toggle-btn-container" style="display: none; text-align: center; margin: 15px 0;">
+  <button onclick="toggleAdminPanel()" style="background: #3B82F6; color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+    ⚙️ Admin Payment Panel
+  </button>
+</div>
+
+<!-- Admin Payment Requests Section (Hidden by default) -->
+<div id="admin-payments-section" style="display: none; padding: 15px; background: #1f2937; border-radius: 8px; color: white; margin: 15px 0; border: 1px solid #374151;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h2 style="font-size: 16px; margin: 0;">Pending Payment Requests</h2>
+    <button onclick="toggleAdminPanel()" style="background: #EF4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">X</button>
+  </div>
+  
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+      <thead>
+        <tr style="border-bottom: 1px solid #374151;">
+          <th style="padding: 6px;">Type</th>
+          <th style="padding: 6px;">Amount</th>
+          <th style="padding: 6px;">TrxID</th>
+          <th style="padding: 6px;">Sender</th>
+          <th style="padding: 6px;">Status</th>
+          <th style="padding: 6px;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="payment-requests-table-body">
+        <!-- JS-er maddhome request ashbe -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
         <!-- Secret-code redemption modal -->
         <div id="redeemCodeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl text-xs text-slate-200">
@@ -2884,6 +2917,14 @@ async function handleReject(requestId) {
 
 // Page load hole request load korar trigger
 document.addEventListener('DOMContentLoaded', loadPaymentRequests);
+        // Admin panel toggle korar jonno
+function toggleAdminPanel() {
+  const section = document.getElementById('admin-payments-section');
+  if (section) {
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+  }
+}
+        document.getElementById('admin-toggle-btn-container').style.display = 'block';
     </script>
 </body>
 </html>
