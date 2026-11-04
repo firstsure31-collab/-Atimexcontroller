@@ -604,7 +604,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <div class="text-base font-bold text-slate-100"><span id="taskCountVal">0</span> Tasks</div>
                         </div>
                     </div>
-                                    <button type="button" id="dailyClaimOption" onclick="showToast('Daily claim feature will be added next.')" class="col-span-2 w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition">
+                                    <button type="button" id="dailyClaimOption" onclick="openDailyClaim()" class="col-span-2 w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition">
                         <span class="flex items-center gap-3 min-w-0">
                             <span class="w-11 h-11 shrink-0 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-check"></i></span>
                             <span class="min-w-0"><span class="block text-sm font-extrabold text-white">Claim Your Daily Price</span><span class="block text-[11px] text-slate-400 mt-1">Daily reward</span></span>
@@ -766,91 +766,17 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
 <div id="typingTaskCard" class="hidden bg-slate-800/60 border border-violet-500/30 rounded-2xl p-4 space-y-3"><h4 class="font-bold text-white text-sm">Typing Speed Challenge · Free</h4><p class="text-xs text-slate-400">15 seconds · Win ৳50 with at least 95% accuracy and enough text.</p><p id="typingPrompt" class="text-[11px] leading-relaxed text-slate-200 bg-slate-950 rounded-xl p-3">Press Start to receive a difficult typing passage.</p><textarea id="typingInput" disabled rows="4" placeholder="Type here..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea><div class="flex justify-between text-xs text-slate-400"><span id="typingTimer">15s</span><span id="typingScore">Accuracy: —</span></div><button id="typingStartBtn" onclick="startTypingChallenge()" class="w-full py-2.5 bg-violet-600 rounded-xl text-white text-xs font-bold">Start Free Typing Task</button></div>
             <!-- 4. SERVER / VIP PACKAGES TAB -->
-            <div id="tabServer" class="tab-content hidden space-y-3">
-                <div class="space-y-3 pt-2">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center shadow-lg">
-                        <h2 class="text-sm font-bold text-amber-400">VIP Investment Packages</h2>
-                        <p class="text-[11px] text-slate-400 mt-0.5">প্যাকেজ ক্রয় করে ডেইলি ইনকাম বৃদ্ধি করুন।</p>
-                    </div>
-
-                    <!-- Package 1: 300 Taka -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xs font-bold text-white">Starter VIP Plan</h3>
-                                <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৩০০</p>
-                            </div>
-                            <button onclick="handlePackageBuy(300)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
-                        </div>
-                        <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
-                            <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন = ৬০০ টাকা</p>
-                            <p>• মোট রিটার্ন: ৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৩০০</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Package 2: 500 Taka -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xs font-bold text-white">Standard VIP Plan</h3>
-                                <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৫০০</p>
-                            </div>
-                            <button onclick="handlePackageBuy(500)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
-                        </div>
-                        <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
-                            <p>• ডেইলি ইনকাম: ৪০ টাকা × ৩০ দিন</p>
-                            <p>• মোট রিটার্ন: ১২০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳৭০০</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Package 3: 800 Taka -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xs font-bold text-white">Advanced VIP Plan</h3>
-                                <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳৮০০</p>
-                            </div>
-                            <button onclick="handlePackageBuy(800)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
-                        </div>
-                        <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
-                            <p>• ডেইলি ইনকাম: ৯০ টাকা × ৩০ দিন</p>
-                            <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Package 4: 1000 Taka -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xs font-bold text-white">Super VIP Plan</h3>
-                                <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳১০০০</p>
-                            </div>
-                            <button onclick="handlePackageBuy(1000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
-                        </div>
-                        <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
-                            <p>• ডেইলি ইনকাম: ৩০ টাকা × ২০ দিন</p>
-                            <p>• মোট রিটার্ন: ১৮০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১০০০</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Package 5: 2000 Taka -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xs font-bold text-white">Mega VIP Plan</h3>
-                                <p class="text-[10px] text-amber-400">বিনিয়োগ: ৳২০০০</p>
-                            </div>
-                            <button onclick="handlePackageBuy(2000)" class="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow">Buy Now</button>
-                        </div>
-                        <div class="text-[10.5px] text-slate-300 space-y-0.5 border-t border-slate-800 pt-1.5">
-                            <p>• ডেইলি ইনকাম: ১২০ টাকা × ৩০ দিন</p>
-                            <p>• মোট রিটার্ন: ৩৬০০ টাকা | <span class="text-emerald-400 font-bold">মোট লাভ: ৳১৬০০</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 5. PROFILE TAB -->
+<div id="tabServer" class="tab-content hidden space-y-3"><div class="space-y-3 pt-2">
+<div class="rounded-2xl border border-emerald-500/30 bg-slate-900 p-4 text-center"><h2 class="text-sm font-extrabold text-emerald-300">Server Packages</h2><p class="mt-1 text-[11px] text-slate-400">Deposit verification pending হলে balance যোগ হবে না।</p></div>
+<article class="rounded-2xl border border-cyan-500/30 bg-slate-900 p-3"><div class="flex justify-between"><div><p class="text-[10px] text-cyan-300">SERVER · STARTER</p><h3 class="text-xl font-black">৳800</h3></div><button onclick="handlePackageBuy(800)" class="rounded-xl bg-cyan-400 px-4 py-2 text-xs font-bold text-slate-950">Buy Now</button></div><p class="mt-3 border-t border-slate-800 pt-2 text-xs">Daily ৳50 × 30 days = <b class="text-cyan-300">৳1,500</b></p></article>
+<article class="rounded-2xl border border-blue-500/30 bg-slate-900 p-3"><div class="flex justify-between"><div><p class="text-[10px] text-blue-300">SERVER · PLUS</p><h3 class="text-xl font-black">৳1,000</h3></div><button onclick="handlePackageBuy(1000)" class="rounded-xl bg-blue-400 px-4 py-2 text-xs font-bold text-slate-950">Buy Now</button></div><p class="mt-3 border-t border-slate-800 pt-2 text-xs">Daily ৳85 × 30 days = <b class="text-blue-300">৳2,550</b></p></article>
+<div class="rounded-2xl border border-amber-500/30 bg-slate-900 p-3"><h3 class="font-bold text-amber-300">VIP Packages</h3>
+<div class="mt-3 rounded-xl border border-slate-800 bg-slate-950 p-3"><div class="flex justify-between"><div><p class="text-[10px] text-amber-300">20 days</p><b class="text-lg">৳3,000</b></div><button onclick="openVipSupport(3000)" class="rounded-lg bg-amber-400 px-3 py-2 text-xs font-bold text-slate-950">Buy Now</button></div><p class="mt-2 text-xs">৳225 × 20 = ৳4,500 schedule total.</p><p class="mt-1 text-[10px] text-amber-300">Stated ৳5,500 differs by ৳1,000; verify before publishing.</p></div>
+<div class="mt-3 rounded-xl border border-slate-800 bg-slate-950 p-3"><div class="flex justify-between"><div><p class="text-[10px] text-amber-300">Duration to confirm</p><b class="text-lg">৳5,000</b></div><button onclick="openVipSupport(5000)" class="rounded-lg bg-amber-400 px-3 py-2 text-xs font-bold text-slate-950">Buy Now</button></div><p class="mt-2 text-xs">Daily amount ৳400; duration/total not confirmed.</p></div>
+<div class="mt-3 rounded-xl border border-slate-800 bg-slate-950 p-3"><div class="flex justify-between"><div><p class="text-[10px] text-amber-300">20 days</p><b class="text-lg">৳10,000</b></div><button onclick="openVipSupport(10000)" class="rounded-lg bg-amber-400 px-3 py-2 text-xs font-bold text-slate-950">Buy Now</button></div><p class="mt-2 text-xs">৳1,250 × 20 = ৳25,000 schedule total.</p></div>
+<p class="mt-3 text-[10px] text-slate-500">Schedule is informational, not a guaranteed payout; verified terms and backend processing are required.</p></div></div></div>
+<div id="vipSupportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-amber-500/30 bg-slate-900 p-5 text-center"><button onclick="closeVipSupport()" class="absolute right-3 top-3 text-slate-400"><i class="fa-solid fa-xmark"></i></button><h3 class="font-bold">VIP Package Support</h3><p id="vipSupportAmount" class="mt-2 text-amber-300"></p><p class="mt-3 text-xs text-slate-300">Customer support contact will be added here.</p><button onclick="closeVipSupport()" class="mt-4 w-full rounded-xl bg-amber-400 py-2 text-xs font-bold text-slate-950">Close</button></div></div>
+<!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content hidden space-y-4">
 <div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
     <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
@@ -935,7 +861,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             </button>
         </nav>
 
-        <!-- MODALS -->
+        <div id="dailyClaimModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-emerald-500/30 bg-slate-900 p-5"><button onclick="closeDailyClaim()" class="absolute right-3 top-3 text-slate-400"><i class="fa-solid fa-xmark"></i></button><h3 class="font-bold text-emerald-300">Daily Claim</h3><div id="dailyClaimSummary" class="mt-3 rounded-xl bg-slate-950 p-3 text-sm">No active package recorded.</div><p class="mt-3 text-[10px] text-slate-500">Preview only; verified package status and backend processing are required.</p><button onclick="closeDailyClaim()" class="mt-3 w-full rounded-xl bg-emerald-500 py-2 text-xs font-bold">Close</button></div></div><!-- MODALS -->
 
         <!-- 2. AUTHENTICATION MODAL -->
         <div id="authModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -2425,7 +2351,11 @@ function handleWithdraw() {
   openWithdrawVerification();
 }
 
-        function updateReferralUi() {
+        function openVipSupport(amount){var e=document.getElementById('vipSupportAmount');if(e)e.textContent='Selected package: ৳'+Number(amount).toLocaleString('en-BD');document.getElementById('vipSupportModal')?.classList.remove('hidden');}
+function closeVipSupport(){document.getElementById('vipSupportModal')?.classList.add('hidden');}
+function openDailyClaim(){var e=document.getElementById('dailyClaimSummary'),a=window.appState||{},p=Array.isArray(a.activePackages)?a.activePackages:[],sum=p.reduce(function(t,x){return t+Number(x.dailyAmount||x.daily||0);},0),base=a.isActive?20:0;if(e)e.textContent=p.length?'Packages: ৳'+sum.toLocaleString('en-BD')+'/day + activation ৳'+base+' = ৳'+(sum+base).toLocaleString('en-BD')+'/day':'No active package recorded.';document.getElementById('dailyClaimModal')?.classList.remove('hidden');}
+function closeDailyClaim(){document.getElementById('dailyClaimModal')?.classList.add('hidden');}
+function updateReferralUi() {
     // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
 }
     </script>
