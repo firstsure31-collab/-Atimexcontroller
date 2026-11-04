@@ -842,6 +842,18 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                           </div>
                           <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">৳50/Refer</span>
                       </button>
+                      <button onclick="openRedeemCodeModal()" class="mt-2 w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl transition cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fas fa-ticket text-sm"></i>
+                          </div>
+                          <div class="text-left">
+                            <h4 class="text-white text-xs font-semibold">Redeem Your Secret Code</h4>
+                            <p class="text-[10px] text-slate-400">Code দিয়ে ৳50 wallet-এ নিন</p>
+                          </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+                      </button>
                     </div>
 
                     <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
@@ -1125,6 +1137,23 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <button onclick="logoutAdmin()" class="w-full bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white font-bold py-1.5 rounded-xl transition text-xs">
               Exit Admin Panel
             </button>
+          </div>
+        </div>
+
+        <!-- Secret-code redemption modal -->
+        <div id="redeemCodeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl w-full max-w-sm p-4 space-y-4 shadow-2xl text-xs text-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-ticket text-emerald-400 text-base"></i>
+                <h3 class="font-bold text-white">Redeem Your Secret Code</h3>
+              </div>
+              <button onclick="closeRedeemCodeModal()" class="text-slate-400 hover:text-white text-sm" aria-label="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-slate-400">তোমার secret code লিখে ৳50 wallet balance-এ যোগ করো। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
+            <input id="redeemSecretCodeInput" type="text" maxlength="64" autocomplete="off" placeholder="Enter secret code" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm font-bold uppercase tracking-wider text-white outline-none focus:border-emerald-400">
+            <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem ৳50</button>
+            <p class="text-[10px] text-slate-500">Valid code হলে ৳50 যোগ হবে।</p>
           </div>
         </div>
 
@@ -1586,6 +1615,49 @@ let isReferShared = false;
 
 function openWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.remove("hidden"); }
 function closeWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.add("hidden"); }
+
+function openRedeemCodeModal() {
+    const modal = document.getElementById('redeemCodeModal');
+    const input = document.getElementById('redeemSecretCodeInput');
+    if (input) input.value = '';
+    modal?.classList.remove('hidden');
+    setTimeout(() => input?.focus(), 50);
+}
+
+function closeRedeemCodeModal() {
+    document.getElementById('redeemCodeModal')?.classList.add('hidden');
+}
+
+async function redeemSecretCode() {
+    const input = document.getElementById('redeemSecretCodeInput');
+    const button = document.getElementById('redeemSecretCodeButton');
+    const code = (input?.value || '').trim().toUpperCase();
+    if (!code) { showToast('Secret code লিখুন।', true); return; }
+    if (!window.appState?.isLoggedIn) { showToast('আগে Login করুন।', true); return; }
+    if (!supabaseClient?.rpc) { showToast('Code redemption service এখন পাওয়া যাচ্ছে না।', true); return; }
+    if (button) { button.disabled = true; button.textContent = 'Redeeming…'; }
+    try {
+        const { data, error } = await supabaseClient.rpc('redeem_giveaway_code', { p_code: code });
+        if (error) throw error;
+        const result = Array.isArray(data) ? data[0] : data;
+        if (!result || result.success !== true) {
+            showToast(result?.message || 'Code valid নয় অথবা আগে ব্যবহার হয়েছে।', true);
+            return;
+        }
+        const newBalance = Number(result.balance);
+        window.appState.balance = Number.isFinite(newBalance) ? newBalance : Number(window.appState.balance || 0) + 50;
+        updateBalanceDisplays();
+        await saveAllProgress();
+        saveLocalTransaction({ type: 'Secret code reward', amount: 50, status: 'Credited', code });
+        closeRedeemCodeModal();
+        showToast('৳50 wallet balance-এ যোগ হয়েছে!');
+    } catch (error) {
+        console.error('Secret code redemption failed:', error);
+        showToast('Redeem করা যায়নি। Service setup/check করুন।', true);
+    } finally {
+        if (button) { button.disabled = false; button.textContent = 'Redeem ৳50'; }
+    }
+}
 
 function openReferModal() {
     document.getElementById('referModal').classList.remove('hidden');
