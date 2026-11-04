@@ -1584,7 +1584,10 @@ function switchAdminTab(tabName) {
 
 let isReferShared = false;
 
-function openWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.remove("hidden"); }\nfunction closeWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.add("hidden"); }\n\nfunction openReferModal() {
+function openWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.remove("hidden"); }
+function closeWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.add("hidden"); }
+
+function openReferModal() {
     document.getElementById('referModal').classList.remove('hidden');
     if (typeof updateReferralUi === 'function') updateReferralUi();
 }
