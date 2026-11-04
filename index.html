@@ -2052,7 +2052,7 @@ function switchTab(tabId) {
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
     if (!target) return;
-    if (!window.appState?.isActive && tabId !== 'tabHome') {
+    if (!window.appState?.isActive && !['tabHome', 'tabProfile'].includes(tabId)) {
         showToast('Main features unlock করতে আগে account activate করুন।', true);
         openPaymentModal();
         return;
