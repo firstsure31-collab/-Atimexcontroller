@@ -2497,13 +2497,22 @@ function closeWithdrawResult() {
   showToast('Withdrawal request pending verification.');
 }
 
-/* Deposit submissions stay pending until an admin verifies the payment. */
+/* Submit custom deposits and VIP packages to Supabase as pending requests.
+   Approval and wallet/package activation are handled separately by the secure admin backend. */
 async function handleActivationSubmit() {
   const number = document.getElementById('depositNum')?.value?.trim() || '';
   const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
   const amount = Number(document.getElementById('paymentAmount')?.value || 100);
-  const packagePlan = selectedVipPackage ? { ...selectedVipPackage } : null;
+  const selectedPlan = selectedVipPackage ? { ...selectedVipPackage } : null;
+  const packagePlan = selectedPlan
+    ? Object.values(VIP_PACKAGE_DETAILS).find(plan =>
+        plan.id === selectedPlan.id && Number(plan.price) === Number(selectedPlan.price))
+    : null;
 
+  if (selectedPlan && !packagePlan) {
+    showToast('নির্বাচিত package যাচাই করা যায়নি। আবার Buy Now চাপুন।', true);
+    return;
+  }
   if (!/^01[3-9][0-9]{8}$/.test(number)) {
     showToast('সঠিক ১১ ডিজিটের sender number দিন!', true);
     return;
@@ -2512,7 +2521,7 @@ async function handleActivationSubmit() {
     showToast('সঠিক TrxID / reference দিন।', true);
     return;
   }
-  if (!Number.isFinite(amount) || amount < 100) {
+  if (!Number.isInteger(amount) || amount < 100) {
     showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
     return;
   }
@@ -2521,72 +2530,92 @@ async function handleActivationSubmit() {
     return;
   }
 
-  if (packagePlan && (!window.appState?.isLoggedIn || !window.appState?.userPhone)) {
-    showToast('প্যাকেজ request জমা দিতে আগে Login করুন।', true);
-    return;
+  const submitButton = document.querySelector('#paymentModal button[onclick="handleActivationSubmit()"]');
+  if (submitButton?.disabled) return;
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.dataset.originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>SUBMITTING…</span>';
   }
 
-  const now = new Date().toISOString();
-  const requestId = 'ATX-' + (packagePlan ? 'VIP-' : 'DEP-') + Date.now();
-  const request = {
-    requestId,
-    requestType: packagePlan ? 'vip_package' : 'custom_deposit',
-    packageId: packagePlan?.id || null,
-    packageName: packagePlan?.name || null,
-    packageDurationDays: packagePlan?.durationDays || null,
-    packageDailyAmount: packagePlan?.dailyAmount || null,
-    packageStatedTotal: packagePlan?.statedTotal || null,
-    amount,
-    method: activeGateway?.method || 'bKash',
-    senderNumber: number,
-    trxId,
-    status: 'Pending admin verification',
-    requestedAt: now,
-    userPhone: window.appState?.userPhone || '',
-    userNickname: window.appState?.nickname || 'User'
-  };
+  try {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    const user = authData?.user;
+    if (!user) {
+      showToast('Payment request জমা দিতে আগে Login করুন।', true);
+      return;
+    }
 
-  if (packagePlan) {
-    // Store the pending order with the user's profile data for a future admin review screen.
-    const phone = window.appState.userPhone;
-    const userKey = 'user_' + phone;
-    let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(userKey) || '{}'); } catch (_) { saved = {}; }
-    const pending = Array.isArray(saved.pendingVipPackageRequests) ? saved.pendingVipPackageRequests : [];
-    pending.unshift(request);
-    saved.pendingVipPackageRequests = pending.slice(0, 100);
-    localStorage.setItem(userKey, JSON.stringify(saved));
-    await saveAllProgress();
+    const row = {
+      user_id: user.id,
+      request_type: packagePlan ? 'vip_package' : 'deposit',
+      amount,
+      trx_id: trxId,
+      sender_number: number,
+      payment_method: activeGateway?.method || 'bKash',
+      package_id: packagePlan?.id || null,
+      package_name: packagePlan?.name || null,
+      package_duration_days: packagePlan?.durationDays || null,
+      package_daily_amount: packagePlan?.dailyAmount || null,
+      package_stated_total: packagePlan?.statedTotal || null,
+      status: 'pending'
+    };
+
+    const { data: inserted, error: insertError } = await supabaseClient
+      .from('payment_requests')
+      .insert(row)
+      .select('id,status,created_at')
+      .single();
+    if (insertError) throw insertError;
+    if (!inserted?.id) throw new Error('Request ID পাওয়া যায়নি। আবার চেষ্টা করুন।');
+
+    saveLocalTransaction({
+      type: packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + row.payment_method,
+      amount,
+      status: 'Pending admin verification',
+      requestId: inserted.id,
+      packageId: row.package_id,
+      packageName: row.package_name,
+      trxId,
+      sender: number
+    });
+
+    closePaymentModal();
+    if (packagePlan) {
+      showAppNotice(
+        'VIP package request জমা হয়েছে',
+        packagePlan.name + ' · ৳' + packagePlan.price.toLocaleString('en-BD') +
+        '। Request ID: ' + inserted.id +
+        '। Admin payment যাচাই করে approve না করা পর্যন্ত package active হবে না বা package earning যোগ হবে না।'
+      );
+    } else {
+      showAppNotice(
+        'Deposit request received',
+        'আপনার ৳' + amount.toLocaleString('en-BD') +
+        ' deposit request জমা হয়েছে। Request ID: ' + inserted.id +
+        '। Admin payment যাচাই করে approve না করা পর্যন্ত balance update বা account activation হবে না।'
+      );
+    }
+    setTimeout(() => window.location.reload(), 1400);
+  } catch (error) {
+    console.error('Supabase payment request insert failed:', error);
+    const message = String(error?.message || '');
+    if (/duplicate key|unique constraint/i.test(message)) {
+      showToast('এই TrxID আগে জমা হয়েছে। সঠিক নতুন TrxID দিন।', true);
+    } else {
+      showToast('Payment request জমা হয়নি: ' + (message || 'Supabase table/policy check করুন।'), true);
+    }
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      if (submitButton.dataset.originalText) {
+        submitButton.innerHTML = submitButton.dataset.originalText;
+        delete submitButton.dataset.originalText;
+      }
+    }
   }
-
-  saveLocalTransaction({
-    type: packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + request.method,
-    amount,
-    status: 'Pending admin verification',
-    requestId,
-    packageId: request.packageId,
-    packageName: request.packageName,
-    trxId,
-    sender: number
-  });
-
-  closePaymentModal();
-  if (packagePlan) {
-    showAppNotice(
-      'VIP package request জমা হয়েছে',
-      packagePlan.name + ' · ৳' + packagePlan.price.toLocaleString('en-BD') +
-      '। আপনার payment reference pending অবস্থায় রাখা হয়েছে। Admin payment যাচাই ও confirm না করা পর্যন্ত package active হবে না এবং কোনো package earning wallet-এ যোগ হবে না। Request ID: ' + requestId
-    );
-  } else {
-    showAppNotice(
-      'Deposit request received',
-      'আপনার deposit request জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সাধারণত ১ থেকে ৬ ঘণ্টার মধ্যে প্রসেস করা হবে। Payment যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।'
-    );
-  }
-  // Refresh once after the successful submission; request details are saved first.
-  setTimeout(() => { window.location.reload(); }, 1400);
 }
-
 function handleWithdraw() {
   openWithdrawVerification();
 }
