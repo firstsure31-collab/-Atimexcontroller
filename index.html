@@ -2502,7 +2502,7 @@ function handleWithdraw() {
   openWithdrawVerification();
 }
 
-        function openVipSupport(amount){var e=document.getElementById('vipSupportAmount');if(e)e.textContent='Selected package: ৳'+Number(amount).toLocaleString('en-BD');document.getElementById('vipSupportModal')?.classList.remove('hidden');}
+        function openVipSupport(amount){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}var e=document.getElementById('vipSupportAmount');if(e)e.textContent='Selected package: ৳'+Number(amount).toLocaleString('en-BD');document.getElementById('vipSupportModal')?.classList.remove('hidden');}
 function closeVipSupport(){document.getElementById('vipSupportModal')?.classList.add('hidden');}
 function getDailyClaimKey(){return 'atimex_daily_claim_'+(window.appState.userPhone||'guest');}
 function getDailyClaimDay(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dhaka'});}
