@@ -1575,40 +1575,134 @@ document.addEventListener("DOMContentLoaded", function () {
         openGameNewsModal();
     }, 1500);
 });
-function openAdminModal() {
-    const modal = document.getElementById('adminModal');
-    if (modal) modal.classList.remove('hidden');
+let adminPaymentRequestTab = 'pending';
+
+function escapeAdminText(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
+}
+
+async function getCurrentAdminUser() {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    const user = authData?.user;
+    if (!user) return null;
+    const { data: adminRow, error } = await supabaseClient
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+    if (error) throw error;
+    return adminRow ? user : null;
+}
+
+async function openAdminModal() {
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) {
+            showToast('এই panel শুধু authorized Admin account-এর জন্য।', true);
+            return;
+        }
+        document.getElementById('adminModal')?.classList.remove('hidden');
+        await loadAdminPaymentRequests('pending');
+    } catch (error) {
+        console.error('Admin authentication check failed:', error);
+        showToast('Admin যাচাই করা যায়নি। Supabase policy check করুন।', true);
+    }
 }
 
 function closeAdminModal() {
-    const modal = document.getElementById('adminModal');
-    if (modal) modal.classList.add('hidden');
+    document.getElementById('adminModal')?.classList.add('hidden');
 }
 
 function logoutAdmin() {
-    // Closes this demo panel only; this is not server-side admin authentication.
     closeAdminModal();
 }
 
+async function loadAdminPaymentRequests(tabName = adminPaymentRequestTab) {
+    adminPaymentRequestTab = tabName === 'history' ? 'history' : 'pending';
+    const target = document.getElementById(adminPaymentRequestTab === 'pending' ? 'adminPendingList' : 'adminActivityList');
+    const badge = document.getElementById('pendingBadge');
+    if (target) target.innerHTML = '<div class="text-[11px] text-slate-400 p-3">Loading requests…</div>';
+
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) throw new Error('Admin access পাওয়া যায়নি।');
+
+        let query = supabaseClient
+            .from('payment_requests')
+            .select('id,user_id,request_type,amount,trx_id,sender_number,payment_method,package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,status,created_at,reviewed_at')
+            .order('created_at', { ascending: false })
+            .limit(100);
+
+        query = adminPaymentRequestTab === 'pending'
+            ? query.eq('status', 'pending')
+            : query.in('status', ['approved', 'rejected']);
+
+        const { data, error } = await query;
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        if (badge) badge.textContent = String(rows.filter(row => row.status === 'pending').length);
+
+        if (!target) return;
+        if (!rows.length) {
+            target.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-3 text-[11px] text-slate-400">কোনো request পাওয়া যায়নি।</div>';
+            return;
+        }
+
+        target.innerHTML = rows.map(row => {
+            const isPackage = row.request_type === 'vip_package';
+            const statusLabel = row.status === 'approved' ? 'Approved' : row.status === 'rejected' ? 'Rejected' : 'Pending';
+            const dateText = row.created_at ? new Date(row.created_at).toLocaleString('en-BD') : '—';
+            const packageLine = isPackage
+                ? '<div class="mt-1 text-emerald-300">' + escapeAdminText(row.package_name || row.package_id || 'VIP package') +
+                  ' · ' + escapeAdminText(row.package_duration_days || '—') + ' days · daily ৳' +
+                  escapeAdminText(row.package_daily_amount || '—') + '</div>'
+                : '';
+            return '<article class="rounded-xl border border-slate-700 bg-slate-800/70 p-3 text-[11px]">' +
+                '<div class="flex items-center justify-between gap-2"><b class="text-white">' +
+                escapeAdminText(isPackage ? 'VIP Package' : 'Custom Deposit') + '</b><span class="rounded-full px-2 py-0.5 ' +
+                (row.status === 'approved' ? 'bg-emerald-500/15 text-emerald-300' : row.status === 'rejected' ? 'bg-red-500/15 text-red-300' : 'bg-amber-500/15 text-amber-300') +
+                '">' + statusLabel + '</span></div>' +
+                '<div class="mt-2 text-lg font-black text-emerald-300">৳' + escapeAdminText(Number(row.amount || 0).toLocaleString('en-BD')) + '</div>' +
+                packageLine +
+                '<div class="mt-2 grid grid-cols-2 gap-1 text-slate-300"><span>Method: ' + escapeAdminText(row.payment_method) +
+                '</span><span>Sender: ' + escapeAdminText(row.sender_number) +
+                '</span><span class="col-span-2 break-all">TrxID: <b class="text-white">' + escapeAdminText(row.trx_id) +
+                '</b></span><span class="col-span-2 break-all text-slate-500">User ID: ' + escapeAdminText(row.user_id) +
+                '</span><span class="col-span-2 text-slate-500">' + escapeAdminText(dateText) +
+                '</span><span class="col-span-2 break-all text-slate-600">Request: ' + escapeAdminText(row.id) +
+                '</span></div></article>';
+        }).join('');
+    } catch (error) {
+        console.error('Admin payment requests load failed:', error);
+        if (target) target.innerHTML = '<div class="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-[11px] text-red-300">' +
+            escapeAdminText(error?.message || 'Request load করা যায়নি।') +
+            '<div class="mt-1 text-slate-400">Supabase SQL migration execute হয়েছে কি না check করুন।</div></div>';
+    }
+}
+
 function switchAdminTab(tabName) {
+    const selected = tabName === 'history' ? 'history' : 'pending';
     const pending = document.getElementById('adminTabPending');
     const history = document.getElementById('adminTabHistory');
     const pendingBtn = document.getElementById('tabBtnPending');
     const historyBtn = document.getElementById('tabBtnHistory');
 
-    if (pending) pending.classList.toggle('hidden', tabName !== 'pending');
-    if (history) history.classList.toggle('hidden', tabName !== 'history');
-
+    if (pending) pending.classList.toggle('hidden', selected !== 'pending');
+    if (history) history.classList.toggle('hidden', selected !== 'history');
     if (pendingBtn) {
-        pendingBtn.className = tabName === 'pending'
+        pendingBtn.className = selected === 'pending'
             ? 'flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition'
             : 'flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition';
     }
     if (historyBtn) {
-        historyBtn.className = tabName === 'history'
+        historyBtn.className = selected === 'history'
             ? 'flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition'
             : 'flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition';
     }
+    loadAdminPaymentRequests(selected);
 }
 
 let isReferShared = false;
