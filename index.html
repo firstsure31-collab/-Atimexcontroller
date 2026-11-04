@@ -35,7 +35,7 @@ function openTransactionHistory(){const key='atimex_transactions_'+(window.appSt
 function closeTransactionHistory(){document.getElementById('transactionModal')?.classList.add('hidden');}
 function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
 function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
-function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('সর্বনিম্ন withdraw ৳100।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
+function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}if(!Number.isFinite(amount)||amount<20){showToast('সর্বনিম্ন withdraw ৳20।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
 function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
 function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
@@ -712,8 +712,8 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <input type="tel" inputmode="numeric" id="withdrawNum" placeholder="01XXXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
-                            <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                            <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳20)</label>
+                            <input type="number" id="withdrawAmount" min="20" placeholder="20" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
                     </div>
@@ -2177,8 +2177,8 @@ function updateBalanceDisplays() {
 
 function handleWithdraw() {
     const amount = parseFloat(document.getElementById('withdrawAmount').value);
-    if (isNaN(amount) || amount < 100) {
-        showToast('সর্বনিম্ন উইথড্র ১০০ টাকা!', true);
+    if (isNaN(amount) || amount < 20) {
+        showToast('সর্বনিম্ন উইথড্র ২০ টাকা!', true);
         return;
     }
     if (amount > window.appState.balance) {
@@ -2284,8 +2284,8 @@ function getWithdrawFormData() {
       return null;
     }
   }
-  if (!Number.isFinite(amount) || amount < 100) {
-    showToast('সর্বনিম্ন withdraw ৳100।', true);
+  if (!Number.isFinite(amount) || amount < 20) {
+    showToast('সর্বনিম্ন withdraw ৳20।', true);
     return null;
   }
   if (amount > balance) {
