@@ -42,7 +42,7 @@ function selectWithdrawMethod(method){window.appState.selectedMethod=method;docu
 
 function openDepositForCustom(){const a=document.getElementById('paymentAmount');if(a)a.value='';openPaymentModal();}
 function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
-function handlePackageBuy(price){const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
+function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
 
 
 const typingSamples=["Precision matters when every second counts; carefully reproduce punctuation, capitalization, and the exact sequence of words. A single missed character can change the meaning of a sentence.","Reliable systems are built from patient testing, consistent habits, and clear documentation. Focus on accuracy first, then maintain a steady typing rhythm.","The quick brown fox jumps over the lazy dog, but complex work requires more than speed: punctuation, numbers 2048, and symbols must be correct."];
