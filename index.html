@@ -392,6 +392,11 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 .withdraw-result-home{width:100%;margin-top:20px;padding:13px;border-radius:13px;background:#10b981;color:#04130e;font-size:11px;font-weight:950;letter-spacing:.5px}
 @media(prefers-reduced-motion:reduce){.withdraw-flow-hold-btn:before{transition:none}.withdraw-result-word{animation:none!important}}
 
+/* Profile redeem option lock animation */
+.redeem-code-locked { border-color:rgba(239,68,68,.45)!important; position:relative; isolation:isolate; overflow:hidden; }
+.redeem-code-locked::after { content:""; position:absolute; inset:0; padding:1px; border-radius:inherit; pointer-events:none; background:conic-gradient(from 0deg,transparent 0 72%,#ef4444 80%,#fff 84%,#ef4444 88%,transparent 96% 100%); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; animation:redeemLockOrbit 2.2s linear infinite; }
+@keyframes redeemLockOrbit { to { transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce){.redeem-code-locked::after{animation:none;}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -842,17 +847,17 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                           </div>
                           <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">৳50/Refer</span>
                       </button>
-                      <button onclick="openRedeemCodeModal()" class="mt-2 w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl transition cursor-pointer">
+                      <button id="redeemCodeOption" onclick="openRedeemCodeModal()" class="mt-2 w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl transition cursor-pointer">
                         <div class="flex items-center space-x-3">
-                          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                          <div class="redeem-code-icon w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                             <i class="fas fa-ticket text-sm"></i>
                           </div>
                           <div class="text-left">
                             <h4 class="text-white text-xs font-semibold">Redeem Your Secret Code</h4>
-                            <p class="text-[10px] text-slate-400">Code দিয়ে ৳50 wallet-এ নিন</p>
+                            <p class="redeem-code-hint text-[10px] text-slate-400">Code দিয়ে ৳50 wallet-এ নিন</p>
                           </div>
                         </div>
-                        <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+                        <span class="redeem-code-status"><i class="fas fa-chevron-right text-slate-500 text-xs"></i></span>
                       </button>
                     </div>
 
@@ -1710,7 +1715,29 @@ let isReferShared = false;
 function openWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.remove("hidden"); }
 function closeWithdrawReferPrompt() { document.getElementById("withdrawReferPrompt")?.classList.add("hidden"); }
 
+function updateRedeemCodeLockState() {
+    const option = document.getElementById('redeemCodeOption');
+    if (!option) return;
+    const locked = !window.appState?.isActive;
+    option.classList.toggle('redeem-code-locked', locked);
+    option.classList.toggle('border-red-500/40', locked);
+    option.classList.toggle('border-emerald-500/30', !locked);
+    const icon = option.querySelector('.redeem-code-icon');
+    if (icon) {
+        icon.className = locked ? 'redeem-code-icon w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center' : 'redeem-code-icon w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center';
+        icon.innerHTML = locked ? '<i class="fas fa-lock text-sm"></i>' : '<i class="fas fa-ticket text-sm"></i>';
+    }
+    const hint = option.querySelector('.redeem-code-hint');
+    if (hint) hint.textContent = locked ? 'আগে account active করুন' : 'Code দিয়ে ৳50 wallet-এ নিন';
+    const status = option.querySelector('.redeem-code-status');
+    if (status) status.innerHTML = locked ? '<i class="fas fa-lock text-red-400 text-xs"></i>' : '<i class="fas fa-chevron-right text-slate-500 text-xs"></i>';
+}
 function openRedeemCodeModal() {
+    if (!window.appState?.isActive) {
+        updateRedeemCodeLockState();
+        showToast('Redeem Code unlock করতে আগে account active করুন।', true);
+        return;
+    }
     const modal = document.getElementById('redeemCodeModal');
     const input = document.getElementById('redeemSecretCodeInput');
     if (input) input.value = '';
@@ -1723,6 +1750,12 @@ function closeRedeemCodeModal() {
 }
 
 async function redeemSecretCode() {
+    if (!window.appState?.isActive) {
+        closeRedeemCodeModal();
+        updateRedeemCodeLockState();
+        showToast('আগে account active করুন।', true);
+        return;
+    }
     const input = document.getElementById('redeemSecretCodeInput');
     const button = document.getElementById('redeemSecretCodeButton');
     const code = (input?.value || '').trim().toUpperCase();
@@ -2228,6 +2261,7 @@ function updateAccountStatusBadge(){
  if(label)label.textContent=active?'Active':'Inactive';
 }
 function activateAccountUIOnly() {
+    updateRedeemCodeLockState();
     const userBadge = document.getElementById('userBadge');
     const badgeText = document.getElementById('badgeText');
     const activeBanner = document.getElementById('accountActiveBanner');
@@ -2262,6 +2296,7 @@ function removeLegacyProfilePaymentTable() {
 }
 
 function switchTab(tabId) {
+    if (tabId === 'tabProfile') updateRedeemCodeLockState();
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
     if (!target) return;
