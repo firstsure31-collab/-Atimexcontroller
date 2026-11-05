@@ -1012,45 +1012,22 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
               
               <div class="grid grid-cols-2 gap-3">
                 <button type="button" onclick="selectPaymentProvider('bKash', '01940779877')" id="btnbKash" class="pay-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
-                  <span class="absolute top-1 right-1 bg-red-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">0% Commission</span>
-                  <div class="bg-white h-14 flex items-center justify-center p-2">
-                    <span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span>
-                  </div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">bKash Active · 01940779877</span>
-                  </div>
+                  <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">bKash Active · 01940779877</span></div>
                 </button>
-                       
-                <button type="button" onclick="showToast('Nagad Coming Soon',true)" id="btnNagad" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
-                  <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
-                  <div class="bg-white h-14 flex items-center justify-center p-2">
-                    <span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span>
-                  </div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">Maintenance</span>
-                  </div>
+                <button type="button" onclick="selectPaymentProvider('Nagad', '01940779877')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                  <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">Nagad Active · 01940779877</span></div>
                 </button>
-
-                <button type="button" onclick="showToast('Rocket Coming Soon',true)" id="btnRocket" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
-                  <span class="absolute top-1 right-1 bg-amber-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">Coming Soon</span>
-                  <div class="bg-white h-14 flex items-center justify-center p-2">
-                    <div class="flex items-center gap-1 text-purple-700 font-black text-base">
-                      <i class="fa-solid fa-rocket text-sm"></i>
-                      <span>Rocket</span>
-                    </div>
-                  </div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">Coming Soon</span>
-                  </div>
+                <button type="button" id="btnRocket" disabled class="pay-provider-btn bg-slate-700/50 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-50 grayscale cursor-not-allowed relative shadow-md">
+                  <span class="absolute top-1 right-1 bg-slate-600 text-[8px] font-black text-slate-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Maintenance</span>
+                  <div class="bg-slate-200/70 h-14 flex items-center justify-center p-2"><div class="flex items-center gap-1 text-slate-500 font-black text-base"><i class="fa-solid fa-rocket text-sm"></i><span>Rocket</span></div></div>
+                  <div class="bg-slate-800 py-1.5 text-center border-t border-slate-700"><span class="text-[11px] font-bold text-slate-400">Maintenance</span></div>
                 </button>
-
-                <button type="button" onclick="showToast('Bank Deposit Coming Soon',true)" id="btnVISA" disabled class="pay-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
-                  <div class="bg-white h-14 flex items-center justify-center p-2">
-                    <span class="text-blue-700 font-black text-xl tracking-wider">BANK</span>
-                  </div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800">
-                    <span class="text-[11px] font-bold text-slate-200">Bank · Coming Soon</span>
-                  </div>
+                <button type="button" id="btnVISA" disabled class="pay-provider-btn bg-slate-700/50 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-50 grayscale cursor-not-allowed relative shadow-md">
+                  <span class="absolute top-1 right-1 bg-slate-600 text-[8px] font-black text-slate-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Maintenance</span>
+                  <div class="bg-slate-200/70 h-14 flex items-center justify-center p-2"><span class="text-slate-500 font-black text-xl tracking-wider">BANK</span></div>
+                  <div class="bg-slate-800 py-1.5 text-center border-t border-slate-700"><span class="text-[11px] font-bold text-slate-400">Maintenance</span></div>
                 </button>
               </div>
             </div>
@@ -2308,10 +2285,13 @@ function closePaymentModal() {
 }
 
 function selectPaymentProvider(method, num) {
+    if (!['bKash', 'Nagad'].includes(method)) return;
     activeGateway.method = method;
-    activeGateway.number = num;
+    activeGateway.number = '01940779877';
     document.getElementById('selectedProviderLabel').innerText = method + ' Account / Details';
-    document.getElementById('selectedProviderNum').innerText = num;
+    document.getElementById('selectedProviderNum').innerText = activeGateway.number;
+    document.querySelectorAll('.pay-provider-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(method === 'bKash' ? 'btnbKash' : 'btnNagad')?.classList.add('active');
 }
 
 function copyDepositNumber() {
