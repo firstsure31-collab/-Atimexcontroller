@@ -2764,21 +2764,35 @@ function handleWithdraw() {
 function closeVipSupport(){document.getElementById('vipSupportModal')?.classList.add('hidden');}
 function getDailyClaimKey(){return 'atimex_daily_claim_'+(window.appState.userPhone||'guest');}
 function getDailyClaimDay(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dhaka'});}
-function claimDailyReward(){
+async function claimDailyReward(){
   const a=window.appState||{};
   if(!a.isActive){showToast('আগে account active করুন।',true);return;}
   const packages=Array.isArray(a.activePackages)?a.activePackages:[];
   if(packages.length){showToast('Package active থাকলে free ৳20 daily claim প্রযোজ্য নয়।',true);return;}
-  const key=getDailyClaimKey(),today=getDailyClaimDay();
-  if(localStorage.getItem(key)===today){showToast('আজকের ৳20 claim ইতিমধ্যে নেওয়া হয়েছে।',true);refreshDailyClaimUi();return;}
-  a.balance=Number(a.balance||0)+20;
-  a.totalEarned=Number(a.totalEarned||0)+20;
-  localStorage.setItem(key,today);
-  updateBalanceDisplays();
-  saveAllProgress();
-  saveLocalTransaction({type:'Daily Claim reward',amount:20,status:'Credited'});
-  showToast('৳20 wallet balance-এ যোগ হয়েছে!');
-  refreshDailyClaimUi();
+  const button=document.getElementById('dailyClaimAction');
+  if(button)button.disabled=true;
+  try{
+    // Supabase RPC enforces one claim per authenticated account per Bangladesh date.
+    const {data,error}=await supabaseClient.rpc('claim_daily_reward');
+    if(error)throw error;
+    const result=Array.isArray(data)?data[0]:data;
+    if(!result||result.claimed!==true){
+      showToast('আজকের ৳20 claim ইতিমধ্যে নেওয়া হয়েছে।',true);
+      refreshDailyClaimUi();
+      return;
+    }
+    a.balance=Number(a.balance||0)+20;
+    a.totalEarned=Number(a.totalEarned||0)+20;
+    updateBalanceDisplays();
+    await saveAllProgress();
+    saveLocalTransaction({type:'Daily Claim reward',amount:20,status:'Credited'});
+    showToast('৳20 wallet balance-এ যোগ হয়েছে!');
+    refreshDailyClaimUi();
+  }catch(error){
+    console.error('Daily claim failed:',error);
+    showToast('Daily Claim হয়নি: '+(error.message||'Supabase migration apply করুন।'),true);
+    refreshDailyClaimUi();
+  }
 }
 function refreshDailyClaimUi(){
   const a=window.appState||{},packages=Array.isArray(a.activePackages)?a.activePackages:[];
