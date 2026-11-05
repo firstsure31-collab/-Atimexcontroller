@@ -1906,17 +1906,18 @@ async function loadCloudUser(user, phone){
  const {data:row,error}=await supabaseClient.from('profiles').select('id,email,phone,nickname,app_data').eq('id',user.id).maybeSingle();
  if(error) throw error;
  const safePhone=row?.phone||user.user_metadata?.phone||phone||'';
- const email=user.email||row?.email||'';
- const localKey=safePhone?'user_'+safePhone:'user_email_'+email.toLowerCase();
+ const email=(user.email||row?.email||'').trim().toLowerCase();
+ const localKey=safePhone?'user_'+safePhone:'user_email_'+email;
  const localRaw=localStorage.getItem(localKey);
  const local=localRaw?JSON.parse(localRaw):{phone:safePhone,email,nickname:user.user_metadata?.nickname||'User',progressData:defaultProgressData()};
  const cloudData=row&&row.app_data&&typeof row.app_data==='object'?row.app_data:{};
  const localProgress=local.progressData&&typeof local.progressData==='object'?local.progressData:{};
  const cloudProgress=cloudData.progressData&&typeof cloudData.progressData==='object'?cloudData.progressData:{};
- const mergedProgress={...defaultProgressData(),...localProgress,...cloudProgress};
- // Retain higher locally saved balance if cloud data is incomplete or was partially overwritten.
- mergedProgress.balance=Math.max(Number(localProgress.balance)||0,Number(cloudProgress.balance)||0);
- if(typeof cloudProgress.isActive!=='boolean' && typeof localProgress.isActive==='boolean') mergedProgress.isActive=localProgress.isActive;
+ // Cloud profile is authoritative across devices. Use local values only to migrate data
+ // when no saved cloud progress exists yet; do not let an old device overwrite cloud balances.
+ const hasCloudProgress=!!row&&Object.keys(cloudProgress).length>0;
+ const progressSource=hasCloudProgress?cloudProgress:localProgress;
+ const mergedProgress={...defaultProgressData(),...progressSource};
  const saved={...local,...cloudData,progressData:mergedProgress,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  localStorage.setItem(localKey,JSON.stringify(saved));
  applySavedUser(saved,safePhone);
@@ -2036,18 +2037,21 @@ async function handleAuthSubmit(){
  }
 }
 async function saveAllProgress(){
- const phone=window.appState.userPhone||localStorage.getItem('currentLoggedInUser');
- if(!phone)return;
  try{
-  const raw=localStorage.getItem('user_'+phone);
-  const saved=raw?JSON.parse(raw):{phone,nickname:window.appState.nickname||'User'+phone.slice(-4)};
-  saved.phone=phone;saved.nickname=window.appState.nickname||saved.nickname||'User'+phone.slice(-4);
-  saved.progressData={balance:window.appState.balance,totalEarned:window.appState.totalEarned,completedTasks:window.appState.completedTasks,isActive:window.appState.isActive,spinsLeft:window.appState.spinsLeft,hasBoughtStarter:window.appState.hasBoughtStarter};
-  saved.avatar=localStorage.getItem('userProfilePic')||saved.avatar||null;
-  localStorage.setItem('user_'+phone,JSON.stringify(saved));
   const {data:{user},error:authError}=await supabaseClient.auth.getUser();
   if(authError)throw authError;
-  if(user)await persistCloudUser(user.id,phone,saved,user.email||saved.email);
+  if(!user)return;
+  const phone=window.appState.userPhone||user.user_metadata?.phone||localStorage.getItem('currentLoggedInUser')||'';
+  const email=(user.email||'').trim().toLowerCase();
+  const localKey=phone?'user_'+phone:'user_email_'+email;
+  const raw=localStorage.getItem(localKey)||(email?localStorage.getItem('user_email_'+email):null);
+  const saved=raw?JSON.parse(raw):{phone,email,nickname:window.appState.nickname||user.user_metadata?.nickname||'User'};
+  saved.phone=phone;saved.email=email;
+  saved.nickname=window.appState.nickname||saved.nickname||user.user_metadata?.nickname||'User';
+  saved.progressData={balance:window.appState.balance,totalEarned:window.appState.totalEarned,completedTasks:window.appState.completedTasks,isActive:window.appState.isActive,spinsLeft:window.appState.spinsLeft,hasBoughtStarter:window.appState.hasBoughtStarter};
+  saved.avatar=localStorage.getItem('userProfilePic')||saved.avatar||null;
+  localStorage.setItem(localKey,JSON.stringify(saved));
+  await persistCloudUser(user.id,phone,saved,email);
  }catch(e){console.error('Progress cloud save failed:',e);if(typeof showToast==='function')showToast('Cloud save হয়নি: '+(e.message||'Supabase settings check করুন'),true);}
 }
 
