@@ -40,7 +40,7 @@ function handleActivationSubmit(){const num=(document.getElementById('depositNum
 function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
 
-function openDepositForCustom(){const a=document.getElementById('paymentAmount');if(a)a.value='';openPaymentModal();}
+function openDepositForCustom(){openPaymentModal(null,'deposit');const a=document.getElementById('paymentAmount');if(a)a.value='';}
 function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
 function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
 
@@ -2301,6 +2301,7 @@ const VIP_PACKAGE_DETAILS = {
     3000: { id:'diamond-vip',   name:'DIAMOND VIP PLAN',   price:3000, durationDays:28, dailyAmount:250,  statedTotal:7000 }
 };
 let selectedVipPackage = null;
+let paymentRequestType = 'activation';
 
 function handlePackageBuy(price) {
     const plan = VIP_PACKAGE_DETAILS[Number(price)];
@@ -2399,13 +2400,14 @@ function startSpin() {
     }, 4000);
 }
 
-function openPaymentModal(packagePrice = null) {
+function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const amountInput = document.getElementById('paymentAmount');
     const amountLabel = document.querySelector('label[for="paymentAmount"]');
     const amountHelp = amountInput?.parentElement?.querySelector('p');
     const plan = packagePrice == null ? null : VIP_PACKAGE_DETAILS[Number(packagePrice)];
 
     selectedVipPackage = plan ? { ...plan } : null;
+    paymentRequestType = plan ? 'vip_package' : requestType;
 
     if (amountInput) {
         amountInput.readOnly = !!plan;
@@ -2428,6 +2430,7 @@ function openPaymentModal(packagePrice = null) {
 function closePaymentModal() {
     document.getElementById('paymentModal')?.classList.add('hidden');
     selectedVipPackage = null;
+    paymentRequestType = 'activation';
     const amountInput = document.getElementById('paymentAmount');
     if (amountInput) {
         amountInput.readOnly = false;
@@ -2867,7 +2870,7 @@ async function handleActivationSubmit() {
 
     const row = {
       user_id: user.id,
-      request_type: packagePlan ? 'vip_package' : 'deposit',
+      request_type: packagePlan ? 'vip_package' : paymentRequestType,
       amount,
       trx_id: trxId,
       sender_number: number,
