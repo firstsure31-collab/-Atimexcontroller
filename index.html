@@ -2124,7 +2124,7 @@ async function loadCloudUser(user, phone){
  // when no saved cloud progress exists yet; do not let an old device overwrite cloud balances.
  const hasCloudProgress=!!row&&Object.keys(cloudProgress).length>0;
  const progressSource=hasCloudProgress?cloudProgress:localProgress;
- const mergedProgress={...defaultProgressData(),...progressSource};
+ const mergedProgress={...defaultProgressData(),...progressSource,isActive:!!(cloudData.is_active||cloudProgress.isActive||localProgress.isActive)};
  const saved={...local,...cloudData,progressData:mergedProgress,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  localStorage.setItem(localKey,JSON.stringify(saved));
  applySavedUser(saved,safePhone);
