@@ -1440,7 +1440,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 let selectedBase64Image = "";
 
-function editNickname() {
+async function editNickname() {
     const current = (window.appState && window.appState.nickname) ||
         (document.getElementById('profileNickname')?.textContent || 'Nickname').trim();
     const next = window.prompt('নতুন Nickname লিখুন:', current);
@@ -1453,8 +1453,33 @@ function editNickname() {
     const el = document.getElementById('profileNickname');
     if (el) el.textContent = nickname;
     try { localStorage.setItem('atimexNickname', nickname); } catch (_) {}
-    if (typeof saveAllProgress === 'function') saveAllProgress();
-    if (typeof showToast === 'function') showToast('Nickname update হয়েছে!');
+    try {
+        const {data:{user},error}=await supabaseClient.auth.getUser();
+        if (error) throw error;
+        if (!user) throw new Error('Login session পাওয়া যায়নি');
+        const phone=window.appState.userPhone||user.user_metadata?.phone||localStorage.getItem('currentLoggedInUser')||'';
+        const email=(user.email||'').trim().toLowerCase();
+        const key=phone?'user_'+phone:'user_email_'+email;
+        const raw=localStorage.getItem(key);
+        const saved=raw?JSON.parse(raw):{phone,email,progressData:defaultProgressData()};
+        saved.phone=phone;saved.email=email;saved.nickname=nickname;
+        saved.progressData=saved.progressData||{
+            balance:Number(window.appState.balance)||0,
+            totalEarned:Number(window.appState.totalEarned)||0,
+            completedTasks:Number(window.appState.completedTasks)||0,
+            isActive:!!window.appState.isActive,
+            spinsLeft:Number(window.appState.spinsLeft)||0,
+            hasBoughtStarter:!!window.appState.hasBoughtStarter
+        };
+        saved.avatar=localStorage.getItem('userProfilePic')||saved.avatar||null;
+        localStorage.setItem(key,JSON.stringify(saved));
+        await persistCloudUser(user.id,phone,saved,email);
+        localStorage.setItem('atimexNickname',nickname);
+        if (typeof showToast === 'function') showToast('Nickname update হয়েছে এবং cloud-এ save হয়েছে!');
+    } catch (e) {
+        console.error('Nickname cloud save failed:',e);
+        if (typeof showToast === 'function') showToast('Nickname cloud-এ save হয়নি: '+(e.message||'আবার চেষ্টা করুন'),true);
+    }
 }
 
 function openProfilePicOptions() {
