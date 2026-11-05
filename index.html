@@ -394,8 +394,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
 /* Profile redeem option lock animation */
 .redeem-code-locked { border-color:rgba(239,68,68,.45)!important; position:relative; isolation:isolate; overflow:hidden; }
-.redeem-code-locked::after { content:""; position:absolute; inset:0; padding:1px; border-radius:inherit; pointer-events:none; background:conic-gradient(from 0deg,transparent 0 72%,#ef4444 80%,#fff 84%,#ef4444 88%,transparent 96% 100%); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; animation:redeemLockOrbit 2.2s linear infinite; }
-@keyframes redeemLockOrbit { to { transform:rotate(360deg); } }
+@property --redeem-lock-angle { syntax:"<angle>"; inherits:false; initial-value:0deg; }
+.redeem-code-locked::after { content:""; position:absolute; inset:0; padding:1px; border-radius:inherit; pointer-events:none; background:conic-gradient(from var(--redeem-lock-angle),transparent 0deg 300deg,#ef4444 322deg,#fff 330deg,#ef4444 338deg,transparent 350deg 360deg); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; animation:redeemLockOrbit 2.2s linear infinite; }
+@keyframes redeemLockOrbit { to { --redeem-lock-angle:360deg; } }
 @media(prefers-reduced-motion:reduce){.redeem-code-locked::after{animation:none;}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
