@@ -908,10 +908,13 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                       </button>
                     </div>
 
-                    <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-right-from-bracket text-sm"></i> Logout Account</span>
-                        <i class="fa-solid fa-angle-right text-slate-500"></i>
-                    </div>
+        <button id="adminEntryButton" type="button" onclick="openAdminModal()" class="hidden w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-xs font-black text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,.12)] transition hover:bg-emerald-500 hover:text-slate-950">
+          <i class="fa-solid fa-shield-halved"></i><span>ADMIN PANEL</span>
+        </button>
+        <div onclick="logout()" class="p-3.5 flex justify-between items-center text-red-400 hover:bg-slate-800 cursor-pointer transition font-bold">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-right-from-bracket text-sm"></i> Logout Account</span>
+            <i class="fa-solid fa-angle-right text-slate-500"></i>
+        </div>
                 </div>
             </div>
 
@@ -1134,10 +1137,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   </section>
 </div>
 
-        <!-- Admin entry is displayed only for the configured admin account. -->
-        <button id="adminEntryButton" type="button" onclick="openAdminModal()" class="hidden fixed bottom-24 right-3 z-[45] items-center gap-2 rounded-full border border-emerald-300/40 bg-slate-950/95 px-4 py-3 text-xs font-black text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,.25)] backdrop-blur transition hover:bg-emerald-500 hover:text-slate-950">
-          <i class="fa-solid fa-shield-halved"></i><span>ADMIN PANEL</span>
-        </button>
+
 
         <!-- ATIMEX full admin workspace -->
         <div id="adminModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-[#020617]/95 p-2 backdrop-blur-md sm:p-5" role="dialog" aria-modal="true" aria-labelledby="adminDashboardTitle">
