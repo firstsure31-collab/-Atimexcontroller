@@ -811,6 +811,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <h3 class="font-bold text-slate-400 text-xs" id="profilePhone">01700000000</h3>
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
 
+                <div class="flex justify-end -mb-2"><div class="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-slate-900/90 px-3 py-2 shadow-lg shadow-amber-950/10"><span class="text-[10px] font-semibold text-slate-400">Total Spent</span><strong class="text-xs font-black text-amber-300">৳<span id="totalSpentVal">0.00</span></strong></div></div>
                 <div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-3 space-y-2"><div class="text-xs font-bold text-emerald-300">Deposit / Add Balance</div><p class="text-[10px] text-slate-300">Send Money করার পর Sender Number ও TrxID জমা দিন। যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।</p><button onclick="openDepositForCustom()" class="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white">Deposit Now</button></div><div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
                     <a href="https://t.me/atimex247" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
                         <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram Updates · Join for app news</span>
@@ -1860,6 +1861,8 @@ window.appState = window.appState || {
     isActive: false,
     balance: 0,
     totalEarned: 0.00,
+    totalSpent: 0.00,
+    referralEarned: 0.00,
     completedTasks: 0,
     selectedMethod: 'bKash',
     spinsLeft: 0,
@@ -1886,13 +1889,14 @@ function normalizeBangladeshPhone(v){
  return '';
 }
 function localPhoneNumber(phone){ return phone || ''; }
-function defaultProgressData(){return {balance:0,totalEarned:0,completedTasks:0,isActive:false,spinsLeft:0,hasBoughtStarter:false};}
+function defaultProgressData(){return {balance:0,totalEarned:0,totalSpent:0,referralEarned:0,completedTasks:0,isActive:false,spinsLeft:0,hasBoughtStarter:false};}
 function applySavedUser(saved, phone){
  const p=(saved&&saved.progressData)||defaultProgressData();
  const safePhone=phone||saved.phone||'';
  window.appState.isLoggedIn=true;window.appState.userPhone=safePhone;
  window.appState.nickname=(saved&&saved.nickname)||'User';
  window.appState.balance=Number(p.balance)||0;window.appState.totalEarned=Number(p.totalEarned)||0;
+ window.appState.totalSpent=Number(p.totalSpent)||0;window.appState.referralEarned=Number(p.referralEarned)||0;
  window.appState.completedTasks=Number(p.completedTasks)||0;window.appState.isActive=!!p.isActive;
  window.appState.spinsLeft=Number(p.spinsLeft)||0;window.appState.hasBoughtStarter=!!p.hasBoughtStarter;
  if(safePhone)localStorage.setItem('currentLoggedInUser',safePhone);else localStorage.removeItem('currentLoggedInUser');
@@ -2073,7 +2077,7 @@ async function saveAllProgress(){
   const saved=raw?JSON.parse(raw):{phone,email,nickname:window.appState.nickname||user.user_metadata?.nickname||'User'};
   saved.phone=phone;saved.email=email;
   saved.nickname=window.appState.nickname||saved.nickname||user.user_metadata?.nickname||'User';
-  saved.progressData={balance:window.appState.balance,totalEarned:window.appState.totalEarned,completedTasks:window.appState.completedTasks,isActive:window.appState.isActive,spinsLeft:window.appState.spinsLeft,hasBoughtStarter:window.appState.hasBoughtStarter};
+  saved.progressData={balance:window.appState.balance,totalEarned:window.appState.totalEarned,totalSpent:Number(window.appState.totalSpent||0),referralEarned:Number(window.appState.referralEarned||0),completedTasks:window.appState.completedTasks,isActive:window.appState.isActive,spinsLeft:window.appState.spinsLeft,hasBoughtStarter:window.appState.hasBoughtStarter};
   saved.avatar=localStorage.getItem('userProfilePic')||saved.avatar||null;
   localStorage.setItem(localKey,JSON.stringify(saved));
   await persistCloudUser(user.id,phone,saved,email);
@@ -2143,9 +2147,11 @@ function buyCustomPackage(price, spinCount, type = '') {
         return;
     }
     window.appState.balance -= price;
+    window.appState.totalSpent = Number(window.appState.totalSpent || 0) + Number(price);
     window.appState.spinsLeft += spinCount;
     if (type === 'starter') window.appState.hasBoughtStarter = true;
     updateSpinUI();
+    saveLocalTransaction({type:'Spin package purchase',amount:Number(price),status:'Purchased',spinCount});
     updateBalanceDisplays();
     saveAllProgress();
     showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
@@ -2204,6 +2210,8 @@ function startSpin() {
 
         const wonAmount = rewards[randomIndex];
         window.appState.balance += wonAmount;
+        window.appState.totalEarned = Number(window.appState.totalEarned || 0) + Number(wonAmount);
+        saveLocalTransaction({type:'Lucky Spin reward',amount:wonAmount,status:'Credited'});
 
         updateBalanceDisplays();
         saveAllProgress();
@@ -2396,11 +2404,15 @@ function updateBalanceDisplays() {
     const tEl = document.getElementById('totalEarnedVal');
     const wEl = document.getElementById('walletTabBalance');
     const cEl = document.getElementById('taskCountVal');
+    const spentEl = document.getElementById('totalSpentVal');
+    const totalIncome = Number(window.appState.totalEarned || 0) + Number(window.appState.referralEarned || 0);
     
-    if (bEl) bEl.innerText = window.appState.balance.toFixed(2);
-    if (tEl) tEl.innerText = window.appState.totalEarned.toFixed(2);
-    if (wEl) wEl.innerText = window.appState.balance.toFixed(2);
-    if (cEl) cEl.innerText = window.appState.completedTasks;
+    if (bEl) bEl.innerText = Number(window.appState.balance || 0).toFixed(2);
+    if (tEl) tEl.innerText = totalIncome.toFixed(2);
+    if (wEl) wEl.innerText = Number(window.appState.balance || 0).toFixed(2);
+    if (cEl) cEl.innerText = Number(window.appState.completedTasks || 0);
+    if (spentEl) spentEl.innerText = Number(window.appState.totalSpent || 0).toFixed(2);
+    updateReferralUi();
 }
 
 function handleWithdraw() {
@@ -2693,6 +2705,11 @@ async function handleActivationSubmit() {
     if (insertError) throw insertError;
     if (!inserted?.id) throw new Error('Request ID পাওয়া যায়নি। আবার চেষ্টা করুন।');
 
+    // Count each successfully submitted deposit/package payment once in Total Spent.
+    window.appState.totalSpent = Number(window.appState.totalSpent || 0) + amount;
+    updateBalanceDisplays();
+    await saveAllProgress();
+
     saveLocalTransaction({
       type: packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + row.payment_method,
       amount,
@@ -2781,8 +2798,19 @@ function openDailyClaim(){
   document.getElementById('dailyClaimModal')?.classList.remove('hidden');
 }
 function closeDailyClaim(){document.getElementById('dailyClaimModal')?.classList.add('hidden');}
+function creditReferralReward(amount) {
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value <= 0) return false;
+    window.appState.referralEarned = Number(window.appState.referralEarned || 0) + value;
+    saveLocalTransaction({type:'Referral reward',amount:value,status:'Credited'});
+    updateBalanceDisplays();
+    saveAllProgress();
+    return true;
+}
 function updateReferralUi() {
-    // Referral UI update logic (jodi pore dorkar hoy ekhane likhbi)
+    const earned = Number(window.appState?.referralEarned || 0);
+    const valueEl = document.getElementById('referralEarnings');
+    if (valueEl) valueEl.textContent = earned.toLocaleString('en-BD', {minimumFractionDigits:0, maximumFractionDigits:2});
 }
     </script>
 </body>
