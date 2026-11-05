@@ -1134,40 +1134,64 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   </section>
 </div>
 
-        <!-- 4. ADMIN DASHBOARD MODAL (visual redesign; existing action IDs preserved) -->
-        <div id="adminModal" class="hidden fixed inset-0 bg-[#020617]/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-5">
-          <div class="relative w-full max-w-4xl max-h-[94vh] overflow-hidden rounded-3xl border border-emerald-400/20 bg-slate-950 shadow-[0_0_70px_rgba(16,185,129,.12)]">
-            <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
-            <div class="flex items-center justify-between gap-3 border-b border-white/10 bg-slate-900/70 px-4 py-4 sm:px-6">
-              <div class="flex items-center gap-3">
-                <div class="grid h-11 w-11 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-shield-halved text-lg"></i></div>
-                <div><p class="text-[10px] font-bold uppercase tracking-[.24em] text-emerald-300">ATIMEX • Secure Access</p><h3 class="mt-1 text-lg font-black tracking-tight text-white sm:text-xl">Admin Dashboard</h3><p class="mt-0.5 text-[11px] text-slate-400">Payment review & platform activity</p></div>
-              </div>
-              <button onclick="closeAdminModal()" aria-label="Close admin panel" class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:border-emerald-400/30 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="max-h-[calc(94vh-76px)] overflow-y-auto p-4 sm:p-6">
-              <div class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div class="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-400/10 to-transparent p-4"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-400">Awaiting review</span><i class="fa-regular fa-clock text-amber-300"></i></div><div id="pendingBadge" class="mt-3 text-2xl font-black text-amber-200">0</div><p class="mt-1 text-[10px] text-slate-500">Pending payment requests</p></div>
-                <div class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-transparent p-4"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-400">Admin status</span><i class="fa-solid fa-shield-check text-emerald-300"></i></div><div class="mt-3 text-xl font-black text-emerald-200">Protected</div><p class="mt-1 text-[10px] text-slate-500">Authorized admin session</p></div>
-                <div class="rounded-2xl border border-sky-400/20 bg-gradient-to-br from-sky-400/10 to-transparent p-4"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-400">Review workflow</span><i class="fa-solid fa-list-check text-sky-300"></i></div><div class="mt-3 text-xl font-black text-sky-200">Manual</div><p class="mt-1 text-[10px] text-slate-500">Check details before action</p></div>
-              </div>
-              <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex gap-2 rounded-xl border border-white/10 bg-slate-900 p-1">
-                  <button onclick="switchAdminTab('pending')" id="tabBtnPending" class="rounded-lg bg-emerald-400 px-4 py-2 text-xs font-extrabold text-slate-950 transition">Pending Requests</button>
-                  <button onclick="switchAdminTab('history')" id="tabBtnHistory" class="rounded-lg px-4 py-2 text-xs font-bold text-slate-400 transition hover:bg-white/5 hover:text-white">Activity Log</button>
+        <!-- Admin entry is displayed only for the configured admin account. -->
+        <button id="adminEntryButton" type="button" onclick="openAdminModal()" class="hidden fixed bottom-24 right-3 z-[45] items-center gap-2 rounded-full border border-emerald-300/40 bg-slate-950/95 px-4 py-3 text-xs font-black text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,.25)] backdrop-blur transition hover:bg-emerald-500 hover:text-slate-950">
+          <i class="fa-solid fa-shield-halved"></i><span>ADMIN PANEL</span>
+        </button>
+
+        <!-- ATIMEX full admin workspace -->
+        <div id="adminModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-[#020617]/95 p-2 backdrop-blur-md sm:p-5" role="dialog" aria-modal="true" aria-labelledby="adminDashboardTitle">
+          <div class="relative flex h-[96vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-emerald-400/20 bg-[#07111f] shadow-[0_0_90px_rgba(16,185,129,.13)]">
+            <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+            <header class="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-slate-950/80 px-4 py-4 sm:px-6">
+              <div class="flex min-w-0 items-center gap-3">
+                <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-emerald-300/30 bg-emerald-400/10 text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,.12)]"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2"><span class="text-[9px] font-black uppercase tracking-[.25em] text-emerald-300">ATIMEX CONTROL CENTER</span><span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[8px] font-bold text-emerald-200">SECURE SESSION</span></div>
+                  <h2 id="adminDashboardTitle" class="mt-1 truncate text-lg font-black tracking-tight text-white sm:text-2xl">Admin Dashboard</h2>
+                  <p id="adminIdentityLabel" class="mt-0.5 truncate text-[10px] text-slate-500">Authorized administrator</p>
                 </div>
-                <span class="inline-flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span> Admin review center</span>
               </div>
+              <button type="button" onclick="closeAdminModal()" aria-label="Close admin panel" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+
+            <main class="min-h-0 flex-1 overflow-y-auto p-3 sm:p-6">
+              <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+                <div><p class="text-[9px] font-black uppercase tracking-[.22em] text-emerald-300/70">OVERVIEW</p><h3 class="mt-1 text-xl font-black text-white">Payment operations</h3><p class="mt-1 text-[11px] text-slate-500">এক জায়গা থেকে সব deposit ও VIP package request যাচাই করুন।</p></div>
+                <button type="button" onclick="loadAdminPaymentRequests(adminPaymentRequestTab)" class="inline-flex items-center gap-2 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2.5 text-[10px] font-extrabold text-emerald-200 transition hover:bg-emerald-400/20"><i class="fa-solid fa-rotate"></i> Refresh data</button>
+              </div>
+
+              <section class="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3" aria-label="Payment request statistics">
+                <article class="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-400/10 to-slate-950/30 p-3 sm:p-4"><div class="flex items-center justify-between gap-2"><span class="text-[10px] font-bold text-slate-400">Pending</span><i class="fa-regular fa-clock text-amber-300"></i></div><div id="pendingBadge" class="mt-2 text-2xl font-black tabular-nums text-amber-200">—</div><p class="mt-1 text-[9px] text-slate-500">Need your review</p></article>
+                <article class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-slate-950/30 p-3 sm:p-4"><div class="flex items-center justify-between gap-2"><span class="text-[10px] font-bold text-slate-400">Approved</span><i class="fa-solid fa-circle-check text-emerald-300"></i></div><div id="adminApprovedCount" class="mt-2 text-2xl font-black tabular-nums text-emerald-200">—</div><p class="mt-1 text-[9px] text-slate-500">Completed reviews</p></article>
+                <article class="rounded-2xl border border-rose-400/20 bg-gradient-to-br from-rose-400/10 to-slate-950/30 p-3 sm:p-4"><div class="flex items-center justify-between gap-2"><span class="text-[10px] font-bold text-slate-400">Rejected</span><i class="fa-solid fa-circle-xmark text-rose-300"></i></div><div id="adminRejectedCount" class="mt-2 text-2xl font-black tabular-nums text-rose-200">—</div><p class="mt-1 text-[9px] text-slate-500">Declined requests</p></article>
+                <article class="rounded-2xl border border-sky-400/20 bg-gradient-to-br from-sky-400/10 to-slate-950/30 p-3 sm:p-4"><div class="flex items-center justify-between gap-2"><span class="text-[10px] font-bold text-slate-400">All requests</span><i class="fa-solid fa-layer-group text-sky-300"></i></div><div id="adminTotalCount" class="mt-2 text-2xl font-black tabular-nums text-sky-200">—</div><p class="mt-1 text-[9px] text-slate-500">Total submitted</p></article>
+              </section>
+
+              <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex gap-2">
+                  <button type="button" onclick="switchAdminTab('pending')" id="tabBtnPending" class="rounded-xl bg-emerald-400 px-4 py-2.5 text-[10px] font-black text-slate-950 transition">PENDING QUEUE</button>
+                  <button type="button" onclick="switchAdminTab('history')" id="tabBtnHistory" class="rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-[10px] font-bold text-slate-400 transition hover:text-white">REVIEW HISTORY</button>
+                </div>
+                <label class="relative block min-w-0 sm:w-72"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input id="adminSearchInput" type="search" oninput="renderAdminPaymentRequests()" placeholder="Search TrxID, sender, user..." class="w-full rounded-xl border border-white/10 bg-slate-950 py-2.5 pl-9 pr-3 text-[11px] text-white outline-none placeholder:text-slate-600 focus:border-emerald-400/50"></label>
+              </div>
+
               <section id="adminTabPending" class="space-y-3">
-                <div class="flex items-center justify-between"><div><h4 class="text-sm font-bold text-white">Payment requests</h4><p class="mt-1 text-[11px] text-slate-500">Review sender, TrxID and amount before approval.</p></div><span class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold text-slate-300">QUEUE</span></div>
-                <div id="adminPendingList" class="max-h-[48vh] space-y-3 overflow-y-auto pr-1"></div>
+                <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="text-sm font-black text-white">Requests awaiting review</h4><p class="mt-1 text-[10px] text-slate-500">TrxID, sender number ও amount মিলিয়ে তারপর action নিন।</p></div><span id="adminPendingCountLabel" class="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[9px] font-black text-amber-200">0 PENDING</span></div>
+                <div id="adminPendingList" class="space-y-3 pb-3"></div>
               </section>
+
               <section id="adminTabHistory" class="hidden space-y-3">
-                <div><h4 class="text-sm font-bold text-white">Platform activity</h4><p class="mt-1 text-[11px] text-slate-500">Recent admin and site events.</p></div>
-                <div id="adminActivityList" class="max-h-[48vh] space-y-3 overflow-y-auto pr-1"></div>
+                <div><h4 class="text-sm font-black text-white">Reviewed payment requests</h4><p class="mt-1 text-[10px] text-slate-500">Approved ও rejected request-এর history এখানে থাকবে।</p></div>
+                <div id="adminActivityList" class="space-y-3 pb-3"></div>
               </section>
-              <div class="mt-5 flex justify-end border-t border-white/10 pt-4"><button onclick="logoutAdmin()" class="inline-flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/5 px-4 py-2.5 text-xs font-bold text-rose-300 transition hover:bg-rose-500 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i> Exit Admin Panel</button></div>
-            </div>
+
+              <div class="mt-5 rounded-2xl border border-sky-400/15 bg-sky-400/5 p-3 text-[10px] leading-5 text-sky-100/70"><i class="fa-solid fa-lock mr-1 text-sky-300"></i> Approval/rejection Supabase-এর secured <b>admin_review_payment_request</b> RPC দিয়ে হয়। Browser থেকে সরাসরি balance edit করা হয় না।</div>
+            </main>
+            <footer class="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 bg-slate-950/80 px-4 py-3 sm:px-6">
+              <span class="text-[9px] text-slate-600">ATIMEX · ADMIN WORKSPACE</span>
+              <button type="button" onclick="logoutAdmin()" class="inline-flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/5 px-4 py-2.5 text-[10px] font-black text-rose-300 transition hover:bg-rose-500 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i> CLOSE PANEL</button>
+            </footer>
           </div>
         </div>
 
@@ -1631,7 +1655,10 @@ document.addEventListener("DOMContentLoaded", function () {
         openGameNewsModal();
     }, 1500);
 });
+const ATIMEX_ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
 let adminPaymentRequestTab = 'pending';
+let adminPaymentRequestRows = [];
+let adminProfileLookup = {};
 
 function escapeAdminText(value) {
     return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -1639,125 +1666,231 @@ function escapeAdminText(value) {
     }[char]));
 }
 
+function formatAdminDate(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
 async function getCurrentAdminUser() {
-    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-    if (authError) throw authError;
-    const user = authData?.user;
-    if (!user) return null;
-    const { data: adminRow, error } = await supabaseClient
-        .from('admin_users')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    const { data, error } = await supabaseClient.auth.getUser();
     if (error) throw error;
-    return adminRow ? user : null;
+    const user = data?.user;
+    // UI visibility only. The review RPC independently checks public.atimex_admins server-side.
+    return user && user.id === ATIMEX_ADMIN_UID ? user : null;
+}
+
+async function refreshAdminEntryButton() {
+    const button = document.getElementById('adminEntryButton');
+    if (!button) return;
+    try {
+        const admin = await getCurrentAdminUser();
+        button.classList.toggle('hidden', !admin);
+        button.classList.toggle('inline-flex', !!admin);
+    } catch (error) {
+        button.classList.add('hidden');
+        button.classList.remove('inline-flex');
+        console.warn('Admin entry visibility check failed:', error);
+    }
 }
 
 async function openAdminModal() {
     try {
         const admin = await getCurrentAdminUser();
         if (!admin) {
-            showToast('এই panel শুধু authorized Admin account-এর জন্য।', true);
+            showToast('এই account-এ Admin access নেই।', true);
             return;
         }
+        const identity = document.getElementById('adminIdentityLabel');
+        if (identity) identity.textContent = admin.email || admin.id;
         document.getElementById('adminModal')?.classList.remove('hidden');
-        await loadAdminPaymentRequests('pending');
+        document.body.classList.add('overflow-hidden');
+        switchAdminTab('pending');
     } catch (error) {
         console.error('Admin authentication check failed:', error);
-        showToast('Admin যাচাই করা যায়নি। Supabase policy check করুন।', true);
+        showToast('Admin যাচাই করা যায়নি: ' + (error?.message || 'Login session check করুন।'), true);
     }
 }
 
 function closeAdminModal() {
     document.getElementById('adminModal')?.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
 }
 
 function logoutAdmin() {
     closeAdminModal();
 }
 
+async function loadAdminStats() {
+    const checks = [['pending', 'pending'], ['approved', 'approved'], ['rejected', 'rejected']];
+    const results = await Promise.all(checks.map(async ([key, status]) => {
+        const response = await supabaseClient.from('payment_requests')
+            .select('id', { count: 'exact', head: true }).eq('status', status);
+        if (response.error) throw response.error;
+        return [key, Number(response.count || 0)];
+    }));
+    const counts = Object.fromEntries(results);
+    const pending = document.getElementById('pendingBadge');
+    const approved = document.getElementById('adminApprovedCount');
+    const rejected = document.getElementById('adminRejectedCount');
+    const total = document.getElementById('adminTotalCount');
+    if (pending) pending.textContent = String(counts.pending);
+    if (approved) approved.textContent = String(counts.approved);
+    if (rejected) rejected.textContent = String(counts.rejected);
+    if (total) total.textContent = String(counts.pending + counts.approved + counts.rejected);
+}
+
 async function loadAdminPaymentRequests(tabName = adminPaymentRequestTab) {
     adminPaymentRequestTab = tabName === 'history' ? 'history' : 'pending';
     const target = document.getElementById(adminPaymentRequestTab === 'pending' ? 'adminPendingList' : 'adminActivityList');
-    const badge = document.getElementById('pendingBadge');
-    if (target) target.innerHTML = '<div class="text-[11px] text-slate-400 p-3">Loading requests…</div>';
+    const badge = document.getElementById('adminPendingCountLabel');
+    if (target) target.innerHTML = '<div class="rounded-2xl border border-white/10 bg-slate-900 p-5 text-center text-[11px] text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2 text-emerald-300"></i>Loading payment requests...</div>';
+    if (badge) badge.textContent = 'LOADING';
 
     try {
         const admin = await getCurrentAdminUser();
         if (!admin) throw new Error('Admin access পাওয়া যায়নি।');
+        try { await loadAdminStats(); }
+        catch (statsError) { console.warn('Admin statistics could not be loaded:', statsError); }
 
-        let query = supabaseClient
-            .from('payment_requests')
-            .select('id,user_id,request_type,amount,trx_id,sender_number,payment_method,package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,status,created_at,reviewed_at')
-            .order('created_at', { ascending: false })
-            .limit(100);
-
+        let query = supabaseClient.from('payment_requests')
+            .select('id,user_id,request_type,amount,trx_id,sender_number,payment_method,package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,status,created_at,reviewed_at,reviewed_by')
+            .order('created_at', { ascending: false }).limit(150);
         query = adminPaymentRequestTab === 'pending'
             ? query.eq('status', 'pending')
             : query.in('status', ['approved', 'rejected']);
 
         const { data, error } = await query;
         if (error) throw error;
-        const rows = Array.isArray(data) ? data : [];
-        if (badge) badge.textContent = String(rows.filter(row => row.status === 'pending').length);
+        adminPaymentRequestRows = Array.isArray(data) ? data : [];
+        adminProfileLookup = {};
 
-        if (!target) return;
-        if (!rows.length) {
-            target.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-3 text-[11px] text-slate-400">কোনো request পাওয়া যায়নি।</div>';
-            return;
+        const userIds = [...new Set(adminPaymentRequestRows.map(row => row.user_id).filter(Boolean))];
+        if (userIds.length) {
+            try {
+                const { data: profiles, error: profileError } = await supabaseClient
+                    .from('profiles').select('id,nickname,email,phone').in('id', userIds);
+                if (profileError) throw profileError;
+                (profiles || []).forEach(profile => { adminProfileLookup[profile.id] = profile; });
+            } catch (profileError) {
+                console.warn('Admin profile details unavailable:', profileError);
+            }
         }
-
-        target.innerHTML = rows.map(row => {
-            const isPackage = row.request_type === 'vip_package';
-            const statusLabel = row.status === 'approved' ? 'Approved' : row.status === 'rejected' ? 'Rejected' : 'Pending';
-            const dateText = row.created_at ? new Date(row.created_at).toLocaleString('en-BD') : '—';
-            const packageLine = isPackage
-                ? '<div class="mt-1 text-emerald-300">' + escapeAdminText(row.package_name || row.package_id || 'VIP package') +
-                  ' · ' + escapeAdminText(row.package_duration_days || '—') + ' days · daily ৳' +
-                  escapeAdminText(row.package_daily_amount || '—') + '</div>'
-                : '';
-            return '<article class="rounded-xl border border-slate-700 bg-slate-800/70 p-3 text-[11px]">' +
-                '<div class="flex items-center justify-between gap-2"><b class="text-white">' +
-                escapeAdminText(isPackage ? 'VIP Package' : 'Custom Deposit') + '</b><span class="rounded-full px-2 py-0.5 ' +
-                (row.status === 'approved' ? 'bg-emerald-500/15 text-emerald-300' : row.status === 'rejected' ? 'bg-red-500/15 text-red-300' : 'bg-amber-500/15 text-amber-300') +
-                '">' + statusLabel + '</span></div>' +
-                '<div class="mt-2 text-lg font-black text-emerald-300">৳' + escapeAdminText(Number(row.amount || 0).toLocaleString('en-BD')) + '</div>' +
-                packageLine +
-                '<div class="mt-2 grid grid-cols-2 gap-1 text-slate-300"><span>Method: ' + escapeAdminText(row.payment_method) +
-                '</span><span>Sender: ' + escapeAdminText(row.sender_number) +
-                '</span><span class="col-span-2 break-all">TrxID: <b class="text-white">' + escapeAdminText(row.trx_id) +
-                '</b></span><span class="col-span-2 break-all text-slate-500">User ID: ' + escapeAdminText(row.user_id) +
-                '</span><span class="col-span-2 text-slate-500">' + escapeAdminText(dateText) +
-                '</span><span class="col-span-2 break-all text-slate-600">Request: ' + escapeAdminText(row.id) +
-                '</span></div></article>';
-        }).join('');
+        if (badge) badge.textContent = adminPaymentRequestTab === 'pending'
+            ? adminPaymentRequestRows.length + ' PENDING' : 'REVIEW HISTORY';
+        renderAdminPaymentRequests();
     } catch (error) {
         console.error('Admin payment requests load failed:', error);
-        if (target) target.innerHTML = '<div class="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-[11px] text-red-300">' +
-            escapeAdminText(error?.message || 'Request load করা যায়নি।') +
-            '<div class="mt-1 text-slate-400">Supabase SQL migration execute হয়েছে কি না check করুন।</div></div>';
+        if (target) target.innerHTML = '<div class="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-5 text-[11px] text-rose-200"><div class="font-black"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Request load করা যায়নি</div><p class="mt-2 break-words text-rose-100/70">' +
+            escapeAdminText(error?.message || 'Supabase থেকে request পাওয়া যায়নি।') +
+            '</p><p class="mt-2 text-[10px] text-slate-500">payment_requests SELECT policy এবং Admin RLS policy check করুন।</p></div>';
+        if (badge) badge.textContent = 'LOAD ERROR';
+    }
+}
+
+function renderAdminPaymentRequests() {
+    const target = document.getElementById(adminPaymentRequestTab === 'pending' ? 'adminPendingList' : 'adminActivityList');
+    if (!target) return;
+    const search = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
+    const rows = adminPaymentRequestRows.filter(row => {
+        const profile = adminProfileLookup[row.user_id] || {};
+        const haystack = [row.id, row.user_id, row.request_type, row.amount, row.trx_id,
+            row.sender_number, row.payment_method, row.package_name, profile.nickname, profile.email, profile.phone].join(' ').toLowerCase();
+        return !search || haystack.includes(search);
+    });
+    if (!rows.length) {
+        target.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-800 text-slate-500"><i class="fa-solid fa-inbox text-xl"></i></div><p class="mt-3 text-sm font-bold text-slate-300">' +
+            (search ? 'কোনো matching request নেই।' : (adminPaymentRequestTab === 'pending' ? 'এখন কোনো pending request নেই।' : 'এখনো কোনো reviewed request নেই।')) +
+            '</p><p class="mt-1 text-[10px] text-slate-500">' + (search ? 'অন্য TrxID, sender বা user তথ্য দিয়ে search করুন।' : 'নতুন request এলে এখানে দেখা যাবে।') + '</p></div>';
+        return;
+    }
+
+    target.innerHTML = rows.map(row => {
+        const id = String(row.id || '');
+        const validId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const isPackage = row.request_type === 'vip_package';
+        const isActivation = row.request_type === 'activation' || row.request_type === 'account_activation';
+        const typeLabel = isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
+        const profile = adminProfileLookup[row.user_id] || {};
+        const status = String(row.status || 'pending').toLowerCase();
+        const statusLabel = status === 'approved' ? 'APPROVED' : status === 'rejected' ? 'REJECTED' : 'PENDING';
+        const statusClass = status === 'approved' ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+            : status === 'rejected' ? 'border-rose-400/20 bg-rose-400/10 text-rose-200'
+            : 'border-amber-400/20 bg-amber-400/10 text-amber-200';
+        const packageLine = isPackage
+            ? '<div class="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-3 text-[10px]"><div><span class="block text-slate-500">Package</span><b class="mt-1 block text-emerald-200">' + escapeAdminText(row.package_name || row.package_id || 'VIP') + '</b></div><div><span class="block text-slate-500">Duration</span><b class="mt-1 block text-white">' + escapeAdminText(row.package_duration_days || '—') + ' days</b></div><div><span class="block text-slate-500">Daily earning</span><b class="mt-1 block text-white">৳' + escapeAdminText(row.package_daily_amount || '—') + '</b></div></div>'
+            : '';
+        const userName = profile.nickname || 'ATIMEX User';
+        const userContact = [profile.email, profile.phone].filter(Boolean).join(' · ') || row.user_id || '—';
+        const actionButtons = adminPaymentRequestTab === 'pending'
+            ? '<div class="mt-4 grid grid-cols-2 gap-2"><button type="button" data-admin-action="approve" data-request-id="' + escapeAdminText(id) + '" onclick="reviewAdminPaymentRequest(\'' + escapeAdminText(id) + '\',\'approve\')" class="rounded-xl bg-emerald-400 px-3 py-3 text-[10px] font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-wait disabled:opacity-50"><i class="fa-solid fa-check mr-1"></i> APPROVE</button><button type="button" data-admin-action="reject" data-request-id="' + escapeAdminText(id) + '" onclick="reviewAdminPaymentRequest(\'' + escapeAdminText(id) + '\',\'reject\')" class="rounded-xl border border-rose-400/30 bg-rose-400/5 px-3 py-3 text-[10px] font-black text-rose-200 transition hover:bg-rose-500 hover:text-white disabled:cursor-wait disabled:opacity-50"><i class="fa-solid fa-xmark mr-1"></i> REJECT</button></div>'
+            : '<div class="mt-4 grid grid-cols-2 gap-2 border-t border-white/5 pt-3 text-[9px] text-slate-500"><span>Reviewed: ' + escapeAdminText(formatAdminDate(row.reviewed_at)) + '</span><span class="break-all text-right">Admin: ' + escapeAdminText(row.reviewed_by || '—') + '</span></div>';
+
+        return '<article class="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg sm:p-5">' +
+            '<div class="flex flex-wrap items-start justify-between gap-3"><div class="flex min-w-0 items-center gap-2"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-800 text-emerald-300"><i class="fa-solid ' + (isPackage ? 'fa-box-open' : isActivation ? 'fa-bolt' : 'fa-wallet') + '"></i></span><div class="min-w-0"><div class="text-[9px] font-black tracking-[.16em] text-emerald-300">' + typeLabel + '</div><div class="mt-1 truncate text-xs font-bold text-white">' + escapeAdminText(userName) + '</div><div class="mt-0.5 break-all text-[9px] text-slate-500">' + escapeAdminText(userContact) + '</div></div></div><span class="rounded-full border px-3 py-1 text-[9px] font-black tracking-wider ' + statusClass + '">' + statusLabel + '</span></div>' +
+            '<div class="mt-4 flex flex-wrap items-end justify-between gap-3 border-y border-white/5 py-3"><div><div class="text-[9px] font-bold uppercase tracking-widest text-slate-500">Request amount</div><div class="mt-1 text-3xl font-black tabular-nums text-white">৳' + escapeAdminText(Number(row.amount || 0).toLocaleString('en-BD')) + '</div></div><div class="text-right"><div class="text-[9px] text-slate-500">Submitted</div><div class="mt-1 text-[10px] font-semibold text-slate-300">' + escapeAdminText(formatAdminDate(row.created_at)) + '</div></div></div>' +
+            packageLine +
+            '<div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"><div class="rounded-xl bg-slate-950/80 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Payment details</div><div class="mt-2 text-[10px] text-slate-400">Method: <b class="text-white">' + escapeAdminText(row.payment_method || '—') + '</b></div><div class="mt-1 text-[10px] text-slate-400">Sender: <b class="text-white">' + escapeAdminText(row.sender_number || '—') + '</b></div><div class="mt-1 break-all text-[10px] text-slate-400">TrxID: <b class="text-emerald-200">' + escapeAdminText(row.trx_id || '—') + '</b></div></div><div class="rounded-xl bg-slate-950/80 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Request references</div><div class="mt-2 break-all text-[9px] text-slate-400">Request ID: <b class="text-slate-200">' + escapeAdminText(id) + '</b></div><div class="mt-1 break-all text-[9px] text-slate-400">User ID: <b class="text-slate-200">' + escapeAdminText(row.user_id || '—') + '</b></div></div></div>' +
+            (validId ? actionButtons : '<p class="mt-3 text-[10px] text-rose-300">Invalid request ID — action disabled.</p>') +
+            '</article>';
+    }).join('');
+}
+
+async function reviewAdminPaymentRequest(requestId, action) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(requestId || ''))) {
+        showToast('Request ID সঠিক নয়।', true);
+        return;
+    }
+    if (!['approve', 'reject'].includes(action)) return;
+    const row = adminPaymentRequestRows.find(item => item.id === requestId);
+    if (!row || row.status !== 'pending') {
+        showToast('এই request আর pending নেই। Refresh করে দেখুন।', true);
+        return;
+    }
+    const promptText = action === 'approve'
+        ? '৳' + Number(row.amount || 0).toLocaleString('en-BD') + ' payment request approve করবেন? Backend policy অনুযায়ী প্রযোজ্য balance/package update হবে।'
+        : 'এই payment request reject করবেন?';
+    if (!window.confirm(promptText)) return;
+
+    const buttons = document.querySelectorAll('[data-request-id="' + requestId + '"]');
+    buttons.forEach(button => { button.disabled = true; button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; });
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) throw new Error('Admin session expired। আবার login করুন।');
+        const { data, error } = await supabaseClient.rpc('admin_review_payment_request', {
+            p_request_id: requestId, p_action: action
+        });
+        if (error) throw error;
+        const result = Array.isArray(data) ? data[0] : data;
+        if (result && typeof result === 'object' && result.success === false) {
+            throw new Error(result.message || 'Backend request review করেনি।');
+        }
+        showToast(action === 'approve' ? 'Payment request approved হয়েছে।' : 'Payment request rejected হয়েছে।');
+        await loadAdminPaymentRequests(adminPaymentRequestTab);
+    } catch (error) {
+        console.error('Admin payment review failed:', error);
+        showToast('Review করা যায়নি: ' + (error?.message || 'Supabase RPC check করুন।'), true);
+        buttons.forEach(button => { button.disabled = false; });
     }
 }
 
 function switchAdminTab(tabName) {
     const selected = tabName === 'history' ? 'history' : 'pending';
+    adminPaymentRequestTab = selected;
     const pending = document.getElementById('adminTabPending');
     const history = document.getElementById('adminTabHistory');
     const pendingBtn = document.getElementById('tabBtnPending');
     const historyBtn = document.getElementById('tabBtnHistory');
-
+    const search = document.getElementById('adminSearchInput');
+    if (search) search.value = '';
     if (pending) pending.classList.toggle('hidden', selected !== 'pending');
     if (history) history.classList.toggle('hidden', selected !== 'history');
-    if (pendingBtn) {
-        pendingBtn.className = selected === 'pending'
-            ? 'flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition'
-            : 'flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition';
-    }
-    if (historyBtn) {
-        historyBtn.className = selected === 'history'
-            ? 'flex-1 bg-amber-500 text-slate-950 font-bold py-1.5 rounded-lg transition'
-            : 'flex-1 bg-slate-800 text-slate-400 hover:text-white font-bold py-1.5 rounded-lg transition';
-    }
+    if (pendingBtn) pendingBtn.className = selected === 'pending'
+        ? 'rounded-xl bg-emerald-400 px-4 py-2.5 text-[10px] font-black text-slate-950 transition'
+        : 'rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-[10px] font-bold text-slate-400 transition hover:text-white';
+    if (historyBtn) historyBtn.className = selected === 'history'
+        ? 'rounded-xl bg-emerald-400 px-4 py-2.5 text-[10px] font-black text-slate-950 transition'
+        : 'rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-[10px] font-bold text-slate-400 transition hover:text-white';
     loadAdminPaymentRequests(selected);
 }
 
@@ -1988,7 +2121,8 @@ window.onload = async function(){
                     .catch(e => {
                         console.error('Supabase auth-state profile sync failed:', e);
                         showToast('Login session আছে, কিন্তু cloud profile load হয়নি: ' + (e.message || 'Supabase table/policy check করুন'), true);
-                    });
+                    })
+                    .finally(() => refreshAdminEntryButton());
             }, 0);
         }
     });
@@ -2008,6 +2142,7 @@ window.onload = async function(){
                 document.getElementById('welcomeModal')?.classList.add('hidden');
                 showToast('Login session restore হয়েছে, তবে cloud profile load হয়নি: ' + (profileError.message || 'Supabase table/policy check করুন'), true);
             }
+            await refreshAdminEntryButton();
             return;
         }
     } catch(e) {
