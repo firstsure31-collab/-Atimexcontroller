@@ -1879,7 +1879,7 @@ async function reviewAdminPaymentRequest(requestId, action) {
         const admin = await getCurrentAdminUser();
         if (!admin) throw new Error('Admin session expired। আবার login করুন।');
         const { data, error } = await supabaseClient.rpc('admin_review_payment_request', {
-            p_request_id: requestId, p_action: action
+            p_request_id: requestId, p_action: action === 'approve' ? 'approved' : 'rejected'
         });
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
