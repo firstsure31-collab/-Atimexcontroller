@@ -394,6 +394,16 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@keyframes redeemLockJiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  18% { transform: rotate(-12deg) scale(1.06); }
+  36% { transform: rotate(12deg) scale(1.06); }
+  54% { transform: rotate(-8deg) scale(1.03); }
+  72% { transform: rotate(8deg) scale(1.03); }
+}
+.redeem-lock-jiggle { animation: redeemLockJiggle 850ms ease-in-out both; }
+</style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 
@@ -1150,10 +1160,20 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
               </div>
               <button onclick="closeRedeemCodeModal()" class="text-slate-400 hover:text-white text-sm" aria-label="Close"><i class="fas fa-times"></i></button>
             </div>
-            <p class="text-slate-400">তোমার secret code লিখে ৳50 wallet balance-এ যোগ করো। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
-            <input id="redeemSecretCodeInput" type="text" maxlength="64" autocomplete="off" placeholder="Enter secret code" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm font-bold uppercase tracking-wider text-white outline-none focus:border-emerald-400">
-            <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem ৳50</button>
-            <p class="text-[10px] text-slate-500">Valid code হলে ৳50 যোগ হবে।</p>
+            <div id="redeemLockedPanel" class="hidden relative overflow-hidden rounded-xl border border-amber-400/30 bg-slate-950/80 p-5 text-center">
+              <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-amber-500/10 via-transparent to-emerald-500/10"></div>
+              <div class="relative mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10">
+                <i id="redeemLockIcon" class="fas fa-lock text-3xl text-amber-300"></i>
+              </div>
+              <h4 class="relative text-sm font-extrabold text-amber-200">REDEEM LOCKED</h4>
+              <p class="relative mt-2 text-[11px] leading-relaxed text-slate-300">Redeem code unlock করতে আগে account active করো। ৳100 activation payment Admin approve করার পর lock খুলবে।</p>
+            </div>
+            <div id="redeemUnlockedPanel" class="space-y-3">
+              <p class="text-slate-400">তোমার secret code লিখে ৳50 wallet balance-এ যোগ করো। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
+              <input id="redeemSecretCodeInput" type="text" maxlength="64" autocomplete="off" placeholder="Enter secret code" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm font-bold uppercase tracking-wider text-white outline-none focus:border-emerald-400">
+              <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem ৳50</button>
+              <p class="text-[10px] text-slate-500">Valid code হলে ৳50 যোগ হবে।</p>
+            </div>
           </div>
         </div>
 
@@ -1713,9 +1733,18 @@ function closeWithdrawReferPrompt() { document.getElementById("withdrawReferProm
 function openRedeemCodeModal() {
     const modal = document.getElementById('redeemCodeModal');
     const input = document.getElementById('redeemSecretCodeInput');
+    const locked = !window.appState?.isLoggedIn || !window.appState?.isActive;
+    document.getElementById('redeemLockedPanel')?.classList.toggle('hidden', !locked);
+    document.getElementById('redeemUnlockedPanel')?.classList.toggle('hidden', locked);
+    const lockIcon = document.getElementById('redeemLockIcon');
+    if (lockIcon) {
+        lockIcon.classList.remove('redeem-lock-jiggle');
+        void lockIcon.offsetWidth;
+        if (locked) lockIcon.classList.add('redeem-lock-jiggle');
+    }
     if (input) input.value = '';
     modal?.classList.remove('hidden');
-    setTimeout(() => input?.focus(), 50);
+    if (!locked) setTimeout(() => input?.focus(), 50);
 }
 
 function closeRedeemCodeModal() {
@@ -1728,6 +1757,7 @@ async function redeemSecretCode() {
     const code = (input?.value || '').trim().toUpperCase();
     if (!code) { showToast('Secret code লিখুন।', true); return; }
     if (!window.appState?.isLoggedIn) { showToast('আগে Login করুন।', true); return; }
+    if (!window.appState?.isActive) { showToast('Redeem code unlock করতে আগে account active করুন।', true); return; }
     if (!supabaseClient?.rpc) { showToast('Code redemption service এখন পাওয়া যাচ্ছে না।', true); return; }
     if (button) { button.disabled = true; button.textContent = 'Redeeming…'; }
     try {
