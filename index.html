@@ -465,36 +465,27 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 }
 @media (prefers-reduced-motion: reduce) { .atimex-package-buy, .atimex-package-buy::before { animation: none; } }
 
-/* Red lightning animation for the two premium VIP Buy Now buttons only */
+/* Strong red electric pulse: scoped ONLY to the 5k and 10k VIP Buy Now buttons */
 @keyframes atimexRedLightning {
-  0%, 100% { box-shadow: 0 0 7px rgba(239,68,68,.45), 0 0 14px rgba(220,38,38,.25); filter: brightness(1); }
-  8% { box-shadow: 0 0 16px rgba(248,113,113,.95), 0 0 28px rgba(220,38,38,.8); filter: brightness(1.35); }
-  12% { filter: brightness(.95); }
-  18% { box-shadow: 0 0 18px rgba(248,113,113,.9), 0 0 30px rgba(220,38,38,.7); filter: brightness(1.25); }
-  24% { filter: brightness(1); }
-}
-@keyframes atimexRedBolt {
-  0%, 72%, 100% { opacity: 0; transform: translateX(-160%) skewX(-20deg); }
-  8%, 22% { opacity: .95; }
-  35% { opacity: 0; transform: translateX(160%) skewX(-20deg); }
+  0%, 100% { background-color:#b91c1c; box-shadow:0 0 5px #ef4444, 0 0 12px rgba(220,38,38,.65); border-color:#fecaca; }
+  35% { background-color:#ef4444; box-shadow:0 0 12px #f87171, 0 0 25px #dc2626, 0 0 38px rgba(239,68,68,.8); border-color:#fff; }
+  42% { background-color:#991b1b; box-shadow:0 0 4px #dc2626; border-color:#fca5a5; }
+  50% { background-color:#ef4444; box-shadow:0 0 14px #fca5a5, 0 0 30px #dc2626; border-color:#fff; }
 }
 .atimex-package-buy.atimex-red-lightning {
-  color: #fff !important;
-  background: linear-gradient(110deg, #991b1b, #ef4444, #b91c1c, #f87171, #991b1b) padding-box,
-    linear-gradient(110deg, #7f1d1d, #fecaca, #dc2626, #fff, #7f1d1d) border-box;
-  background-size: 100% 100%, 220% 100%;
-  animation: atimexGoldOrbit 2.8s linear infinite, atimexRedLightning 1.7s steps(1, end) infinite;
-  box-shadow: 0 0 10px rgba(239,68,68,.55), 0 0 20px rgba(220,38,38,.35);
+  color:#fff !important;
+  background:#b91c1c !important;
+  border:1px solid #fecaca !important;
+  animation:atimexRedLightning .9s linear infinite !important;
+  box-shadow:0 0 10px rgba(239,68,68,.8), 0 0 22px rgba(220,38,38,.55);
 }
 .atimex-package-buy.atimex-red-lightning::before {
-  background: linear-gradient(110deg, transparent 25%, #fff 47%, #fecaca 50%, transparent 67%);
-  background-size: 220% 100%;
-  animation: atimexRedBolt 1.7s ease-in-out infinite;
-  filter: blur(1px); opacity: .9;
+  content:""; position:absolute; inset:-3px; z-index:-1; border-radius:inherit;
+  background:#ef4444; filter:blur(7px); opacity:.8;
+  animation:atimexRedLightning .9s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .atimex-package-buy.atimex-red-lightning,
-  .atimex-package-buy.atimex-red-lightning::before { animation: none; }
+  .atimex-package-buy.atimex-red-lightning { animation:atimexRedLightning 1.8s linear infinite !important; }
 }
 
 /* Small, clearly visible golden laser segment orbiting the notification bell */
