@@ -988,7 +988,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
     <button onclick="closeDailyClaim()" aria-label="Close Daily Claim" class="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-800/90 text-slate-300 transition hover:border-emerald-400/50 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
     <div class="flex items-center gap-3 pr-10">
       <div class="grid h-12 w-12 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-2xl text-emerald-300 shadow-lg shadow-emerald-950/40"><i class="fa-solid fa-calendar-days"></i></div>
-      <div><p class="text-[9px] font-black uppercase tracking-[.28em] text-emerald-300">ATIMEX REWARDS</p><h3 class="mt-0.5 text-xl font-black tracking-tight text-white">Daily Claim</h3><p class="text-[10px] text-slate-400">৫ দিনের রিওয়ার্ড ক্যালেন্ডার</p></div>
+      <div><p class="text-[9px] font-black uppercase tracking-[.28em] text-emerald-300">ATIMEX REWARDS</p><h3 class="mt-0.5 text-xl font-black tracking-tight text-white">Daily Claim</h3><p class="text-[10px] text-slate-400">প্রতি মাসে ৩০ দিনের রিওয়ার্ড ক্যালেন্ডার</p></div>
     </div>
 
     <div class="mt-5 overflow-hidden rounded-2xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 via-slate-900 to-lime-500/10 p-4">
@@ -996,17 +996,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
       <p class="mt-2 text-[9px] text-slate-500">Active package অনুযায়ী daily amount হিসাব হবে</p>
     </div>
 
-    <div class="mt-5 flex items-center justify-between"><div><h4 class="text-sm font-extrabold text-white">৫ দিনের Claim Journey</h4><p class="mt-0.5 text-[10px] text-slate-400">প্রতিদিন একটি করে দিন unlock হবে</p></div><span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-bold text-emerald-300">DAY 01 — 05</span></div>
+    <div class="mt-5 flex items-center justify-between"><div><h4 class="text-sm font-extrabold text-white">Monthly Claim Calendar</h4><p id="dailyClaimMonthLabel" class="mt-0.5 text-[10px] text-slate-400">Day 1 — 30 · মাস শেষে আবার Day 1</p></div><span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-bold text-emerald-300">30 DAYS</span></div>
 
-    <div class="mt-3 grid grid-cols-5 gap-2">
-      <div class="rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-2 text-center shadow-lg shadow-emerald-950/30">
-        <div class="mx-auto grid h-8 w-8 place-items-center rounded-xl bg-emerald-400 text-sm font-black text-slate-950">1</div><p class="mt-2 text-[9px] font-black text-emerald-300">DAY 1</p><p class="mt-1 text-[8px] text-slate-400">START</p>
-      </div>
-      <div class="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-2 text-center opacity-70"><div class="mx-auto grid h-8 w-8 place-items-center rounded-xl bg-slate-700 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></div><p class="mt-2 text-[9px] font-black text-slate-400">DAY 2</p><p class="mt-1 text-[8px] text-slate-600">LOCKED</p></div>
-      <div class="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-2 text-center opacity-70"><div class="mx-auto grid h-8 w-8 place-items-center rounded-xl bg-slate-700 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></div><p class="mt-2 text-[9px] font-black text-slate-400">DAY 3</p><p class="mt-1 text-[8px] text-slate-600">LOCKED</p></div>
-      <div class="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-2 text-center opacity-70"><div class="mx-auto grid h-8 w-8 place-items-center rounded-xl bg-slate-700 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></div><p class="mt-2 text-[9px] font-black text-slate-400">DAY 4</p><p class="mt-1 text-[8px] text-slate-600">LOCKED</p></div>
-      <div class="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-2 text-center opacity-70"><div class="mx-auto grid h-8 w-8 place-items-center rounded-xl bg-slate-700 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></div><p class="mt-2 text-[9px] font-black text-slate-400">DAY 5</p><p class="mt-1 text-[8px] text-slate-600">LOCKED</p></div>
-    </div>
+    <div id="dailyClaimCalendar" class="mt-3 grid grid-cols-6 gap-2" aria-live="polite"></div>
 
     <div class="mt-4 rounded-2xl border border-slate-700/70 bg-slate-950/70 p-3">
       <div class="flex items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-gift"></i></span><div class="min-w-0 flex-1"><p class="text-[11px] font-extrabold text-white">Day 1 Reward</p><p class="text-[9px] text-slate-400">Claim করলে Day 1 complete হবে</p></div><span class="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold text-emerald-300">FIRST STEP</span></div>
@@ -1014,7 +1006,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
       <div id="dailyClaimStatus" class="mt-3 flex items-center justify-center gap-2 text-center text-[10px] text-slate-400"><span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Claim status যাচাই হচ্ছে...</span></div>
       <div id="dailyClaimCountdown" class="hidden mt-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-center text-xs font-semibold text-slate-300"></div>
     </div>
-    <p class="mt-3 text-center text-[9px] leading-relaxed text-slate-500">প্রতিটি দিনের reward server থেকে verify হওয়ার পরই পরের দিন unlock হবে।</p>
+    <p class="mt-3 text-center text-[9px] leading-relaxed text-slate-500">Dhaka time অনুযায়ী প্রতি মাসের Day 1–30 চলবে। নতুন মাসে ক্যালেন্ডার আবার Day 1 থেকে শুরু হবে।</p>
     <button onclick="closeDailyClaim()" class="mt-3 w-full rounded-xl py-2 text-xs font-semibold text-slate-400 transition hover:text-white">Close</button>
   </div>
 </div>
@@ -3009,47 +3001,46 @@ function dailyClaimSetCard(mode, subtitle){
     card.disabled=false;card.className='col-span-2 relative w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition';
     if(icon){icon.className='w-11 h-11 shrink-0 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center text-xl';icon.innerHTML='<i class="fa-solid fa-calendar-check"></i>';}
     if(arrow)arrow.className='fa-solid fa-chevron-right text-emerald-300';
-    if(timer){timer.classList.add('hidden');timer.textContent='';}
   }else{
     card.disabled=true;card.className='col-span-2 relative w-full rounded-2xl border border-slate-700 bg-slate-800/70 p-4 flex items-center justify-between gap-3 text-left shadow-lg transition opacity-70 cursor-not-allowed';
     if(icon){icon.className='w-11 h-11 shrink-0 rounded-xl bg-slate-700 text-slate-400 flex items-center justify-center text-xl';icon.innerHTML='<i class="fa-solid fa-lock"></i>';}
     if(arrow)arrow.className='fa-solid fa-lock text-slate-500';
-    if(timer&&mode!=='cooldown'){timer.classList.add('hidden');timer.textContent='';}
   }
+  if(timer){timer.classList.add('hidden');timer.textContent='';}
 }
-function dailyClaimFormatRemaining(ms){const total=Math.max(0,Math.floor(ms/1000)),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function updateDailyClaimCountdown(){
-  const nextAt=Number(window.dailyClaimNextAt||0),remaining=nextAt-Date.now(),cardTimer=document.getElementById('dailyClaimCardTimer'),modalTimer=document.getElementById('dailyClaimCountdown');
-  if(remaining<=0){
-    if(cardTimer){cardTimer.classList.add('hidden');cardTimer.textContent='';}
-    if(modalTimer){modalTimer.classList.add('hidden');modalTimer.textContent='';}
-    if(window.dailyClaimNextAt){window.dailyClaimNextAt=0;syncDailyClaimCooldown();}
-    return;
-  }
-  const value=dailyClaimFormatRemaining(remaining);
-  if(cardTimer){cardTimer.textContent=value;cardTimer.classList.remove('hidden');}
-  if(modalTimer){modalTimer.textContent='আবার Claim করতে বাকি: '+value;modalTimer.classList.remove('hidden');}
+function renderDailyClaimCalendar(result){
+  const grid=document.getElementById('dailyClaimCalendar');
+  const month=document.getElementById('dailyClaimMonthLabel');
+  if(!grid)return;
+  const day=Math.max(1,Math.min(30,Number(result?.day_number)||1));
+  const claimed=new Set(Array.isArray(result?.claimed_days)?result.claimed_days.map(Number):[]);
+  if(month)month.textContent=(result?.month_label||result?.month_key||'এই মাস')+' · Day '+day+' of 30';
+  grid.innerHTML=Array.from({length:30},(_,i)=>{
+    const n=i+1,done=claimed.has(n),today=n===day,available=today&&result?.can_claim===true;
+    const cls=done?'border-emerald-400/40 bg-emerald-400/10 text-emerald-300':available?'border-emerald-300 bg-emerald-400/15 text-white shadow-lg shadow-emerald-950/40':today?'border-amber-400/40 bg-amber-400/10 text-amber-200':'border-slate-700 bg-slate-800/60 text-slate-500';
+    const icon=done?'<i class="fa-solid fa-check text-[10px]"></i>':available?'<i class="fa-solid fa-gift text-[10px]"></i>':today?'<i class="fa-solid fa-calendar-day text-[10px]"></i>':'<i class="fa-solid fa-lock text-[9px]"></i>';
+    return '<div aria-label="Day '+n+(done?' claimed':available?' available':' locked')+'" class="min-w-0 rounded-xl border '+cls+' px-1 py-2 text-center"><div class="mx-auto flex h-5 items-center justify-center">'+icon+'</div><p class="mt-1 text-[10px] font-black"> '+String(n).padStart(2,'0')+'</p></div>';
+  }).join('');
 }
 async function syncDailyClaimCooldown(){
   const status=document.getElementById('dailyClaimStatus'),action=document.getElementById('dailyClaimAction');
-  dailyClaimSetCard('checking','Checking claim status...');
-  if(action){action.disabled=true;action.textContent='Checking claim status...';action.className='mt-4 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
+  dailyClaimSetCard('checking','Checking monthly claim status...');
+  if(action){action.disabled=true;action.textContent='Checking claim status...';action.className='mt-3 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
   try{
     const {data:{user}}=await supabaseClient.auth.getUser();
     if(!user)throw new Error('Login required');
     window.dailyClaimAccountId=user.id;
-    const {data,error}=await supabaseClient.rpc('get_daily_claim_status');
+    const {data,error}=await supabaseClient.rpc('get_monthly_daily_claim_status');
     if(error)throw error;
     const result=Array.isArray(data)?data[0]:data;
-    if(!result)throw new Error('Daily claim status returned empty result');
-    const last=result.last_claim_at?new Date(result.last_claim_at).getTime():0;
-    const next=result.next_claim_at?new Date(result.next_claim_at).getTime():(last?last+86400000:0);
-    window.dailyClaimNextAt=Number.isFinite(next)?next:0;
+    if(!result)throw new Error('Monthly claim status returned empty result');
+    window.monthlyDailyClaimState=result;
     window.dailyClaimStatusError=null;
+    renderDailyClaimCalendar(result);
     refreshDailyClaimUi();
     return true;
   }catch(error){
-    console.error('Daily claim status sync failed:',error);
+    console.error('Monthly daily claim status sync failed:',error);
     window.dailyClaimStatusError=error.message||String(error);
     dailyClaimSetCard('locked','Claim status unavailable — try again later');
     if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Server check failed: '+String(window.dailyClaimStatusError).replace(/[&<>"']/g,'')+'</span>';
@@ -3058,69 +3049,51 @@ async function syncDailyClaimCooldown(){
   }
 }
 async function claimDailyReward(){
-  const a=window.appState||{},packages=Array.isArray(a.activePackages)?a.activePackages:[];
+  const a=window.appState||{};
   if(!a.isActive){showToast('আগে account active করুন।',true);return;}
-  if(packages.length){showToast('Package active থাকলে free ৳20 daily claim প্রযোজ্য নয়।',true);return;}
-  if(Number(window.dailyClaimNextAt||0)>Date.now()){refreshDailyClaimUi();return;}
+  const state=window.monthlyDailyClaimState||{};
+  if(state.can_claim!==true){showToast('আজকের claim এখন available নয়।',true);await syncDailyClaimCooldown();return;}
   const button=document.getElementById('dailyClaimAction');if(button){button.disabled=true;button.textContent='Claiming...';}
   try{
     const {data:{user}}=await supabaseClient.auth.getUser();if(!user)throw new Error('Login required');
     window.dailyClaimAccountId=user.id;
-    const {data,error}=await supabaseClient.rpc('claim_daily_reward');if(error)throw error;
+    const {data,error}=await supabaseClient.rpc('claim_monthly_daily_reward');if(error)throw error;
     const result=Array.isArray(data)?data[0]:data;
-    if(!result||result.claimed!==true){
-      // A rejected claim response is not authoritative for the timer: always
-      // reload the user's canonical last_claim_at from the status RPC.
-      window.dailyClaimNextAt=0;
-      window.dailyClaimStatusError=null;
-      const status=document.getElementById('dailyClaimStatus');
-      if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আগের claim-এর সময় যাচাই হচ্ছে...</span>';
-      const synced=await syncDailyClaimCooldown();
-      if(!synced){
-        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Claim status পাওয়া যায়নি। আবার চেষ্টা করুন।</span>';
-        return;
-      }
-      if(Number(window.dailyClaimNextAt||0)>Date.now()){
-        refreshDailyClaimUi();
-        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আজকের claim সম্পন্ন। Home card-এ ২৪ ঘণ্টার timer চলছে।</span>';
-      }else{
-        // Server says the claim was rejected but has no active cooldown.
-        // Keep the action disabled rather than showing a false available state.
-        const button=document.getElementById('dailyClaimAction');
-        if(button){button.disabled=true;button.textContent='Claim status mismatch — retry';button.className='mt-4 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
-        dailyClaimSetCard('locked','Claim status mismatch · retry status check');
-        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Server claim response ও status আলাদা। কিছুক্ষণ পর আবার চেষ্টা করুন।</span>';
-      }
-      return;
-    }
-    window.dailyClaimNextAt=result.next_claim_at?new Date(result.next_claim_at).getTime():Date.now()+86400000;
-    a.balance=Number(a.balance||0)+20;a.totalEarned=Number(a.totalEarned||0)+20;
-    updateBalanceDisplays();await saveAllProgress();
-    saveLocalTransaction({type:'Daily Claim reward',amount:20,status:'Credited'});
+    if(!result||result.claimed!==true)throw new Error(result?.message||'আজকের reward claim করা যায়নি।');
+    const amount=Number(result.amount)||0;
+    a.balance=Number(result.balance??(Number(a.balance||0)+amount));
+    a.totalEarned=Number(result.total_earned??(Number(a.totalEarned||0)+amount));
+    updateBalanceDisplays();
+    await saveAllProgress();
+    saveLocalTransaction({type:'Daily Claim Day '+(result.day_number||''),amount,status:'Credited'});
+    window.monthlyDailyClaimState=result;
+    renderDailyClaimCalendar(result);
     refreshDailyClaimUi();
-    showToast('৳20 wallet balance-এ যোগ হয়েছে!');
+    showToast('৳'+amount.toLocaleString('en-BD')+' Daily Reward যোগ হয়েছে!');
   }catch(error){
-    console.error('Daily claim failed:',error);
+    console.error('Monthly daily claim failed:',error);
     showToast('Daily Claim হয়নি: '+(error.message||'আবার চেষ্টা করুন'),true);
     await syncDailyClaimCooldown();
   }
 }
 function refreshDailyClaimUi(){
-  const a=window.appState||{},packages=Array.isArray(a.activePackages)?a.activePackages:[],action=document.getElementById('dailyClaimAction'),status=document.getElementById('dailyClaimStatus');
-  const nextAt=Number(window.dailyClaimNextAt||0),claimed=nextAt>Date.now();
-  if(window.dailyClaimTimerInterval){clearInterval(window.dailyClaimTimerInterval);window.dailyClaimTimerInterval=null;}
+  const a=window.appState||{},state=window.monthlyDailyClaimState||{},action=document.getElementById('dailyClaimAction'),status=document.getElementById('dailyClaimStatus');
+  const packages=Array.isArray(a.activePackages)?a.activePackages:[];
+  const amount=Number(state.daily_amount??(packages.length?packages.reduce((t,x)=>t+Number(x.dailyAmount||x.daily||0),0):20));
+  const day=Number(state.day_number)||1,claimed=Array.isArray(state.claimed_days)&&state.claimed_days.map(Number).includes(day);
+  const available=state.can_claim===true&&!claimed;
   if(window.dailyClaimStatusError){dailyClaimSetCard('locked','Claim status unavailable — try again later');if(action){action.disabled=true;action.textContent='Claim status unavailable';}return;}
-  if(!a.isActive||packages.length){dailyClaimSetCard('locked',packages.length?'Package active · Daily claim locked':'Account activation required');if(action){action.disabled=true;action.textContent=packages.length?'Package active · Claim unavailable':'Account activation required';}return;}
-  if(claimed){
-    dailyClaimSetCard('cooldown','Claimed · আবার ২৪ ঘণ্টা পরে available হবে');
-    if(action){action.disabled=true;action.textContent='Claimed · ৳20';action.className='mt-4 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
-    if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আজকের claim সম্পন্ন। নিচের timer শেষ হলে আবার unlock হবে।</span>';
-    updateDailyClaimCountdown();window.dailyClaimTimerInterval=setInterval(updateDailyClaimCountdown,1000);
+  const summary=document.getElementById('dailyClaimSummary');
+  if(summary)summary.innerHTML='<div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Combined daily package earning</div><div class="mt-2 text-3xl font-black text-emerald-300">৳'+amount.toLocaleString('en-BD')+'<span class="ml-1 text-xs font-semibold text-slate-400">/ day</span></div><div class="mt-2 text-[10px] text-slate-400">'+(packages.length?packages.length+' active package(s) combined':'No active package · ৳20/day')+'</div>';
+  if(!a.isActive){dailyClaimSetCard('locked','Account activation required');if(action){action.disabled=true;action.textContent='Account activation required';}if(status)status.textContent='আগে account active করুন।';return;}
+  if(available){
+    dailyClaimSetCard('available','Day '+day+' · ৳'+amount.toLocaleString('en-BD')+' available');
+    if(action){action.disabled=false;action.textContent='Claim Day '+day+' · ৳'+amount.toLocaleString('en-BD');action.className='mt-3 w-full rounded-xl bg-emerald-500 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-900/40 hover:bg-emerald-400';}
+    if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-emerald-400"></span><span>Day '+day+' reward available · মাসের প্রতিদিন একবার</span>';
   }else{
-    dailyClaimSetCard('available','Daily reward · ৳20');
-    if(action){action.disabled=false;action.textContent='Claim ৳20';action.className='mt-4 w-full rounded-xl bg-emerald-500 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-900/40 hover:bg-emerald-400';}
-    if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-emerald-400"></span><span>Daily claim available</span>';
-    const timer=document.getElementById('dailyClaimCountdown');if(timer){timer.classList.add('hidden');timer.textContent='';}
+    dailyClaimSetCard('locked',claimed?'Day '+day+' completed':'Day '+day+' not available yet');
+    if(action){action.disabled=true;action.textContent=claimed?'Day '+day+' Claimed':'Claim unavailable';action.className='mt-3 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
+    if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>'+(claimed?'আজকের reward নেওয়া হয়েছে।':'আজকের claim এখনো unlock হয়নি।')+'</span>';
   }
 }
 function closeActivePackages(){
