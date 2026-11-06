@@ -465,17 +465,19 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 }
 @media (prefers-reduced-motion: reduce) { .atimex-package-buy, .atimex-package-buy::before { animation: none; } }
 
-/* Golden orbit appears only while unread notifications are waiting */
-@property --notification-gold-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+/* Small, clearly visible golden laser segment orbiting the notification bell */
+#profileNotificationButton { position: relative; overflow: visible; }
 #profileNotificationButton.notification-unread-glow { z-index: 2; }
 #profileNotificationButton.notification-unread-glow::after {
-  content: ""; position: absolute; inset: -3px; padding: 1.5px; border-radius: 50%; pointer-events: none;
-  background: conic-gradient(from var(--notification-gold-angle), transparent 0deg 285deg, #f59e0b 310deg, #fff7c2 325deg, #fbbf24 340deg, transparent 360deg);
+  content: ""; position: absolute; inset: -3px; padding: 1.8px; border-radius: 50%;
+  pointer-events: none; z-index: 5;
+  background: conic-gradient(from 0deg, transparent 0deg 285deg, #f59e0b 305deg, #fffbd5 318deg, #fbbf24 330deg, transparent 345deg 360deg);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude;
-  filter: drop-shadow(0 0 3px rgba(251,191,36,.9)); animation: notificationGoldOrbit 1.8s linear infinite;
+  filter: drop-shadow(0 0 2px #fbbf24) drop-shadow(0 0 4px rgba(251,191,36,.8));
+  animation: notificationGoldLaser 1.15s linear infinite;
 }
-@keyframes notificationGoldOrbit { to { --notification-gold-angle: 360deg; } }
+@keyframes notificationGoldLaser { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #profileNotificationButton.notification-unread-glow::after { animation: none; } }
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1962,6 +1964,27 @@ async function loadUserNotifications() {
         const { data: authData, error: authError } = await supabaseClient.auth.getUser();
         if (authError) throw authError;
         if (!authData?.user) throw new Error('Login session পাওয়া যায়নি।');
+        // Subscribe once per signed-in user so a newly inserted notification lights the bell immediately.
+        if (window.atimexNotificationChannelUserId !== authData.user.id) {
+            if (window.atimexNotificationChannel) supabaseClient.removeChannel(window.atimexNotificationChannel);
+            window.atimexNotificationChannelUserId = authData.user.id;
+            window.atimexNotificationChannel = supabaseClient.channel('atimex-user-notifications-' + authData.user.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'user_notifications',
+                    filter: 'user_id=eq.' + authData.user.id
+                }, (payload) => {
+                    const bell = document.getElementById('profileNotificationButton');
+                    const modal = document.getElementById('userNotificationsModal');
+                    if (bell && modal?.classList.contains('hidden')) bell.classList.add('notification-unread-glow');
+                    const badge = document.getElementById('profileNotificationBadge');
+                    if (badge) {
+                        const count = Math.min(99, (parseInt(badge.textContent, 10) || 0) + 1);
+                        badge.textContent = count > 9 ? '9+' : String(count);
+                        badge.classList.remove('hidden');
+                    }
+                })
+                .subscribe();
+        }
         const { data, error } = await supabaseClient.from('user_notifications')
             .select('id,title,message,created_at,read_at')
             .eq('user_id', authData.user.id).order('created_at', { ascending: false }).limit(50);
