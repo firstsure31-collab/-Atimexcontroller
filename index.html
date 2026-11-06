@@ -3318,9 +3318,13 @@ function handleWithdraw() {
   openWithdrawVerification();
 }
 
-        function openVipSupport(amount){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}var e=document.getElementById('vipSupportAmount');if(e)e.textContent='Selected package: ৳'+Number(amount).toLocaleString('en-BD');document.getElementById('vipSupportModal')?.classList.remove('hidden');}
-function closeVipSupport(){document.getElementById('vipSupportModal')?.classList.add('hidden');}
-function dailyClaimSetCard(mode, subtitle){
+       function openVipSupport(amount) {
+    handlePackageBuy(amount);
+}
+
+function closeVipSupport() {
+    document.getElementById('vipSupportModal')?.classList.add('hidden');
+}
   const card=document.getElementById('dailyClaimOption'),icon=document.getElementById('dailyClaimCardIcon'),sub=document.getElementById('dailyClaimCardSubtitle'),timer=document.getElementById('dailyClaimCardTimer'),arrow=document.getElementById('dailyClaimCardArrow');
   if(!card)return;
   if(sub)sub.textContent=subtitle||'';
