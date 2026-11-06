@@ -2271,6 +2271,8 @@ function closeWelcomeOpenAuth() {
 }
 
 function openSpinModal() {
+    const oldToast=document.getElementById('toast');
+    if(oldToast)oldToast.classList.add('hidden');
     if (!window.appState?.isActive) {
         showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
         return;
@@ -2970,7 +2972,8 @@ async function claimDailyReward(){
     if(!result||result.claimed!==true){
       const lastClaimAt=result?.last_claim_at||result?.claimed_at||(result?.next_claim_at?new Date(new Date(result.next_claim_at).getTime()-86400000).toISOString():null);
       if(lastClaimAt){const lastMs=new Date(lastClaimAt).getTime();localStorage.setItem(getDailyClaimTimeKey(),String(lastMs));window.dailyClaimNextAt=lastMs+86400000;}
-      showToast('এই claim-এর ২৪ ঘণ্টা এখনো শেষ হয়নি।',true);
+      const claimStatus=document.getElementById('dailyClaimStatus');
+      if(claimStatus)claimStatus.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>এই claim-এর ২৪ ঘণ্টা এখনো শেষ হয়নি। নিচে timer দেখুন।</span>';
       refreshDailyClaimUi();
       return;
     }
