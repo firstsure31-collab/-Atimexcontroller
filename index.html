@@ -1279,7 +1279,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center">
                   <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-800 text-slate-500"><i class="fa-solid fa-inbox text-xl"></i></div>
                   <p class="mt-3 text-sm font-bold text-slate-300">Withdrawal request UI ready</p>
-                  <p class="mt-1 text-[10px] leading-5 text-slate-500">Request data connect করার SQL/backend ধাপ এখনো করা হয়নি। সেটি যুক্ত হলে pending request এখানে amount, payment method ও number-সহ দেখা যাবে।</p>
+                  <p class="mt-1 text-[10px] leading-5 text-slate-500">Supabase থেকে সর্বশেষ withdrawal request এখানে দেখানো হবে।</p>
                 </div>
               </div>
               <template id="adminWithdrawalRequestCardTemplate">
@@ -1833,8 +1833,68 @@ function logoutAdmin() {
     closeAdminModal();
 }
 
-function openAdminWithdrawalModal() {
-    document.getElementById('adminWithdrawalModal')?.classList.remove('hidden');
+async function openAdminWithdrawalModal() {
+    const modal = document.getElementById('adminWithdrawalModal');
+    modal?.classList.remove('hidden');
+    await loadAdminWithdrawalRequests();
+}
+
+async function loadAdminWithdrawalRequests() {
+    const target = document.getElementById('adminWithdrawalRequestList');
+    const badge = document.getElementById('adminWithdrawalPendingCount');
+    if (target) target.innerHTML = '<div class="rounded-2xl border border-white/10 bg-slate-900 p-5 text-center text-[11px] text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2 text-amber-300"></i>Loading withdrawal requests...</div>';
+    if (badge) badge.textContent = 'LOADING';
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) throw new Error('Admin access পাওয়া যায়নি।');
+        const { data: rows, error } = await supabaseClient
+            .from('withdrawal_requests')
+            .select('id,user_id,amount,method,account_number,account_name,bank_name,status,created_at')
+            .order('created_at', { ascending: false })
+            .limit(150);
+        if (error) throw error;
+
+        const requests = Array.isArray(rows) ? rows : [];
+        const pendingCount = requests.filter(row => row.status === 'pending').length;
+        if (badge) badge.textContent = pendingCount + ' PENDING';
+        if (!requests.length) {
+            if (target) target.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center"><i class="fa-solid fa-inbox text-xl text-slate-500"></i><p class="mt-3 text-sm font-bold text-slate-300">কোনো withdrawal request নেই</p><p class="mt-1 text-[10px] text-slate-500">নতুন request এলে এখানে দেখা যাবে।</p></div>';
+            return;
+        }
+
+        const userIds = [...new Set(requests.map(row => row.user_id).filter(Boolean))];
+        let profilesById = {};
+        if (userIds.length) {
+            const { data: profiles, error: profileError } = await supabaseClient
+                .from('profiles').select('id,nickname,email,phone').in('id', userIds);
+            if (profileError) console.warn('Withdrawal profile lookup failed:', profileError);
+            (profiles || []).forEach(profile => { profilesById[profile.id] = profile; });
+        }
+
+        const template = document.getElementById('adminWithdrawalRequestCardTemplate');
+        if (!template || !target) return;
+        target.innerHTML = '';
+        requests.forEach(row => {
+            const fragment = template.content.cloneNode(true);
+            const profile = profilesById[row.user_id] || {};
+            const setField = (name, value) => {
+                const node = fragment.querySelector('[data-withdraw-field="' + name + '"]');
+                if (node) node.textContent = String(value ?? '—');
+            };
+            setField('amount', formatAtimexMoney(row.amount));
+            setField('user', (profile.nickname || 'User') + ' · ' + (profile.email || profile.phone || row.user_id));
+            setField('status', String(row.status || 'pending').toUpperCase());
+            setField('method', row.method === 'VISA' && row.bank_name ? 'Bank transfer · ' + row.bank_name : row.method);
+            setField('number', row.account_number + (row.account_name ? ' · ' + row.account_name : ''));
+            setField('date', formatAdminDate(row.created_at));
+            setField('id', row.id);
+            target.appendChild(fragment);
+        });
+    } catch (error) {
+        console.error('Admin withdrawal requests load failed:', error);
+        if (target) target.innerHTML = '<div class="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-5 text-[11px] text-rose-200"><b>Request load করা যায়নি</b><p class="mt-2 break-words">' + escapeAdminText(error?.message || 'Supabase error') + '</p><p class="mt-2 text-[10px] text-slate-500">withdrawal_requests SELECT policy এবং atimex_admins membership check করুন।</p></div>';
+        if (badge) badge.textContent = 'LOAD ERROR';
+    }
 }
 
 function closeAdminWithdrawalModal() {
@@ -2871,42 +2931,65 @@ function endWithdrawHold() {
   }
 }
 
-function submitWithdrawRequest() {
+async function submitWithdrawRequest() {
   withdrawHoldTimer = null;
   if (!withdrawPreviewData || withdrawRequestCompleted) return;
   withdrawRequestCompleted = true;
   const details = withdrawPreviewData;
-  const requestId = 'ATX-WD-' + Date.now();
-  const entry = {
-    type: 'Withdraw request · ' + details.method,
-    amount: details.amount,
-    status: 'Submitted · Pending processing',
-    requestId,
-    account: details.accountNumber,
-    accountName: details.accountName,
-    requestedAt: new Date().toISOString()
-  };
-  // Debit only after the hold-to-confirm action completes.
-  const currentBalance = Number(window.appState.balance || 0);
-  if (details.amount > currentBalance) {
-    withdrawRequestCompleted = false;
-    showToast('Balance পরিবর্তন হয়েছে—আবার review করুন।', true);
-    closeWithdrawVerification();
-    return;
-  }
-  window.appState.balance = currentBalance - details.amount;
-  updateBalanceDisplays();
-  saveAllProgress();
-  saveLocalTransaction(entry);
-  document.getElementById('withdrawReviewPage')?.classList.add('hidden');
-  document.getElementById('withdrawResultAmount').textContent = formatAtimexMoney(details.amount);
-  document.getElementById('withdrawResultMethod').textContent = details.method;
-  document.getElementById('withdrawResultId').textContent = requestId;
-  document.getElementById('withdrawResultPage')?.classList.remove('hidden');
+  const holdButton = document.getElementById('withdrawHoldButton');
   const hint = document.getElementById('withdrawHoldHint');
-  if (hint) hint.textContent = 'Request submitted';
-  // The request and balance change are saved before refreshing the page.
-  setTimeout(() => { window.location.reload(); }, 1400);
+  if (holdButton) holdButton.disabled = true;
+  if (hint) hint.textContent = 'Supabase-এ request জমা হচ্ছে…';
+
+  try {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) throw new Error('Withdrawal করতে আগে Login করুন।');
+
+    const { data: request, error: requestError } = await supabaseClient.rpc('submit_withdrawal_request', {
+      p_amount: details.amount,
+      p_method: details.method,
+      p_account_number: details.accountNumber,
+      p_account_name: details.accountName,
+      p_bank_name: details.bankName || null
+    });
+    if (requestError) throw requestError;
+    if (!request?.id) throw new Error('Request ID পাওয়া যায়নি।');
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles').select('balance,app_data').eq('id', authData.user.id).single();
+    if (profileError) throw profileError;
+    const cloudBalance = Number(profile?.app_data?.progressData?.balance ?? profile?.balance ?? 0);
+    if (!Number.isFinite(cloudBalance)) throw new Error('Updated balance পাওয়া যায়নি।');
+
+    window.appState.balance = cloudBalance;
+    updateBalanceDisplays();
+    await saveAllProgress();
+
+    saveLocalTransaction({
+      type: 'Withdraw request · ' + details.method,
+      amount: details.amount,
+      status: 'Submitted · Pending processing',
+      requestId: request.id,
+      account: details.accountNumber,
+      accountName: details.accountName,
+      requestedAt: request.created_at || new Date().toISOString()
+    });
+
+    document.getElementById('withdrawReviewPage')?.classList.add('hidden');
+    document.getElementById('withdrawResultAmount').textContent = formatAtimexMoney(details.amount);
+    document.getElementById('withdrawResultMethod').textContent = details.method;
+    document.getElementById('withdrawResultId').textContent = request.id;
+    document.getElementById('withdrawResultPage')?.classList.remove('hidden');
+    if (hint) hint.textContent = 'Request submitted';
+    setTimeout(() => { window.location.reload(); }, 1400);
+  } catch (error) {
+    console.error('Withdrawal request submission failed:', error);
+    withdrawRequestCompleted = false;
+    if (holdButton) holdButton.disabled = false;
+    if (hint) hint.textContent = 'আবার চেপে ধরে চেষ্টা করুন';
+    showToast('Withdrawal request জমা হয়নি: ' + (error?.message || 'আবার চেষ্টা করুন'), true);
+  }
 }
 
 function closeWithdrawResult() {
