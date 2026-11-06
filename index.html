@@ -527,6 +527,20 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @media(prefers-reduced-motion:reduce){.spin-wheel-disc{transition-duration:1ms}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Independent intro failsafe: keep the welcome overlay from covering the app
+        // forever if a later application script or external CDN fails.
+        (function () {
+            function dismissIntro() {
+                const intro = document.getElementById('welcomeIntro');
+                if (!intro) return;
+                intro.classList.add('fade-out');
+                window.setTimeout(() => { intro.style.display = 'none'; }, 850);
+            }
+            window.addEventListener('DOMContentLoaded', () => window.setTimeout(dismissIntro, 2200), { once: true });
+            window.setTimeout(dismissIntro, 12000);
+        })();
+    </script>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 
