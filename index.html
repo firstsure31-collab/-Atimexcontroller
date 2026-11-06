@@ -1001,7 +1001,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
     <div id="dailyClaimCalendar" class="mt-3 grid grid-cols-6 gap-2" aria-live="polite"></div>
 
     <div class="mt-4 rounded-2xl border border-slate-700/70 bg-slate-950/70 p-3">
-      <div class="flex items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-gift"></i></span><div class="min-w-0 flex-1"><p class="text-[11px] font-extrabold text-white">Day 1 Reward</p><p class="text-[9px] text-slate-400">Claim করলে Day 1 complete হবে</p></div><span class="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold text-emerald-300">FIRST STEP</span></div>
+      <div class="flex items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-gift"></i></span><div class="min-w-0 flex-1"><p id="dailyClaimRewardTitle" class="text-[11px] font-extrabold text-white">Daily Reward</p><p id="dailyClaimRewardDescription" class="text-[9px] text-slate-400">আজকের claim status যাচাই হচ্ছে</p></div><span class="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold text-emerald-300">FIRST STEP</span></div>
       <button id="dailyClaimAction" onclick="claimDailyReward()" disabled class="mt-3 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-extrabold text-slate-500 transition">Checking claim status...</button>
       <div id="dailyClaimStatus" class="mt-3 flex items-center justify-center gap-2 text-center text-[10px] text-slate-400"><span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Claim status যাচাই হচ্ছে...</span></div>
       <div id="dailyClaimCountdown" class="hidden mt-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-center text-xs font-semibold text-slate-300"></div>
@@ -3015,6 +3015,10 @@ function renderDailyClaimCalendar(result){
   const day=Math.max(1,Math.min(30,Number(result?.day_number)||1));
   const claimed=new Set(Array.isArray(result?.claimed_days)?result.claimed_days.map(Number):[]);
   if(month)month.textContent=(result?.month_label||result?.month_key||'এই মাস')+' · Day '+day+' of 30';
+  const rewardTitle=document.getElementById('dailyClaimRewardTitle');
+  const rewardDescription=document.getElementById('dailyClaimRewardDescription');
+  if(rewardTitle)rewardTitle.textContent='Day '+day+' Reward';
+  if(rewardDescription)rewardDescription.textContent=claimed.has(day)?'আজকের reward complete হয়েছে':(result?.can_claim===true?'Claim করলে Day '+day+' complete হবে':'আজকের claim status server থেকে যাচাই হচ্ছে');
   grid.innerHTML=Array.from({length:30},(_,i)=>{
     const n=i+1,done=claimed.has(n),today=n===day,available=today&&result?.can_claim===true;
     const cls=done?'border-emerald-400/40 bg-emerald-400/10 text-emerald-300':available?'border-emerald-300 bg-emerald-400/15 text-white shadow-lg shadow-emerald-950/40':today?'border-amber-400/40 bg-amber-400/10 text-amber-200':'border-slate-700 bg-slate-800/60 text-slate-500';
@@ -3161,6 +3165,9 @@ function openDailyClaim(){
   else if(hasPackage){if(e)e.innerHTML='<div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Active package daily amount</div><div class="mt-2 text-3xl font-black text-emerald-300">৳'+sum.toLocaleString('en-BD')+'<span class="ml-1 text-xs font-semibold text-slate-400">/ day</span></div><div class="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2 text-[11px] text-amber-200">Package mode active · Free activation ৳20/day is no longer included.</div>';}
   else if(e)e.innerHTML='<div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Activation daily claim</div><div class="mt-2 text-3xl font-black text-emerald-300">৳20<span class="ml-1 text-xs font-semibold text-slate-400">/ day</span></div><div class="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2 text-[11px] text-emerald-200">Active account · Claim ৳20 once every 24 hours when no package is active.</div>';
   document.getElementById('dailyClaimModal')?.classList.remove('hidden');
+  // Render the complete calendar immediately; the RPC response will replace this safe preview.
+  const dhakaNow=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Dhaka'}));
+  renderDailyClaimCalendar({day_number:Math.min(30,dhakaNow.getDate()),month_label:dhakaNow.toLocaleDateString('en-US',{month:'long',year:'numeric'}),claimed_days:[],can_claim:false});
   syncDailyClaimCooldown();
 }
 function closeDailyClaim(){document.getElementById('dailyClaimModal')?.classList.add('hidden');}
