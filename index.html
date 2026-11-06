@@ -481,24 +481,27 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @media (prefers-reduced-motion: reduce) { #profileNotificationButton.notification-unread-glow::after { animation: none; } }
 
 /* Premium Lucky Spin experience */
-/* Premium Lucky Spin: gold-metal frame, deep navy glass and responsive wheel */
-.spin-premium-panel{background:radial-gradient(ellipse at 50% -8%,rgba(251,191,36,.2),transparent 46%),linear-gradient(155deg,#111c33 0%,#080d19 72%);border:1px solid rgba(245,190,85,.3);box-shadow:0 28px 90px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08)}
-.spin-panel-glow{position:absolute;width:250px;height:250px;top:-165px;left:50%;transform:translateX(-50%);border-radius:50%;background:#f59e0b;filter:blur(100px);opacity:.2;pointer-events:none}
-.spin-wheel-stage{width:min(72vw,286px);height:min(72vw,286px);max-width:286px;max-height:286px;padding:9px;border-radius:50%;background:conic-gradient(from 20deg,#fff7d6,#9a621b,#ffe8a6,#684316,#f8c65b,#fff7d6);box-shadow:0 0 0 1px rgba(255,231,173,.5),0 0 36px rgba(245,158,11,.25),0 20px 42px rgba(0,0,0,.58)}
-.spin-wheel-stage:before{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.42);border-radius:50%;pointer-events:none;z-index:5}
-.spin-wheel-stage:after{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:30;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:25px solid #fff0b0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.8))}
-.spin-wheel-stage #wheel{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;border:3px solid #211707;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 0 24px rgba(0,0,0,.35);transition:transform 6s cubic-bezier(.12,.78,.12,1);will-change:transform}
-.spin-wheel-stage #wheel svg{display:block;width:100%;height:100%}
-.spin-wheel-halo{position:absolute;inset:14px;border:1px solid rgba(255,239,190,.24);border-radius:50%;pointer-events:none;z-index:6}
-.spin-center-button{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff8d7,#f7c65b 43%,#986014 100%);border:4px solid #172033;box-shadow:0 0 0 2px rgba(255,224,145,.8),0 6px 20px rgba(0,0,0,.72),0 0 25px rgba(245,158,11,.4);color:#172033;font-weight:1000;letter-spacing:.08em;transition:filter .2s,transform .2s}
-.spin-center-button span{font-size:14px;line-height:1}.spin-center-button small{font-size:7px;letter-spacing:.22em;margin-top:3px}.spin-center-button:disabled{opacity:.82;cursor:wait;filter:saturate(.7)}
-.spin-result{width:100%;min-height:68px;border:1px solid rgba(255,255,255,.1);border-radius:17px;background:linear-gradient(110deg,rgba(15,23,42,.96),rgba(30,41,59,.72));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px;gap:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
-.spin-result span{font-size:8px;font-weight:800;letter-spacing:.18em;color:#94a3b8}.spin-result strong{font-size:25px;line-height:1.15;color:#f8fafc;font-weight:1000}.spin-result.spin-result-win{border-color:rgba(52,211,153,.5);background:linear-gradient(110deg,rgba(16,185,129,.16),rgba(15,23,42,.94));box-shadow:0 0 24px rgba(16,185,129,.12)}.spin-result.spin-result-win strong{color:#6ee7b7}
-.spin-packages>div:not(:first-child){border-color:rgba(255,255,255,.09)!important;background:linear-gradient(110deg,rgba(30,41,59,.82),rgba(15,23,42,.9))!important}
+/* ATIMEX premium arcade wheel */
+.spin-premium-panel{isolation:isolate;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,.17),transparent 42%),linear-gradient(145deg,#111b31 0%,#080d19 58%,#101827 100%);border:1px solid rgba(251,191,36,.3);box-shadow:0 30px 100px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.09)}
+.spin-top-line{position:absolute;top:0;left:12%;width:76%;height:1px;background:linear-gradient(90deg,transparent,#fcd879,transparent);box-shadow:0 0 18px #fbbf24}
+.spin-panel-glow{position:absolute;width:290px;height:250px;top:-180px;left:50%;transform:translateX(-50%);border-radius:50%;background:#f59e0b;filter:blur(105px);opacity:.23;pointer-events:none}
+.spin-wheel-stage{position:relative;width:min(76vw,310px);height:min(76vw,310px);max-width:310px;max-height:310px;padding:13px;border-radius:50%;background:conic-gradient(from 0deg,#fff4c4,#8e5b18,#fff0b4,#684315,#f5c65e,#fff4c4);box-shadow:0 0 0 1px rgba(255,232,170,.55),0 0 0 7px rgba(245,158,11,.045),0 0 42px rgba(245,158,11,.23),0 22px 48px rgba(0,0,0,.68)}
+.spin-wheel-rim{position:absolute;inset:5px;border:1px solid rgba(255,255,255,.42);border-radius:50%;pointer-events:none;z-index:4}
+.spin-wheel-disc{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;border:4px solid #1b160c;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3),inset 0 0 30px rgba(0,0,0,.35);transition:transform 6s cubic-bezier(.12,.78,.12,1);will-change:transform}
+.spin-wheel-disc svg{display:block;width:100%;height:100%}
+.spin-wheel-halo{position:absolute;inset:18px;border:1px solid rgba(255,245,210,.25);border-radius:50%;pointer-events:none;z-index:5}
+.spin-pointer{position:absolute;top:-2px;left:50%;transform:translateX(-50%);z-index:12;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:29px solid #fff1b8;filter:drop-shadow(0 3px 5px rgba(0,0,0,.9))}
+.spin-pointer:after{content:"";position:absolute;top:-29px;left:-4px;width:8px;height:8px;border-radius:50%;background:#fff9dc;box-shadow:0 0 12px #fff1b8}
+.spin-center-button{width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 22%,#fffce8 0%,#f8d36e 35%,#c18421 72%,#75440d 100%);border:5px solid #182238;box-shadow:0 0 0 2px #ffe5a0,0 7px 20px rgba(0,0,0,.8),0 0 27px rgba(251,191,36,.38);color:#182238;font-weight:1000;letter-spacing:.08em;transition:filter .2s,box-shadow .2s}
+.spin-center-button span{font-size:15px;line-height:1}.spin-center-button small{font-size:7px;letter-spacing:.2em;margin-top:4px}.spin-center-button:not(:disabled):hover{filter:brightness(1.08);box-shadow:0 0 0 2px #fff0b8,0 7px 22px rgba(0,0,0,.8),0 0 34px rgba(251,191,36,.55)}.spin-center-button:disabled{opacity:.86;cursor:wait;filter:saturate(.72)}
+.spin-result{width:100%;min-height:76px;border:1px solid rgba(255,255,255,.1);border-radius:19px;background:linear-gradient(115deg,rgba(15,23,42,.98),rgba(30,41,59,.74));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.spin-result span{font-size:8px;font-weight:800;letter-spacing:.18em;color:#94a3b8}.spin-result strong{font-size:27px;line-height:1.12;color:#f8fafc;font-weight:1000}.spin-result.spin-result-win{border-color:rgba(52,211,153,.5);background:linear-gradient(110deg,rgba(16,185,129,.16),rgba(15,23,42,.95));box-shadow:0 0 25px rgba(16,185,129,.12)}.spin-result.spin-result-win strong{color:#6ee7b7}
+.spin-packages>div:not(:first-child){border-color:rgba(255,255,255,.09)!important;background:linear-gradient(110deg,rgba(30,41,59,.84),rgba(15,23,42,.92))!important}
 .spin-packages button{box-shadow:0 4px 14px rgba(245,158,11,.16);transition:transform .18s,filter .18s}.spin-packages button:active{transform:scale(.96)}
-#spinBtn:focus-visible{outline:2px solid #fff1b8;outline-offset:4px}
-@media(max-height:760px){#spinModal{align-items:flex-start;overflow-y:auto}.spin-premium-panel{margin:auto 0;padding:16px}.spin-wheel-stage{width:min(60vw,230px);height:min(60vw,230px);margin-top:12px;margin-bottom:12px}.spin-packages{max-height:30vh}}
-@media(prefers-reduced-motion:reduce){.spin-wheel-stage #wheel{transition-duration:1ms}}
+#spinBtn:focus-visible{outline:2px solid #fff1b8;outline-offset:5px}
+@media(max-width:390px){.spin-wheel-stage{width:min(72vw,270px);height:min(72vw,270px);padding:11px}.spin-center-button{width:68px;height:68px}}
+@media(max-height:760px){#spinModal{align-items:flex-start}.spin-premium-panel{margin:auto 0;padding:16px}.spin-wheel-stage{width:min(58vw,230px);height:min(58vw,230px);margin-top:12px;margin-bottom:12px}.spin-packages{max-height:25vh}}
+@media(prefers-reduced-motion:reduce){.spin-wheel-disc{transition-duration:1ms}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1423,65 +1426,44 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
         </div>
 
         <!-- 6. LUCKY SPIN MODAL -->
-        <div id="spinModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-            <div class="spin-premium-panel rounded-[28px] w-full max-w-sm p-5 text-white relative flex flex-col items-center overflow-hidden">
+        <div id="spinModal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-[#030712]/90 p-3 backdrop-blur-xl sm:p-5">
+            <div class="spin-premium-panel relative my-auto flex w-full max-w-[430px] flex-col items-center overflow-hidden rounded-[30px] px-5 pb-5 pt-6 text-white sm:px-7">
                 <div class="spin-panel-glow"></div>
-                <button onclick="closeSpinModal()" aria-label="Close Lucky Spin" class="absolute top-4 right-4 z-30 h-8 w-8 rounded-full border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white text-lg">✕</button>
+                <div class="spin-top-line"></div>
+                <button onclick="closeSpinModal()" aria-label="Close Lucky Spin" class="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[.07] text-lg text-slate-300 transition hover:border-amber-300/40 hover:bg-white/15 hover:text-white">×</button>
                 <div class="relative z-10 w-full text-center">
-                    <div class="mx-auto mb-2 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-[9px] font-black tracking-[.22em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_#fbbf24]"></span> ATIMEX REWARDS</div>
-                    <h3 class="text-xl font-black tracking-wide text-white">Lucky <span class="text-amber-300">Spin</span></h3>
-                    <p class="mt-1 text-[10px] text-slate-400">একটি স্পিন · একটি নিশ্চিত ফলাফল</p>
-                    <p class="mt-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-3 py-1.5 text-[10px] font-bold text-slate-200" id="spinsLeftText">Spins Left: 0</p>
+                    <div class="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.08] px-3.5 py-1.5 text-[9px] font-black tracking-[.24em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_10px_#fbbf24]"></span> ATIMEX • EXCLUSIVE REWARDS</div>
+                    <h3 class="text-[27px] font-black leading-none tracking-tight text-white">LUCKY <span class="text-amber-300">SPIN</span></h3>
+                    <p class="mt-2 text-[11px] tracking-wide text-slate-400">Spin the wheel. Unlock your reward.</p>
+                    <div class="mt-4 flex justify-center"><p id="spinsLeftText" class="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-slate-950/70 px-4 py-2 text-[10px] font-extrabold tracking-[.12em] text-amber-100">SPINS AVAILABLE · 0</p></div>
                 </div>
-
                 <div class="spin-wheel-stage relative z-10 mx-auto my-5">
-                        <div id="wheel" aria-label="Lucky Spin reward wheel"><svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
-    <!-- Segment 1: 20 BDT -->
-    <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#EF4444"/>
-    <text x="78" y="58" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(18, 78, 58)">৳20</text>
-
-    <!-- Segment 2: 50 BDT -->
-    <path d="M50 50 L90.45 79.39 A50 50 0 0 1 65.45 97.55 Z" fill="#F97316"/>
-    <text x="68" y="78" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(54, 68, 78)">৳50</text>
-
-    <!-- Segment 3: 70 BDT -->
-    <path d="M50 50 L65.45 97.55 A50 50 0 0 1 34.55 97.55 Z" fill="#F59E0B"/>
-    <text x="50" y="86" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(90, 50, 86)">৳70</text>
-
-    <!-- Segment 4: 100 BDT -->
-    <path d="M50 50 L34.55 97.55 A50 50 0 0 1 9.55 79.39 Z" fill="#10B981"/>
-    <text x="32" y="78" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(126, 32, 78)">৳100</text>
-
-    <!-- Segment 5: 200 BDT -->
-    <path d="M50 50 L9.55 79.39 A50 50 0 0 1 0 50 Z" fill="#06B6D4"/>
-    <text x="22" y="58" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(162, 22, 58)">৳200</text>
-
-    <!-- Segment 6: 300 BDT -->
-    <path d="M50 50 L0 50 A50 50 0 0 1 9.55 20.61 Z" fill="#3B82F6"/>
-    <text x="22" y="42" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(198, 22, 42)">৳300</text>
-
-    <!-- Segment 7: 500 BDT -->
-    <path d="M50 50 L9.55 20.61 A50 50 0 0 1 34.55 2.45 Z" fill="#6366F1"/>
-    <text x="32" y="22" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(234, 32, 22)">৳500</text>
-
-    <!-- Segment 8: 800 BDT -->
-    <path d="M50 50 L34.55 2.45 A50 50 0 0 1 65.45 2.45 Z" fill="#8B5CF6"/>
-    <text x="50" y="14" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(270, 50, 14)">৳800</text>
-
-    <!-- Segment 9: 1500 BDT -->
-    <path d="M50 50 L65.45 2.45 A50 50 0 0 1 90.45 20.61 Z" fill="#EC4899"/>
-    <text x="68" y="22" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(306, 68, 22)">৳1500</text>
-
-    <!-- Segment 10: 2500 BDT -->
-    <path d="M50 50 L90.45 20.61 A50 50 0 0 1 100 50 Z" fill="#14B8A6"/>
-    <text x="78" y="42" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(342, 78, 42)">৳2500</text>
-</svg></div>
+                    <div class="spin-wheel-rim"></div>
+                    <div id="wheel" class="spin-wheel-disc" role="img" aria-label="Lucky Spin reward wheel">
+                        <svg viewBox="0 0 100 100" class="h-full w-full" aria-hidden="true">
+                            <defs><radialGradient id="spinWheelShade"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></radialGradient></defs>
+                            <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#f43f5e"/><path d="M50 50 L90.45 79.39 A50 50 0 0 1 65.45 97.55 Z" fill="#f97316"/>
+                            <path d="M50 50 L65.45 97.55 A50 50 0 0 1 34.55 97.55 Z" fill="#eab308"/><path d="M50 50 L34.55 97.55 A50 50 0 0 1 9.55 79.39 Z" fill="#10b981"/>
+                            <path d="M50 50 L9.55 79.39 A50 50 0 0 1 0 50 Z" fill="#06b6d4"/><path d="M50 50 L0 50 A50 50 0 0 1 9.55 20.61 Z" fill="#3b82f6"/>
+                            <path d="M50 50 L9.55 20.61 A50 50 0 0 1 34.55 2.45 Z" fill="#6366f1"/><path d="M50 50 L34.55 2.45 A50 50 0 0 1 65.45 2.45 Z" fill="#8b5cf6"/>
+                            <path d="M50 50 L65.45 2.45 A50 50 0 0 1 90.45 20.61 Z" fill="#ec4899"/><path d="M50 50 L90.45 20.61 A50 50 0 0 1 100 50 Z" fill="#14b8a6"/>
+                            <circle cx="50" cy="50" r="49" fill="url(#spinWheelShade)"/>
+                            <g fill="#fff" font-family="Arial,sans-serif" font-size="4.3" font-weight="800" text-anchor="middle" dominant-baseline="middle">
+                                <text x="78" y="58" transform="rotate(18 78 58)">৳20</text><text x="68" y="78" transform="rotate(54 68 78)">৳50</text>
+                                <text x="50" y="86">৳70</text><text x="32" y="78" transform="rotate(-54 32 78)">৳100</text>
+                                <text x="22" y="58" transform="rotate(-18 22 58)">৳200</text><text x="22" y="42" transform="rotate(18 22 42)">৳300</text>
+                                <text x="32" y="22" transform="rotate(54 32 22)">৳500</text><text x="50" y="14">৳800</text>
+                                <text x="68" y="22" transform="rotate(-54 68 22)">৳1500</text><text x="78" y="42" transform="rotate(-18 78 42)">৳2500</text>
+                            </g>
+                            <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(255,255,255,.5)" stroke-width=".7"/>
+                            <path d="M50 1V99 M1 50H99" stroke="rgba(255,255,255,.18)" stroke-width=".45"/>
+                        </svg>
+                    </div>
                     <div class="spin-wheel-halo"></div>
-                    <button id="spinBtn" onclick="startSpin()" class="spin-center-button absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                        <span>SPIN</span><small>GO</small>
-                    </button>
+                    <div class="spin-pointer" aria-hidden="true"></div>
+                    <button id="spinBtn" onclick="startSpin()" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"><span>SPIN</span><small>TO WIN</small></button>
                 </div>
-                <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>READY WHEN YOU ARE</span><strong>৳?</strong><span>Spin to reveal your reward</span></div>
+                <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>YOUR NEXT REWARD</span><strong>৳?</strong><span>Tap the center button to begin</span></div>
 
                 <div class="spin-packages relative z-10 mt-1 space-y-2 max-h-44 overflow-y-auto pr-1 w-full">
     <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-slate-500">Choose your spins</span></div>
@@ -1760,7 +1742,7 @@ function removeProfilePic() {
 
 function closeLeaderboardModal() {
     const modal = document.getElementById('leaderboardModal');
-    if (modal) modal.classList.add('hidden');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
 }
         // 1. Auto Slide Animation (3s Interval)
 let currentHomeSlide = 0;
@@ -2583,6 +2565,7 @@ function openSpinModal() {
     const modal = document.getElementById('spinModal');
     if (modal) {
         modal.classList.remove('hidden');
+        modal.classList.add('flex');
         updateSpinUI();
     }
 }
@@ -2596,11 +2579,13 @@ function updateSpinUI() {
     const count = Math.max(0, Number(window.appState?.spinsLeft) || 0);
     const textEl = document.getElementById('spinsLeftText');
     const button = document.getElementById('spinBtn');
-    if (textEl) textEl.innerText = `SPINS AVAILABLE · ${count}`;
+    if (textEl) textEl.textContent = `SPINS AVAILABLE · ${count}`;
     if (button && !isSpinning) {
         button.disabled = count < 1;
-        button.querySelector('span').textContent = count < 1 ? 'BUY' : 'SPIN';
-        button.querySelector('small').textContent = count < 1 ? 'PACK' : 'GO';
+        const label = button.querySelector('span');
+        const hint = button.querySelector('small');
+        if (label) label.textContent = count < 1 ? 'BUY' : 'SPIN';
+        if (hint) hint.textContent = count < 1 ? 'PACK' : 'TO WIN';
     }
 }
 
@@ -2668,9 +2653,11 @@ function startSpin() {
         return;
     }
 
-    const wheel = document.getElementById('wheel');
-    const btn = document.getElementById('spinBtn');
-    if (!wheel || !btn) {
+    const modal = document.getElementById('spinModal');
+    const wheel = modal?.querySelector('.spin-wheel-disc');
+    const btn = modal?.querySelector('#spinBtn');
+    if (!wheel || !btn || !wheel.querySelector('svg')) {
+        console.error('Lucky Spin UI is incomplete:', { modal: !!modal, wheel: !!wheel, button: !!btn });
         showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
         return;
     }
@@ -2687,7 +2674,10 @@ function startSpin() {
     state.spinsLeft = spins - 1;
     updateSpinUI();
     btn.disabled = true;
-    btn.textContent = 'SPINNING';
+    const spinLabel = btn.querySelector('span');
+    const spinHint = btn.querySelector('small');
+    if (spinLabel) spinLabel.textContent = 'WAIT';
+    if (spinHint) spinHint.textContent = '...';
     btn.classList.add('is-spinning');
 
     // Keep the accumulated angle: modulo here would remove the full turns on later spins.
@@ -2698,7 +2688,9 @@ function startSpin() {
         if (!isSpinning) return;
         isSpinning = false;
         btn.disabled = false;
-        btn.textContent = 'SPIN';
+        if (spinLabel) spinLabel.textContent = Number(state.spinsLeft || 0) > 0 ? 'SPIN' : 'BUY';
+        if (spinHint) spinHint.textContent = Number(state.spinsLeft || 0) > 0 ? 'TO WIN' : 'PACK';
+        btn.disabled = Number(state.spinsLeft || 0) < 1;
         btn.classList.remove('is-spinning');
 
         const wonAmount = rewards[randomIndex];
