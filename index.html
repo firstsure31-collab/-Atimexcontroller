@@ -479,6 +479,23 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 }
 @keyframes notificationGoldLaser { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #profileNotificationButton.notification-unread-glow::after { animation: none; } }
+
+/* Premium Lucky Spin experience */
+.spin-premium-panel{background:radial-gradient(ellipse at 50% 0%,rgba(180,128,35,.17),transparent 48%),linear-gradient(155deg,#111b30 0%,#080e1c 72%);border:1px solid rgba(245,190,85,.25);box-shadow:0 24px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06)}
+.spin-panel-glow{position:absolute;width:230px;height:230px;top:-150px;left:50%;transform:translateX(-50%);border-radius:50%;background:#f59e0b;filter:blur(95px);opacity:.17;pointer-events:none}
+.spin-wheel-stage{width:min(68vw,270px);height:min(68vw,270px);max-width:270px;max-height:270px;padding:9px;border-radius:50%;background:conic-gradient(from 20deg,#fff1b8,#a86a19,#ffe6a0,#6e471d,#f8c65b,#fff1b8);box-shadow:0 0 0 1px rgba(255,231,173,.35),0 0 30px rgba(245,158,11,.22),0 18px 35px rgba(0,0,0,.5);}
+.spin-wheel-stage:before{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.35);border-radius:50%;pointer-events:none;z-index:5}
+.spin-wheel-stage:after{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:30;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:23px solid #fff0b0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))}
+.spin-wheel-stage #wheel{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;border:3px solid #20180c;box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),inset 0 0 20px rgba(0,0,0,.28);transition:transform 6s cubic-bezier(.12,.78,.12,1);will-change:transform}
+.spin-wheel-stage #wheel svg{display:block;width:100%;height:100%}
+.spin-wheel-halo{position:absolute;inset:14px;border:1px solid rgba(255,239,190,.2);border-radius:50%;pointer-events:none;z-index:6}
+.spin-center-button{width:66px;height:66px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff3bd,#f7c65b 42%,#a96a13 100%);border:4px solid #172033;box-shadow:0 0 0 2px rgba(255,224,145,.7),0 5px 18px rgba(0,0,0,.65),0 0 20px rgba(245,158,11,.35);color:#172033;font-weight:1000;letter-spacing:.08em;transition:filter .2s,transform .2s}
+.spin-center-button span{font-size:14px;line-height:1}.spin-center-button small{font-size:7px;letter-spacing:.22em;margin-top:3px}.spin-center-button:disabled{opacity:.8;cursor:wait;filter:saturate(.7)}
+.spin-result{width:100%;min-height:60px;border:1px solid rgba(255,255,255,.08);border-radius:15px;background:linear-gradient(110deg,rgba(15,23,42,.9),rgba(30,41,59,.65));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:2px}
+.spin-result span{font-size:8px;font-weight:800;letter-spacing:.18em;color:#94a3b8}.spin-result strong{font-size:23px;line-height:1.15;color:#f8fafc;font-weight:1000}.spin-result.spin-result-win{border-color:rgba(52,211,153,.45);background:linear-gradient(110deg,rgba(16,185,129,.13),rgba(15,23,42,.9));box-shadow:0 0 22px rgba(16,185,129,.09)}.spin-result.spin-result-win strong{color:#6ee7b7}
+.spin-packages>div:not(:first-child){border-color:rgba(255,255,255,.08)!important;background:rgba(15,23,42,.72)!important}
+#spinBtn:focus-visible{outline:2px solid #fff1b8;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.spin-wheel-stage #wheel{transition-duration:1ms}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1404,18 +1421,17 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 
         <!-- 6. LUCKY SPIN MODAL -->
         <div id="spinModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 text-white relative shadow-2xl flex flex-col items-center">
-                <button onclick="closeSpinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
-                
-                <h3 class="text-base font-bold text-amber-400 mb-1 flex items-center gap-2">
-                    <span>🎡</span> Lucky Spin Wheel
-                </h3>
-                <p class="text-[11px] text-slate-400 mb-3" id="spinsLeftText">Spins Left: 0 / Daily Max: 2</p>
+            <div class="spin-premium-panel rounded-[28px] w-full max-w-sm p-5 text-white relative flex flex-col items-center overflow-hidden">
+                <div class="spin-panel-glow"></div>
+                <button onclick="closeSpinModal()" aria-label="Close Lucky Spin" class="absolute top-4 right-4 z-30 h-8 w-8 rounded-full border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white text-lg">✕</button>
+                <div class="relative z-10 w-full text-center">
+                    <div class="mx-auto mb-2 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-[9px] font-black tracking-[.22em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_#fbbf24]"></span> ATIMEX REWARDS</div>
+                    <h3 class="text-xl font-black tracking-wide text-white">Lucky <span class="text-amber-300">Spin</span></h3>
+                    <p class="mt-1 text-[10px] text-slate-400">একটি স্পিন · একটি নিশ্চিত ফলাফল</p>
+                    <p class="mt-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-3 py-1.5 text-[10px] font-bold text-slate-200" id="spinsLeftText">Spins Left: 0</p>
+                </div>
 
-                <div class="relative w-64 h-64 mx-auto my-4">
-                    <div class="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[18px] border-t-rose-500 drop-shadow"></div>
-                    
-                    <div id="wheel" class="w-full h-full rounded-full overflow-hidden transition-transform duration-[4000ms] cubic-bezier(0.15, 0.90, 0.20, 1.00) relative shadow-2xl border-4 border-amber-400">
+                <div class="spin-wheel-stage relative z-10 mx-auto my-5">
                         <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
     <!-- Segment 1: 20 BDT -->
     <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#EF4444"/>
@@ -1458,14 +1474,15 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
     <text x="78" y="42" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(342, 78, 42)">৳2500</text>
 </svg>
                     </div>
-
-                    <button id="spinBtn" onclick="startSpin()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm rounded-full border-4 border-slate-900 shadow-xl flex items-center justify-center z-10 transition-transform active:scale-95">
-                        SPIN
+                    <div class="spin-wheel-halo"></div>
+                    <button id="spinBtn" onclick="startSpin()" class="spin-center-button absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                        <span>SPIN</span><small>GO</small>
                     </button>
                 </div>
+                <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>READY WHEN YOU ARE</span><strong>৳?</strong><span>Spin to reveal your reward</span></div>
 
-                <div class="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1 w-full">
-    <p class="text-xs font-bold text-amber-400 mb-1">স্পিন প্যাকেজসমূহ:</p>
+                <div class="spin-packages relative z-10 mt-1 space-y-2 max-h-44 overflow-y-auto pr-1 w-full">
+    <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-slate-500">Choose your spins</span></div>
     
     <!-- Package 1: Starter -->
     <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
@@ -2628,65 +2645,76 @@ let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
-    if (!window.appState?.isActive) {
+    const state = window.appState;
+    if (!state?.isActive) {
         showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
         closeSpinModal();
         return;
     }
     if (isSpinning) return;
 
-    if (window.appState.spinsLeft <= 0) {
+    const spins = Number(state.spinsLeft || 0);
+    if (spins < 1) {
         showToast('আপনার কোনো স্পিন বাকি নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
         return;
     }
 
-    isSpinning = true;
-    window.appState.spinsLeft -= 1;
-    updateSpinUI();
-
+    const wheel = document.getElementById('wheel');
     const btn = document.getElementById('spinBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = '...';
+    if (!wheel || !btn) {
+        showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
+        return;
     }
 
-    // Keep this order identical to the ten visible SVG wheel sectors.
+    // These values follow the visible SVG sectors clockwise from the top pointer.
     const rewards = [20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500];
     const randomIndex = Math.floor(Math.random() * rewards.length);
+    const segmentAngle = 360 / rewards.length;
+    const sectorCenterFromTop = segmentAngle / 2 + randomIndex * segmentAngle;
+    const targetOffset = (360 - sectorCenterFromTop + 360) % 360;
+    const fullTurns = 6;
 
-    // The SVG is rotated -90deg, so sector 1 (৳20) is centered 18deg
-    // clockwise from the fixed top pointer. Every next sector adds 36deg.
-    // Aim the chosen sector's CENTER at the pointer, not its edge.
-    const degreePerSegment = 360 / rewards.length;
-    const firstSectorCenter = degreePerSegment / 2;
-    const selectedCenterAngle = firstSectorCenter + (randomIndex * degreePerSegment);
-    const targetOffset = ((360 - selectedCenterAngle) % 360 + 360) % 360;
-    const extraDegree = (360 * 5) + targetOffset;
-    currentDegree = (currentDegree + extraDegree) % 360;
+    isSpinning = true;
+    state.spinsLeft = spins - 1;
+    updateSpinUI();
+    btn.disabled = true;
+    btn.textContent = 'SPINNING';
+    btn.classList.add('is-spinning');
 
-    const wheel = document.getElementById('wheel');
-    if (wheel) {
-        wheel.style.transform = `rotate(${currentDegree}deg)`;
-    }
+    // Keep the accumulated angle: modulo here would remove the full turns on later spins.
+    currentDegree += (fullTurns * 360) + ((targetOffset - (currentDegree % 360) + 360) % 360);
+    wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
 
-    setTimeout(() => {
+    const finishSpin = () => {
+        if (!isSpinning) return;
         isSpinning = false;
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = 'SPIN';
-        }
+        btn.disabled = false;
+        btn.textContent = 'SPIN';
+        btn.classList.remove('is-spinning');
 
         const wonAmount = rewards[randomIndex];
-        window.appState.balance += wonAmount;
-        window.appState.totalEarned = Number(window.appState.totalEarned || 0) + Number(wonAmount);
-        saveLocalTransaction({type:'Lucky Spin reward',amount:wonAmount,status:'Credited'});
-
+        state.balance = Number(state.balance || 0) + wonAmount;
+        state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
         updateBalanceDisplays();
-        saveAllProgress();
-        showToast(`অভিনন্দন! আপনি ৳${wonAmount} জিতেছেন!`);
-    }, 4000);
-}
+        saveLocalTransaction({type:'Lucky Spin reward',amount:wonAmount,status:'Credited'});
+        Promise.resolve(saveAllProgress()).catch(error => console.error('Spin reward save failed:', error));
 
+        const result = document.getElementById('spinResult');
+        if (result) {
+            result.innerHTML = '<span class="text-emerald-300">YOU WON</span><strong>৳' + wonAmount.toLocaleString('en-BD') + '</strong><span>Reward added to your balance</span>';
+            result.classList.add('spin-result-win');
+        }
+        showToast('অভিনন্দন! আপনি ৳' + wonAmount.toLocaleString('en-BD') + ' জিতেছেন!');
+    };
+
+    wheel.addEventListener('transitionend', function onSpinEnd(event) {
+        if (event.propertyName !== 'transform') return;
+        wheel.removeEventListener('transitionend', onSpinEnd);
+        finishSpin();
+    });
+    // Fallback for browsers that do not emit transitionend.
+    window.setTimeout(finishSpin, 6500);
+}
 function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const amountInput = document.getElementById('paymentAmount');
     const amountLabel = document.querySelector('label[for="paymentAmount"]');
