@@ -2948,9 +2948,9 @@ function handleWithdraw() {
 
         function openVipSupport(amount){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}var e=document.getElementById('vipSupportAmount');if(e)e.textContent='Selected package: ৳'+Number(amount).toLocaleString('en-BD');document.getElementById('vipSupportModal')?.classList.remove('hidden');}
 function closeVipSupport(){document.getElementById('vipSupportModal')?.classList.add('hidden');}
-function getDailyClaimKey(){return 'atimex_daily_claim_'+(window.appState?.userPhone||'guest');}
+function getDailyClaimKey(){return 'atimex_daily_claim_'+(window.dailyClaimAccountId||window.appState?.userPhone||'guest');}
 function getDailyClaimTimeKey(){return getDailyClaimKey()+'_claimed_at';}
-async function syncDailyClaimCooldown(){try{const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return;const {data,error}=await supabaseClient.from('daily_claims').select('created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;const key=getDailyClaimTimeKey();if(data?.created_at)localStorage.setItem(key,String(new Date(data.created_at).getTime()));else localStorage.removeItem(key);}catch(error){console.warn('Could not sync daily claim cooldown:',error);}refreshDailyClaimUi();}
+async function syncDailyClaimCooldown(){try{const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return;window.dailyClaimAccountId=user.id;const {data,error}=await supabaseClient.rpc('get_daily_claim_status');if(error)throw error;const result=Array.isArray(data)?data[0]:data;const key=getDailyClaimTimeKey();if(result?.last_claim_at)localStorage.setItem(key,String(new Date(result.last_claim_at).getTime()));else localStorage.removeItem(key);}catch(error){console.warn('Could not sync daily claim cooldown:',error);}refreshDailyClaimUi();}
 function updateDailyClaimCountdown(){const box=document.getElementById('dailyClaimCountdown');if(!box)return;const stamp=Number(localStorage.getItem(getDailyClaimTimeKey())||0),remaining=stamp+86400000-Date.now();if(!stamp||remaining<=0){box.classList.add('hidden');box.textContent='';if(stamp){localStorage.removeItem(getDailyClaimTimeKey());refreshDailyClaimUi();}return;}const total=Math.floor(remaining/1000),hours=Math.floor(total/3600),minutes=Math.floor((total%3600)/60),seconds=total%60;box.textContent='Next claim available in '+String(hours).padStart(2,'0')+'h '+String(minutes).padStart(2,'0')+'m '+String(seconds).padStart(2,'0')+'s';box.classList.remove('hidden');}
 async function claimDailyReward(){
   const a=window.appState||{};
@@ -2960,12 +2960,16 @@ async function claimDailyReward(){
   const button=document.getElementById('dailyClaimAction');
   if(button)button.disabled=true;
   try{
-    // Supabase RPC enforces one claim per authenticated account per Bangladesh date.
+    const {data:{user}}=await supabaseClient.auth.getUser();
+    if(!user)throw new Error('Login required');
+    window.dailyClaimAccountId=user.id;
+    // The database is the source of truth for each account's 24-hour cooldown.
     const {data,error}=await supabaseClient.rpc('claim_daily_reward');
     if(error)throw error;
     const result=Array.isArray(data)?data[0]:data;
     if(!result||result.claimed!==true){
-      if(result?.next_claim_at){const claimedAt=new Date(result.next_claim_at).getTime()-86400000;localStorage.setItem(getDailyClaimTimeKey(),String(claimedAt));}
+      const lastClaimAt=result?.last_claim_at||result?.claimed_at||(result?.next_claim_at?new Date(new Date(result.next_claim_at).getTime()-86400000).toISOString():null);
+      if(lastClaimAt)localStorage.setItem(getDailyClaimTimeKey(),String(new Date(lastClaimAt).getTime()));
       showToast('এই claim-এর ২৪ ঘণ্টা এখনো শেষ হয়নি।',true);
       refreshDailyClaimUi();
       return;
