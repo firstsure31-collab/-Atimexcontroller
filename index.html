@@ -878,7 +878,11 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                   <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[11px] px-3 py-0.5 rounded-full border border-emerald-500/20 font-semibold">User Dashboard</span>
 
                 <div class="flex justify-end -mb-2"><div class="total-spent-gold-orbit inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-slate-900/90 px-3 py-2 shadow-lg shadow-amber-950/10"><span class="text-[10px] font-semibold text-slate-400">Total Spent</span><strong class="text-xs font-black text-amber-300">৳<span id="totalSpentVal">0.00</span></strong></div></div>
-                <div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-3 space-y-2"><div class="text-xs font-bold text-emerald-300">Deposit / Add Balance</div><p class="text-[10px] text-slate-300">Send Money করার পর Sender Number ও TrxID জমা দিন। যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।</p><button onclick="openDepositForCustom()" class="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white">Deposit Now</button></div><div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
+                <button type="button" onclick="openActivePackages()" class="w-full flex items-center justify-between rounded-2xl border border-amber-400/30 bg-slate-800/80 p-3 text-left shadow-lg shadow-amber-950/10 transition hover:border-amber-300/60 hover:bg-slate-800">
+  <span class="flex items-center gap-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300"><i class="fa-solid fa-crown"></i></span><span><strong class="block text-xs font-bold text-white">Active Packages</strong><span class="block text-[10px] text-slate-400">আপনার কেনা active package দেখুন</span></span></span>
+  <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+</button>
+<div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-3 space-y-2"><div class="text-xs font-bold text-emerald-300">Deposit / Add Balance</div><p class="text-[10px] text-slate-300">Send Money করার পর Sender Number ও TrxID জমা দিন। যাচাই না হওয়া পর্যন্ত balance-এ টাকা যোগ হবে না।</p><button onclick="openDepositForCustom()" class="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white">Deposit Now</button></div><div class="bg-slate-800/60 border border-slate-800 rounded-2xl overflow-hidden text-xs divide-y divide-slate-800">
                     <a href="https://t.me/atimex247" target="_blank" class="p-3.5 flex justify-between items-center text-slate-200 hover:bg-slate-800 transition">
                         <span class="flex items-center gap-2"><i class="fa-brands fa-telegram text-blue-400 text-sm"></i> Telegram Updates · Join for app news</span>
                         <i class="fa-solid fa-angle-right text-slate-500"></i>
@@ -966,6 +970,17 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <span class="text-[10px] font-medium">Profile</span>
             </button>
         </nav>
+
+        <div id="activePackagesModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
+          <div class="relative max-h-[80vh] w-full max-w-sm overflow-hidden rounded-3xl border border-amber-400/30 bg-slate-900 p-5 shadow-2xl shadow-amber-950/30">
+            <div class="flex items-center justify-between">
+              <div><h3 class="text-base font-black text-amber-300"><i class="fa-solid fa-crown mr-2"></i>Active Packages</h3><p class="mt-1 text-[10px] text-slate-400">আপনার বর্তমানে চালু থাকা প্যাকেজ</p></div>
+              <button type="button" onclick="closeActivePackages()" class="grid h-8 w-8 place-items-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="activePackagesList" class="mt-4 max-h-[58vh] space-y-3 overflow-y-auto pr-1"><div class="py-8 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>প্যাকেজ যাচাই হচ্ছে...</div></div>
+            <button type="button" onclick="closeActivePackages()" class="mt-4 w-full rounded-xl border border-slate-700 bg-slate-800 py-2.5 text-xs font-bold text-slate-300">Close</button>
+          </div>
+        </div>
 
         <div id="dailyClaimModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4"><div class="relative w-full max-w-sm overflow-hidden rounded-3xl border border-emerald-400/30 bg-slate-900 p-5 shadow-2xl shadow-emerald-950/50"><div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-lime-300 to-emerald-600"></div><button onclick="closeDailyClaim()" aria-label="Close Daily Claim" class="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-xmark"></i></button><div class="flex items-center gap-3"><div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300"><i class="fa-solid fa-calendar-check text-xl"></i></div><div><h3 class="text-lg font-extrabold text-white">Daily Claim</h3><p class="text-[11px] text-slate-400">Your daily reward overview</p></div></div><div id="dailyClaimSummary" class="mt-4 rounded-2xl border border-emerald-500/20 bg-slate-950/80 p-4 text-sm">Activate your account to view Daily Claim.</div><div id="dailyClaimStatus" class="mt-3 flex items-center gap-2 text-[11px] text-slate-400"><span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Claim UI preview · backend processing will be added later</span></div><button id="dailyClaimAction" onclick="claimDailyReward()" disabled class="mt-4 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500">Claim ৳20</button><div id="dailyClaimCountdown" class="hidden mt-2 rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-center text-xs font-semibold text-slate-300"></div><button onclick="closeDailyClaim()" class="mt-2 w-full rounded-xl py-2 text-xs font-semibold text-slate-400 hover:text-white">Close</button></div></div><!-- MODALS -->
 
@@ -3070,6 +3085,65 @@ function refreshDailyClaimUi(){
     if(action){action.disabled=false;action.textContent='Claim ৳20';action.className='mt-4 w-full rounded-xl bg-emerald-500 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-900/40 hover:bg-emerald-400';}
     if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-emerald-400"></span><span>Daily claim available</span>';
     const timer=document.getElementById('dailyClaimCountdown');if(timer){timer.classList.add('hidden');timer.textContent='';}
+  }
+}
+function closeActivePackages(){
+  document.getElementById('activePackagesModal')?.classList.add('hidden');
+}
+function escapeActivePackageText(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+async function openActivePackages(){
+  const modal=document.getElementById('activePackagesModal');
+  const list=document.getElementById('activePackagesList');
+  if(!modal||!list)return;
+  modal.classList.remove('hidden');
+  list.innerHTML='<div class="py-8 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>প্যাকেজ যাচাই হচ্ছে...</div>';
+  try{
+    const {data:{user},error:authError}=await supabaseClient.auth.getUser();
+    if(authError)throw authError;
+    if(!user)throw new Error('প্যাকেজ দেখতে Login করুন।');
+    const {data:rows,error}=await supabaseClient
+      .from('payment_requests')
+      .select('package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,amount,reviewed_at,created_at')
+      .eq('user_id',user.id)
+      .eq('request_type','vip_package')
+      .eq('status','approved')
+      .order('reviewed_at',{ascending:false});
+    if(error)throw error;
+    const now=Date.now();
+    const active=(Array.isArray(rows)?rows:[]).filter(row=>{
+      const days=Number(row.package_duration_days||0);
+      const start=new Date(row.reviewed_at||row.created_at).getTime();
+      if(!Number.isFinite(start))return false;
+      return days>0 ? now<start+days*86400000 : true;
+    });
+    window.appState=window.appState||{};
+    window.appState.activePackages=active.map(row=>({
+      id:row.package_id,name:row.package_name,dailyAmount:Number(row.package_daily_amount)||0,
+      durationDays:Number(row.package_duration_days)||0,price:Number(row.amount)||0,
+      startedAt:row.reviewed_at||row.created_at
+    }));
+    if(!active.length){
+      list.innerHTML='<div class="rounded-2xl border border-dashed border-slate-700 bg-slate-800/50 px-4 py-8 text-center"><i class="fa-solid fa-box-open text-2xl text-slate-500"></i><p class="mt-3 text-xs font-bold text-slate-300">কোনো Active Package নেই</p><p class="mt-1 text-[10px] text-slate-500">Admin approve করা package এখানে দেখা যাবে।</p></div>';
+      return;
+    }
+    list.innerHTML=active.map(row=>{
+      const name=escapeActivePackageText(row.package_name||row.package_id||'VIP Package');
+      const days=Number(row.package_duration_days)||0;
+      const start=new Date(row.reviewed_at||row.created_at);
+      const end=days?new Date(start.getTime()+days*86400000):null;
+      const remaining=end?Math.max(0,Math.ceil((end.getTime()-now)/86400000)):null;
+      return '<article class="rounded-2xl border border-emerald-400/25 bg-emerald-500/5 p-3">'+
+        '<div class="flex items-start justify-between gap-2"><div><p class="text-[10px] font-bold tracking-wider text-emerald-300">ACTIVE PACKAGE</p><h4 class="mt-1 text-sm font-extrabold text-white">'+name+'</h4></div><span class="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[9px] font-bold text-emerald-300">ACTIVE</span></div>'+
+        '<div class="mt-3 grid grid-cols-2 gap-2 text-[10px]"><div class="rounded-lg bg-slate-900/70 p-2"><span class="block text-slate-500">Purchase price</span><b class="mt-1 block text-amber-300">৳'+(Number(row.amount)||0).toLocaleString('en-BD')+'</b></div><div class="rounded-lg bg-slate-900/70 p-2"><span class="block text-slate-500">Daily earning</span><b class="mt-1 block text-emerald-300">৳'+(Number(row.package_daily_amount)||0).toLocaleString('en-BD')+'</b></div></div>'+
+        '<div class="mt-2 flex flex-wrap justify-between gap-2 text-[10px] text-slate-400"><span>Duration: '+(days?days+' days':'—')+'</span><span>'+(remaining!==null?remaining+' days remaining':'Active')+'</span></div>'+
+        (end?'<p class="mt-1 text-[9px] text-slate-500">Expires: '+end.toLocaleDateString('en-BD')+'</p>':'')+
+      '</article>';
+    }).join('');
+  }catch(error){
+    console.error('Active packages load failed:',error);
+    list.innerHTML='<div class="rounded-xl border border-rose-400/20 bg-rose-400/5 p-4 text-center text-xs text-rose-200">'+escapeActivePackageText(error.message||'Package load failed')+'</div>';
   }
 }
 function openDailyClaim(){
