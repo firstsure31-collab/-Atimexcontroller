@@ -867,16 +867,16 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 </div></div>
 <div id="vipSupportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-amber-500/40 bg-slate-900 p-5 text-center shadow-2xl shadow-amber-950/30"><button onclick="closeVipSupport()" class="absolute right-3 top-3 text-slate-400" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="text-3xl">👑</div><h3 class="mt-2 font-extrabold text-amber-300">VIP Support</h3><p id="vipSupportAmount" class="mt-2 text-sm text-white"></p><p class="mt-3 text-sm text-slate-300">এই প্যাকেজটি কিনতে হলে আমাদের 24/7 সাপোর্টে যোগাযোগ করুন।</p><div class="mt-4 grid grid-cols-2 gap-2"><button type="button" onclick="closeVipSupport()" class="rounded-xl border border-slate-600 bg-slate-800 py-3 text-sm font-bold text-slate-200">ঠিক আছে</button><a href="https://t.me/atimex999" target="_blank" rel="noopener noreferrer" class="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-2 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-900/30"><i class="fa-brands fa-telegram"></i><span>24/7 যোগাযোগ করুন</span></a></div></div></div>
 <!-- 5. PROFILE TAB -->
-            <div id="tabProfile" class="tab-content hidden space-y-4">
-<div class="relative flex items-center justify-center">
+            <div id="tabProfile" class="tab-content relative hidden space-y-4">
+<div class="flex items-center justify-center">
 <div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
     <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
     <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
 </div>
-<button type="button" onclick="openUserNotifications()" class="absolute right-0 top-0 grid h-5 w-5 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-[10px] text-amber-300 shadow-sm" aria-label="Notifications">
-<i class="fa-solid fa-bell"></i><span id="profileNotificationBadge" class="hidden absolute -right-1 -top-1 min-w-3 rounded-full bg-rose-500 px-0.5 text-[7px] font-black text-white"></span>
-</button>
 </div>
+<button type="button" onclick="openUserNotifications()" class="absolute right-1 top-1 grid h-4 w-4 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-[8px] text-amber-300 shadow-sm" aria-label="Notifications">
+<i class="fa-solid fa-bell"></i><span id="profileNotificationBadge" class="hidden absolute -right-1 -top-1 min-w-3 rounded-full bg-rose-500 px-0.5 text-[6px] font-black text-white"></span>
+</button>
                 <h3 class="font-bold text-slate-100 text-base" id="profileNickname">Nickname</h3>
                 <button onclick="editNickname()" class="text-[10px] text-emerald-300 underline">Nickname edit</button>
                 <h3 class="font-bold text-slate-400 text-xs" id="profilePhone">01700000000</h3>
