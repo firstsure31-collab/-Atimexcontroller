@@ -676,12 +676,12 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <div class="text-base font-bold text-slate-100"><span id="taskCountVal">0</span> Tasks</div>
                         </div>
                     </div>
-                                    <button type="button" id="dailyClaimOption" onclick="openDailyClaim()" disabled class="col-span-2 relative w-full rounded-2xl border border-slate-700 bg-slate-800/70 p-4 flex items-center justify-between gap-3 text-left shadow-lg transition opacity-70 cursor-not-allowed">
+                                    <button type="button" id="dailyClaimOption" onclick="openDailyClaim()" class="col-span-2 relative w-full rounded-2xl border border-slate-700 bg-slate-800/70 p-4 flex items-center justify-between gap-3 text-left shadow-lg transition hover:border-slate-500">
                         <span class="flex items-center gap-3 min-w-0">
-                            <span id="dailyClaimCardIcon" class="w-11 h-11 shrink-0 rounded-xl bg-slate-700 text-slate-400 flex items-center justify-center text-xl"><i class="fa-solid fa-lock"></i></span>
+                            <span id="dailyClaimCardIcon" class="w-11 h-11 shrink-0 rounded-xl bg-slate-700 text-slate-300 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-days"></i></span>
                             <span class="min-w-0"><span class="block text-sm font-extrabold text-slate-300">Claim Your Daily Price</span><span id="dailyClaimCardSubtitle" class="block text-[11px] text-slate-400 mt-1">Checking daily reward...</span></span>
                         </span>
-                        <span class="flex flex-col items-end gap-1 shrink-0"><span id="dailyClaimCardTimer" class="hidden rounded-lg border border-amber-500/30 bg-slate-950 px-2 py-1 text-[10px] font-bold tabular-nums text-amber-300"></span><i id="dailyClaimCardArrow" class="fa-solid fa-lock text-slate-500"></i></span>
+                        <span class="flex flex-col items-end gap-1 shrink-0"><span id="dailyClaimCardTimer" class="hidden rounded-lg border border-amber-500/30 bg-slate-950 px-2 py-1 text-[10px] font-bold tabular-nums text-amber-300"></span><i id="dailyClaimCardArrow" class="fa-solid fa-chevron-right text-slate-400"></i></span>
                     </button>
 </div>
 
@@ -2997,14 +2997,16 @@ function dailyClaimSetCard(mode, subtitle){
   const card=document.getElementById('dailyClaimOption'),icon=document.getElementById('dailyClaimCardIcon'),sub=document.getElementById('dailyClaimCardSubtitle'),timer=document.getElementById('dailyClaimCardTimer'),arrow=document.getElementById('dailyClaimCardArrow');
   if(!card)return;
   if(sub)sub.textContent=subtitle||'';
+  // Keep the Home tab entry clickable at all times; claim eligibility is controlled inside the popup.
+  card.disabled=false;
   if(mode==='available'){
-    card.disabled=false;card.className='col-span-2 relative w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition';
+    card.className='col-span-2 relative w-full rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-slate-800/80 to-cyan-500/10 p-4 flex items-center justify-between gap-3 text-left shadow-lg shadow-emerald-950/20 hover:border-emerald-400/70 transition';
     if(icon){icon.className='w-11 h-11 shrink-0 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center text-xl';icon.innerHTML='<i class="fa-solid fa-calendar-check"></i>';}
     if(arrow)arrow.className='fa-solid fa-chevron-right text-emerald-300';
   }else{
-    card.disabled=true;card.className='col-span-2 relative w-full rounded-2xl border border-slate-700 bg-slate-800/70 p-4 flex items-center justify-between gap-3 text-left shadow-lg transition opacity-70 cursor-not-allowed';
-    if(icon){icon.className='w-11 h-11 shrink-0 rounded-xl bg-slate-700 text-slate-400 flex items-center justify-center text-xl';icon.innerHTML='<i class="fa-solid fa-lock"></i>';}
-    if(arrow)arrow.className='fa-solid fa-lock text-slate-500';
+    card.className='col-span-2 relative w-full rounded-2xl border border-slate-700 bg-slate-800/70 p-4 flex items-center justify-between gap-3 text-left shadow-lg transition hover:border-slate-500';
+    if(icon){icon.className='w-11 h-11 shrink-0 rounded-xl bg-slate-700 text-slate-300 flex items-center justify-center text-xl';icon.innerHTML='<i class="fa-solid fa-calendar-days"></i>';}
+    if(arrow)arrow.className='fa-solid fa-chevron-right text-slate-400';
   }
   if(timer){timer.classList.add('hidden');timer.textContent='';}
 }
