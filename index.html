@@ -868,9 +868,14 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 <div id="vipSupportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"><div class="relative w-full max-w-sm rounded-2xl border border-amber-500/40 bg-slate-900 p-5 text-center shadow-2xl shadow-amber-950/30"><button onclick="closeVipSupport()" class="absolute right-3 top-3 text-slate-400" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="text-3xl">👑</div><h3 class="mt-2 font-extrabold text-amber-300">VIP Support</h3><p id="vipSupportAmount" class="mt-2 text-sm text-white"></p><p class="mt-3 text-sm text-slate-300">এই প্যাকেজটি কিনতে হলে আমাদের 24/7 সাপোর্টে যোগাযোগ করুন।</p><div class="mt-4 grid grid-cols-2 gap-2"><button type="button" onclick="closeVipSupport()" class="rounded-xl border border-slate-600 bg-slate-800 py-3 text-sm font-bold text-slate-200">ঠিক আছে</button><a href="https://t.me/atimex999" target="_blank" rel="noopener noreferrer" class="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-2 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-900/30"><i class="fa-brands fa-telegram"></i><span>24/7 যোগাযোগ করুন</span></a></div></div></div>
 <!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content hidden space-y-4">
-<div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
+<div class="flex items-center justify-center gap-3">
+<div onclick="openProfilePicOptions()" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center text-emerald-400 text-2xl font-bold overflow-hidden cursor-pointer relative shadow-md">
     <img id="profileTabImg" src="" alt="Profile" class="w-full h-full object-cover user-avatar-display hidden">
     <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
+</div>
+<button type="button" onclick="openUserNotifications()" class="relative grid h-12 w-12 place-items-center rounded-2xl border border-amber-400/30 bg-amber-400/10 text-xl text-amber-300 shadow-lg shadow-amber-950/20" aria-label="Notifications">
+<i class="fa-solid fa-bell"></i><span id="profileNotificationBadge" class="hidden absolute -right-1 -top-1 min-w-5 rounded-full bg-rose-500 px-1 text-[9px] font-black text-white"></span>
+</button>
 </div>
                 <h3 class="font-bold text-slate-100 text-base" id="profileNickname">Nickname</h3>
                 <button onclick="editNickname()" class="text-[10px] text-emerald-300 underline">Nickname edit</button>
@@ -1295,8 +1300,8 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                     <div><p class="text-[9px] text-slate-500">Request ID</p><p data-withdraw-field="id" class="mt-1 break-all text-[9px] text-slate-400">—</p></div>
                   </div>
                   <div class="mt-4 grid grid-cols-2 gap-2">
-                    <button type="button" disabled class="cursor-not-allowed rounded-xl bg-emerald-400/40 px-3 py-3 text-[10px] font-black text-slate-950/70">APPROVE</button>
-                    <button type="button" disabled class="cursor-not-allowed rounded-xl border border-rose-400/20 bg-rose-400/10 px-3 py-3 text-[10px] font-black text-rose-200/60">REJECT</button>
+                    <button type="button" data-withdraw-action="approve" class="rounded-xl bg-emerald-400 px-3 py-3 text-[10px] font-black text-slate-950 hover:bg-emerald-300">APPROVE</button>
+                    <button type="button" data-withdraw-action="reject" class="rounded-xl border border-rose-400/30 bg-rose-400/10 px-3 py-3 text-[10px] font-black text-rose-200 hover:bg-rose-400/20">REJECT</button>
                   </div>
                 </article>
               </template>
@@ -1304,6 +1309,13 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <footer class="flex shrink-0 justify-end border-t border-white/10 bg-slate-950/70 px-4 py-3">
               <button type="button" onclick="closeAdminWithdrawalModal()" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-bold text-slate-300 hover:bg-white/10">CLOSE</button>
             </footer>
+          </div>
+        </div>
+
+        <div id="userNotificationsModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
+          <div class="relative max-h-[82vh] w-full max-w-sm overflow-hidden rounded-3xl border border-amber-400/30 bg-slate-900 p-5 shadow-2xl">
+            <div class="flex items-center justify-between"><div><h3 class="text-base font-black text-amber-300"><i class="fa-solid fa-bell mr-2"></i>Notifications</h3><p class="mt-1 text-[10px] text-slate-400">Withdrawal request-এর update এখানে পাবেন</p></div><button type="button" onclick="closeUserNotifications()" class="grid h-8 w-8 place-items-center rounded-full bg-slate-800 text-slate-300"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="userNotificationsList" class="mt-4 max-h-[60vh] space-y-3 overflow-y-auto"><p class="py-8 text-center text-xs text-slate-400">Notification লোড হচ্ছে...</p></div>
           </div>
         </div>
 
@@ -1889,11 +1901,85 @@ async function loadAdminWithdrawalRequests() {
             setField('date', formatAdminDate(row.created_at));
             setField('id', row.id);
             target.appendChild(fragment);
+            const card = target.lastElementChild;
+            card?.querySelector('[data-withdraw-action="approve"]')?.addEventListener('click', () => reviewWithdrawalRequest(row.id, 'approve'));
+            card?.querySelector('[data-withdraw-action="reject"]')?.addEventListener('click', () => reviewWithdrawalRequest(row.id, 'reject'));
+            if (row.status !== 'pending') {
+                card?.querySelectorAll('[data-withdraw-action]').forEach(button => { button.disabled = true; button.classList.add('opacity-40','cursor-not-allowed'); });
+            }
         });
     } catch (error) {
         console.error('Admin withdrawal requests load failed:', error);
         if (target) target.innerHTML = '<div class="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-5 text-[11px] text-rose-200"><b>Request load করা যায়নি</b><p class="mt-2 break-words">' + escapeAdminText(error?.message || 'Supabase error') + '</p><p class="mt-2 text-[10px] text-slate-500">withdrawal_requests SELECT policy এবং atimex_admins membership check করুন।</p></div>';
         if (badge) badge.textContent = 'LOAD ERROR';
+    }
+}
+
+async function reviewWithdrawalRequest(requestId, action) {
+    if (!['approve','reject'].includes(action)) return;
+    const verb = action === 'approve' ? 'Approve' : 'Reject';
+    if (!confirm(verb + ' this withdrawal request? ' + (action === 'approve' ? 'আগে user-এর দেওয়া method/number-এ টাকা পাঠানো নিশ্চিত করুন।' : 'Request reject হবে এবং user notification পাবে।'))) return;
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_review_withdrawal_request', {
+            p_request_id: requestId,
+            p_action: action
+        });
+        if (error) throw error;
+        showToast(action === 'approve' ? 'Withdrawal approved; user notified.' : 'Withdrawal rejected; user notified.');
+        await loadAdminWithdrawalRequests();
+    } catch (error) {
+        console.error('Withdrawal review failed:', error);
+        showToast('Review failed: ' + (error?.message || 'Supabase error'), true);
+    }
+}
+
+async function openUserNotifications() {
+    document.getElementById('userNotificationsModal')?.classList.remove('hidden');
+    await loadUserNotifications();
+}
+function closeUserNotifications() {
+    document.getElementById('userNotificationsModal')?.classList.add('hidden');
+}
+async function loadUserNotifications() {
+    const list = document.getElementById('userNotificationsList');
+    const badge = document.getElementById('profileNotificationBadge');
+    if (list) list.innerHTML = '<p class="py-8 text-center text-xs text-slate-400">Notification লোড হচ্ছে...</p>';
+    try {
+        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) throw authError;
+        if (!authData?.user) throw new Error('Login session পাওয়া যায়নি।');
+        const { data, error } = await supabaseClient.from('user_notifications')
+            .select('id,title,message,created_at,read_at')
+            .eq('user_id', authData.user.id).order('created_at', { ascending: false }).limit(50);
+        if (error) throw error;
+        const items = data || [];
+        const unread = items.filter(item => !item.read_at).length;
+        if (badge) { badge.textContent = unread > 9 ? '9+' : String(unread); badge.classList.toggle('hidden', unread === 0); }
+        if (!items.length) {
+            if (list) list.innerHTML = '<p class="py-8 text-center text-xs text-slate-400">এখনো কোনো notification নেই।</p>';
+            return;
+        }
+        if (list) {
+            list.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'rounded-2xl border border-amber-400/20 bg-slate-950/70 p-3';
+                const title = document.createElement('h4'); title.className = 'text-xs font-black text-amber-300'; title.textContent = item.title || 'ATIMEX Notification';
+                const message = document.createElement('p'); message.className = 'mt-2 whitespace-pre-line text-[11px] leading-5 text-slate-200'; message.textContent = item.message || '';
+                const date = document.createElement('p'); date.className = 'mt-2 text-[9px] text-slate-500'; date.textContent = formatAdminDate(item.created_at);
+                card.append(title, message, date); list.appendChild(card);
+            });
+        }
+        const unreadIds = items.filter(item => !item.read_at).map(item => item.id);
+        if (unreadIds.length) {
+            const { error: updateError } = await supabaseClient.from('user_notifications')
+                .update({ read_at: new Date().toISOString() }).in('id', unreadIds);
+            if (updateError) console.warn('Notification read status update failed:', updateError);
+            if (badge) badge.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Notifications load failed:', error);
+        if (list) list.innerHTML = '<p class="py-6 text-center text-xs text-rose-300">Notification load করা যায়নি: ' + escapeAdminText(error?.message || 'Supabase error') + '</p>';
     }
 }
 
@@ -2681,7 +2767,7 @@ function removeLegacyProfilePaymentTable() {
 }
 
 function switchTab(tabId) {
-    if (tabId === 'tabProfile') updateRedeemCodeLockState();
+    if (tabId === 'tabProfile') { updateRedeemCodeLockState(); loadUserNotifications(); }
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
     if (!target) return;
