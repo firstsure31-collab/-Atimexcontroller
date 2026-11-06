@@ -1461,12 +1461,12 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                     </div>
                     <div class="spin-wheel-halo"></div>
                     <div class="spin-pointer" aria-hidden="true"></div>
-                    <button id="spinBtn" onclick="startSpin()" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"><span>SPIN</span><small>TO WIN</small></button>
+                    <button id="spinBtn" type="button" disabled aria-label="Coming soon" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 cursor-not-allowed opacity-95"><span>COMING</span><small>SOON</small></button>
                 </div>
-                <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>YOUR NEXT REWARD</span><strong>৳?</strong><span>Tap the center button to begin</span></div>
+                <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>ATIMEX LUCKY SPIN</span><strong>COMING SOON</strong><span>Spin feature is temporarily unavailable</span></div>
 
                 <div class="spin-packages relative z-10 mt-1 space-y-2 max-h-44 overflow-y-auto pr-1 w-full">
-    <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-slate-500">Choose your spins</span></div>
+    <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-slate-500">COMING SOON</span></div>
     
     <!-- Package 1: Starter -->
     <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
@@ -1474,7 +1474,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">Starter Spin</span>
             <p class="text-[10px] text-slate-400">১ টি স্পিন (একবার অফার)</p>
         </div>
-        <button id="starterPackBtn" onclick="buyCustomPackage(50, 1, 'starter')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০</button>
+        <button id="starterPackBtn" onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০</button>
     </div>
 
     <!-- Package 2: Standard -->
@@ -1483,7 +1483,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">Standard Spin</span>
             <p class="text-[10px] text-slate-400">১ টি স্পিন (দৈনিক সেরা)</p>
         </div>
-        <button onclick="buyCustomPackage(100, 1)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০</button>
+        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০</button>
     </div>
 
     <!-- Package 3: Double Pack -->
@@ -1492,7 +1492,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">Double Pack</span>
             <p class="text-[10px] text-slate-400">২ টি স্পিন</p>
         </div>
-        <button onclick="buyCustomPackage(200, 2)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳২০০</button>
+        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳২০০</button>
     </div>
 
     <!-- Package 4: Triple Pack -->
@@ -1501,7 +1501,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">Triple Pack</span>
             <p class="text-[10px] text-slate-400">৩ টি স্পিন</p>
         </div>
-        <button onclick="buyCustomPackage(300, 3)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৩০০</button>
+        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৩০০</button>
     </div>
 
     <!-- Package 5: Mega Pack -->
@@ -1510,7 +1510,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">Mega Pack</span>
             <p class="text-[10px] text-slate-400">৫ টি স্পিন</p>
         </div>
-        <button onclick="buyCustomPackage(500, 5)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০০</button>
+        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০০</button>
     </div>
 
     <!-- Package 6: VIP Ultimate Pack -->
@@ -1519,7 +1519,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <span class="text-xs font-bold text-white">VIP Ultimate Pack</span>
             <p class="text-[10px] text-slate-400">১০ টি স্পিন</p>
         </div>
-        <button onclick="buyCustomPackage(1000, 10)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
+        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
     </div>
 </div>
 
@@ -2558,10 +2558,6 @@ function closeWelcomeOpenAuth() {
 function openSpinModal() {
     const oldToast=document.getElementById('toast');
     if(oldToast)oldToast.classList.add('hidden');
-    if (!window.appState?.isActive) {
-        showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
-        return;
-    }
     const modal = document.getElementById('spinModal');
     if (modal) {
         modal.classList.remove('hidden');
@@ -2575,17 +2571,21 @@ function closeSpinModal() {
     if (modal) modal.classList.add('hidden');
 }
 
+function showSpinComingSoon() {
+    showToast('Lucky Spin packages Coming Soon! এখনো purchase করা যাচ্ছে না।', true);
+}
+
 function updateSpinUI() {
-    const count = Math.max(0, Number(window.appState?.spinsLeft) || 0);
     const textEl = document.getElementById('spinsLeftText');
     const button = document.getElementById('spinBtn');
-    if (textEl) textEl.textContent = `SPINS AVAILABLE · ${count}`;
-    if (button && !isSpinning) {
-        button.disabled = count < 1;
+    if (textEl) textEl.textContent = 'COMING SOON';
+    if (button) {
+        button.disabled = true;
+        button.classList.add('cursor-not-allowed');
         const label = button.querySelector('span');
         const hint = button.querySelector('small');
-        if (label) label.textContent = count < 1 ? 'BUY' : 'SPIN';
-        if (hint) hint.textContent = count < 1 ? 'PACK' : 'TO WIN';
+        if (label) label.textContent = 'COMING';
+        if (hint) hint.textContent = 'SOON';
     }
 }
 
@@ -2614,6 +2614,8 @@ function handlePackageBuy(price) {
 }
 
 function buyCustomPackage(price, spinCount, type = '') {
+    showSpinComingSoon();
+    return;
     if (type === 'starter' && window.appState.hasBoughtStarter) {
         showToast('স্টার্টার অফারটি একবারই কেনা সম্ভব!', true);
         return;
@@ -2639,6 +2641,8 @@ let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
+    showSpinComingSoon();
+    return;
     const state = window.appState;
     if (!state?.isActive) {
         showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
