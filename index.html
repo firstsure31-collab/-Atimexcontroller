@@ -2650,18 +2650,19 @@ function startSpin() {
         btn.innerText = '...';
     }
 
+    // Keep this order identical to the ten visible SVG wheel sectors.
     const rewards = [20, 50, 70, 100, 200, 300, 500, 800, 1500, 2500];
     const randomIndex = Math.floor(Math.random() * rewards.length);
 
-    const degreePerSegment = 36;
-    // The visible wheel sectors are centered clockwise at 0, 36, 72... degrees:
-    // ৳20 is centered at 3 o'clock, and the fixed pointer is at 12 o'clock (270°).
-    // Rotate the selected sector center to 270° so the displayed reward matches the pointer.
-    const selectedCenterAngle = randomIndex * degreePerSegment;
-    const pointerAngle = 270;
-    const targetOffset = ((pointerAngle - selectedCenterAngle) % 360 + 360) % 360;
+    // The SVG is rotated -90deg, so sector 1 (৳20) is centered 18deg
+    // clockwise from the fixed top pointer. Every next sector adds 36deg.
+    // Aim the chosen sector's CENTER at the pointer, not its edge.
+    const degreePerSegment = 360 / rewards.length;
+    const firstSectorCenter = degreePerSegment / 2;
+    const selectedCenterAngle = firstSectorCenter + (randomIndex * degreePerSegment);
+    const targetOffset = ((360 - selectedCenterAngle) % 360 + 360) % 360;
     const extraDegree = (360 * 5) + targetOffset;
-    currentDegree += extraDegree;
+    currentDegree = (currentDegree + extraDegree) % 360;
 
     const wheel = document.getElementById('wheel');
     if (wheel) {
