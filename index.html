@@ -481,20 +481,23 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @media (prefers-reduced-motion: reduce) { #profileNotificationButton.notification-unread-glow::after { animation: none; } }
 
 /* Premium Lucky Spin experience */
-.spin-premium-panel{background:radial-gradient(ellipse at 50% 0%,rgba(180,128,35,.17),transparent 48%),linear-gradient(155deg,#111b30 0%,#080e1c 72%);border:1px solid rgba(245,190,85,.25);box-shadow:0 24px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06)}
-.spin-panel-glow{position:absolute;width:230px;height:230px;top:-150px;left:50%;transform:translateX(-50%);border-radius:50%;background:#f59e0b;filter:blur(95px);opacity:.17;pointer-events:none}
-.spin-wheel-stage{width:min(68vw,270px);height:min(68vw,270px);max-width:270px;max-height:270px;padding:9px;border-radius:50%;background:conic-gradient(from 20deg,#fff1b8,#a86a19,#ffe6a0,#6e471d,#f8c65b,#fff1b8);box-shadow:0 0 0 1px rgba(255,231,173,.35),0 0 30px rgba(245,158,11,.22),0 18px 35px rgba(0,0,0,.5);}
-.spin-wheel-stage:before{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.35);border-radius:50%;pointer-events:none;z-index:5}
-.spin-wheel-stage:after{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:30;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:23px solid #fff0b0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))}
-.spin-wheel-stage #wheel{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;border:3px solid #20180c;box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),inset 0 0 20px rgba(0,0,0,.28);transition:transform 6s cubic-bezier(.12,.78,.12,1);will-change:transform}
+/* Premium Lucky Spin: gold-metal frame, deep navy glass and responsive wheel */
+.spin-premium-panel{background:radial-gradient(ellipse at 50% -8%,rgba(251,191,36,.2),transparent 46%),linear-gradient(155deg,#111c33 0%,#080d19 72%);border:1px solid rgba(245,190,85,.3);box-shadow:0 28px 90px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08)}
+.spin-panel-glow{position:absolute;width:250px;height:250px;top:-165px;left:50%;transform:translateX(-50%);border-radius:50%;background:#f59e0b;filter:blur(100px);opacity:.2;pointer-events:none}
+.spin-wheel-stage{width:min(72vw,286px);height:min(72vw,286px);max-width:286px;max-height:286px;padding:9px;border-radius:50%;background:conic-gradient(from 20deg,#fff7d6,#9a621b,#ffe8a6,#684316,#f8c65b,#fff7d6);box-shadow:0 0 0 1px rgba(255,231,173,.5),0 0 36px rgba(245,158,11,.25),0 20px 42px rgba(0,0,0,.58)}
+.spin-wheel-stage:before{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.42);border-radius:50%;pointer-events:none;z-index:5}
+.spin-wheel-stage:after{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:30;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:25px solid #fff0b0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.8))}
+.spin-wheel-stage #wheel{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;border:3px solid #211707;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 0 24px rgba(0,0,0,.35);transition:transform 6s cubic-bezier(.12,.78,.12,1);will-change:transform}
 .spin-wheel-stage #wheel svg{display:block;width:100%;height:100%}
-.spin-wheel-halo{position:absolute;inset:14px;border:1px solid rgba(255,239,190,.2);border-radius:50%;pointer-events:none;z-index:6}
-.spin-center-button{width:66px;height:66px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff3bd,#f7c65b 42%,#a96a13 100%);border:4px solid #172033;box-shadow:0 0 0 2px rgba(255,224,145,.7),0 5px 18px rgba(0,0,0,.65),0 0 20px rgba(245,158,11,.35);color:#172033;font-weight:1000;letter-spacing:.08em;transition:filter .2s,transform .2s}
-.spin-center-button span{font-size:14px;line-height:1}.spin-center-button small{font-size:7px;letter-spacing:.22em;margin-top:3px}.spin-center-button:disabled{opacity:.8;cursor:wait;filter:saturate(.7)}
-.spin-result{width:100%;min-height:60px;border:1px solid rgba(255,255,255,.08);border-radius:15px;background:linear-gradient(110deg,rgba(15,23,42,.9),rgba(30,41,59,.65));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:2px}
-.spin-result span{font-size:8px;font-weight:800;letter-spacing:.18em;color:#94a3b8}.spin-result strong{font-size:23px;line-height:1.15;color:#f8fafc;font-weight:1000}.spin-result.spin-result-win{border-color:rgba(52,211,153,.45);background:linear-gradient(110deg,rgba(16,185,129,.13),rgba(15,23,42,.9));box-shadow:0 0 22px rgba(16,185,129,.09)}.spin-result.spin-result-win strong{color:#6ee7b7}
-.spin-packages>div:not(:first-child){border-color:rgba(255,255,255,.08)!important;background:rgba(15,23,42,.72)!important}
+.spin-wheel-halo{position:absolute;inset:14px;border:1px solid rgba(255,239,190,.24);border-radius:50%;pointer-events:none;z-index:6}
+.spin-center-button{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff8d7,#f7c65b 43%,#986014 100%);border:4px solid #172033;box-shadow:0 0 0 2px rgba(255,224,145,.8),0 6px 20px rgba(0,0,0,.72),0 0 25px rgba(245,158,11,.4);color:#172033;font-weight:1000;letter-spacing:.08em;transition:filter .2s,transform .2s}
+.spin-center-button span{font-size:14px;line-height:1}.spin-center-button small{font-size:7px;letter-spacing:.22em;margin-top:3px}.spin-center-button:disabled{opacity:.82;cursor:wait;filter:saturate(.7)}
+.spin-result{width:100%;min-height:68px;border:1px solid rgba(255,255,255,.1);border-radius:17px;background:linear-gradient(110deg,rgba(15,23,42,.96),rgba(30,41,59,.72));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px;gap:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.spin-result span{font-size:8px;font-weight:800;letter-spacing:.18em;color:#94a3b8}.spin-result strong{font-size:25px;line-height:1.15;color:#f8fafc;font-weight:1000}.spin-result.spin-result-win{border-color:rgba(52,211,153,.5);background:linear-gradient(110deg,rgba(16,185,129,.16),rgba(15,23,42,.94));box-shadow:0 0 24px rgba(16,185,129,.12)}.spin-result.spin-result-win strong{color:#6ee7b7}
+.spin-packages>div:not(:first-child){border-color:rgba(255,255,255,.09)!important;background:linear-gradient(110deg,rgba(30,41,59,.82),rgba(15,23,42,.9))!important}
+.spin-packages button{box-shadow:0 4px 14px rgba(245,158,11,.16);transition:transform .18s,filter .18s}.spin-packages button:active{transform:scale(.96)}
 #spinBtn:focus-visible{outline:2px solid #fff1b8;outline-offset:4px}
+@media(max-height:760px){#spinModal{align-items:flex-start;overflow-y:auto}.spin-premium-panel{margin:auto 0;padding:16px}.spin-wheel-stage{width:min(60vw,230px);height:min(60vw,230px);margin-top:12px;margin-bottom:12px}.spin-packages{max-height:30vh}}
 @media(prefers-reduced-motion:reduce){.spin-wheel-stage #wheel{transition-duration:1ms}}
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1432,7 +1435,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 </div>
 
                 <div class="spin-wheel-stage relative z-10 mx-auto my-5">
-                        <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                        <div id="wheel" aria-label="Lucky Spin reward wheel"><svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
     <!-- Segment 1: 20 BDT -->
     <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#EF4444"/>
     <text x="78" y="58" fill="#FFF" font-size="4" font-weight="bold" transform="rotate(18, 78, 58)">৳20</text>
@@ -1472,8 +1475,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
     <!-- Segment 10: 2500 BDT -->
     <path d="M50 50 L90.45 20.61 A50 50 0 0 1 100 50 Z" fill="#14B8A6"/>
     <text x="78" y="42" fill="#FFF" font-size="3.5" font-weight="bold" transform="rotate(342, 78, 42)">৳2500</text>
-</svg>
-                    </div>
+</svg></div>
                     <div class="spin-wheel-halo"></div>
                     <button id="spinBtn" onclick="startSpin()" class="spin-center-button absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
                         <span>SPIN</span><small>GO</small>
@@ -2591,8 +2593,15 @@ function closeSpinModal() {
 }
 
 function updateSpinUI() {
+    const count = Math.max(0, Number(window.appState?.spinsLeft) || 0);
     const textEl = document.getElementById('spinsLeftText');
-    if (textEl) textEl.innerText = `Spins Left: ${window.appState.spinsLeft}`;
+    const button = document.getElementById('spinBtn');
+    if (textEl) textEl.innerText = `SPINS AVAILABLE · ${count}`;
+    if (button && !isSpinning) {
+        button.disabled = count < 1;
+        button.querySelector('span').textContent = count < 1 ? 'BUY' : 'SPIN';
+        button.querySelector('small').textContent = count < 1 ? 'PACK' : 'GO';
+    }
 }
 
 const VIP_PACKAGE_DETAILS = {
@@ -2707,13 +2716,19 @@ function startSpin() {
         showToast('অভিনন্দন! আপনি ৳' + wonAmount.toLocaleString('en-BD') + ' জিতেছেন!');
     };
 
-    wheel.addEventListener('transitionend', function onSpinEnd(event) {
+    let spinFallback;
+    const onSpinEnd = (event) => {
         if (event.propertyName !== 'transform') return;
+        window.clearTimeout(spinFallback);
         wheel.removeEventListener('transitionend', onSpinEnd);
         finishSpin();
-    });
-    // Fallback for browsers that do not emit transitionend.
-    window.setTimeout(finishSpin, 6500);
+    };
+    wheel.addEventListener('transitionend', onSpinEnd);
+    // Fallback also removes the listener, preventing stale handlers on later spins.
+    spinFallback = window.setTimeout(() => {
+        wheel.removeEventListener('transitionend', onSpinEnd);
+        finishSpin();
+    }, 6500);
 }
 function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const amountInput = document.getElementById('paymentAmount');
