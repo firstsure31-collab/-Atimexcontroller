@@ -3018,11 +3018,28 @@ async function claimDailyReward(){
     const {data,error}=await supabaseClient.rpc('claim_daily_reward');if(error)throw error;
     const result=Array.isArray(data)?data[0]:data;
     if(!result||result.claimed!==true){
-      const last=result?.last_claim_at?new Date(result.last_claim_at).getTime():0;
-      const next=result?.next_claim_at?new Date(result.next_claim_at).getTime():(last?last+86400000:0);
-      window.dailyClaimNextAt=next;
-      refreshDailyClaimUi();
-      const status=document.getElementById('dailyClaimStatus');if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আজকের claim ইতিমধ্যে করা হয়েছে। ২৪ ঘণ্টা পূর্ণ হলে আবার claim করতে পারবেন।</span>';
+      // A rejected claim response is not authoritative for the timer: always
+      // reload the user's canonical last_claim_at from the status RPC.
+      window.dailyClaimNextAt=0;
+      window.dailyClaimStatusError=null;
+      const status=document.getElementById('dailyClaimStatus');
+      if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আগের claim-এর সময় যাচাই হচ্ছে...</span>';
+      const synced=await syncDailyClaimCooldown();
+      if(!synced){
+        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Claim status পাওয়া যায়নি। আবার চেষ্টা করুন।</span>';
+        return;
+      }
+      if(Number(window.dailyClaimNextAt||0)>Date.now()){
+        refreshDailyClaimUi();
+        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>আজকের claim সম্পন্ন। Home card-এ ২৪ ঘণ্টার timer চলছে।</span>';
+      }else{
+        // Server says the claim was rejected but has no active cooldown.
+        // Keep the action disabled rather than showing a false available state.
+        const button=document.getElementById('dailyClaimAction');
+        if(button){button.disabled=true;button.textContent='Claim status mismatch — retry';button.className='mt-4 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-500';}
+        dailyClaimSetCard('locked','Claim status mismatch · retry status check');
+        if(status)status.innerHTML='<span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Server claim response ও status আলাদা। কিছুক্ষণ পর আবার চেষ্টা করুন।</span>';
+      }
       return;
     }
     window.dailyClaimNextAt=result.next_claim_at?new Date(result.next_claim_at).getTime():Date.now()+86400000;
