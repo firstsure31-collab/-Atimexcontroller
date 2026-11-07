@@ -1035,11 +1035,11 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <i class="fa-solid fa-wallet text-lg"></i>
                 <span class="text-[10px] font-medium">Wallet</span>
             </button>
-            <button onclick="switchTab('tabTasks')" id="navTasks" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 relative cursor-pointer">
-                <div class="w-10 h-10 -mt-5 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-slate-900">
-                    <i class="fa-solid fa-list-check text-base"></i>
+            <button onclick="switchTab('tabTasks')" id="navTasks" aria-disabled="true" title="Tasks locked" class="nav-btn tasks-locked flex flex-col items-center gap-1 relative cursor-not-allowed">
+                <div class="tasks-locked-icon w-10 h-10 -mt-5 rounded-full flex items-center justify-center border-2 border-slate-900">
+                    <i class="fa-solid fa-lock text-sm"></i>
                 </div>
-                <span class="text-[10px] font-medium mt-1">Task</span>
+                <span class="text-[10px] font-medium mt-1">Locked</span>
             </button>
             <button onclick="switchTab('tabServer')" id="navServer" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer">
                 <i class="fa-solid fa-crown text-lg"></i>
@@ -2928,6 +2928,10 @@ function removeLegacyProfilePaymentTable() {
 }
 
 function switchTab(tabId) {
+    if (tabId === 'tabTasks') {
+        showToast('Tasks বর্তমানে locked আছে।', true);
+        return;
+    }
     if (tabId === 'tabProfile') { updateRedeemCodeLockState(); loadUserNotifications(); }
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
     const target = document.getElementById(tabId);
