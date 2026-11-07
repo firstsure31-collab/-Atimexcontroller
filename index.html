@@ -3319,7 +3319,7 @@ async function submitWithdrawRequest() {
     document.getElementById('withdrawResultId').textContent = request.id;
     document.getElementById('withdrawResultPage')?.classList.remove('hidden');
     if (hint) hint.textContent = 'Request submitted';
-    await syncWithdrawCooldown();
+    syncWithdrawCooldown().catch(error => console.error('Withdrawal cooldown refresh failed:', error));
     openDailyWithdrawLimitModal();
   } catch (error) {
     console.error('Withdrawal request submission failed:', error);
