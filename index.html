@@ -1250,7 +1250,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
         <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Request date</div><div class="withdraw-flow-row-value" id="withdrawReviewDate">—</div></div>
         <div class="withdraw-flow-row"><div class="withdraw-flow-row-label">Available amount</div><div class="withdraw-flow-row-value withdraw-flow-available" id="withdrawReviewAvailable">৳0.00</div></div>
       </section>
-      <div class="withdraw-flow-note"><i class="fa-regular fa-clock mr-1"></i> Request জমা হওয়ার পর সাধারণত <b>১ থেকে ৬ ঘণ্টার মধ্যে</b> প্রসেস করা হবে। এটি request confirmation—টাকা পাঠানো সম্পন্ন হওয়ার নিশ্চয়তা নয়।</div>
+      <div class="withdraw-flow-note"><i class="fa-regular fa-clock mr-1"></i> Request জমা হওয়ার পর সাধারণত <b>প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে উইথড্র রিকোয়েস্ট</b> প্রসেস করা হবে।</div>
       <div class="withdraw-flow-hold-wrap">
         <div class="text-[10px] font-black text-slate-700 tracking-widest mb-3">FINAL CONFIRMATION</div>
         <button id="withdrawHoldButton" type="button" class="withdraw-flow-hold-btn" onpointerdown="beginWithdrawHold(event)" onpointerup="endWithdrawHold()" onpointerleave="endWithdrawHold()" onpointercancel="endWithdrawHold()" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();beginWithdrawHold(event)}" onkeyup="if(event.key===' '||event.key==='Enter')endWithdrawHold()" aria-label="Press and hold to confirm withdrawal"><span><i class="fa-solid fa-fingerprint mr-2"></i>PRESS &amp; HOLD TO CONFIRM</span></button>
