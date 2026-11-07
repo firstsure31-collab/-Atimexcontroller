@@ -1439,10 +1439,21 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
               </div>
             </div>
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3 text-center">
-              <div class="text-slate-400 text-[11px]">Share your referral link to unlock task bonus</div>
-              <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-2 rounded-lg">
-                <input type="text" id="referLinkInput" readonly value="https://firstsure31-collab.github.io/-Atimexcontroller/" class="bg-transparent text-[11px] text-emerald-400 w-full outline-none font-mono">
-                <button onclick="copyReferLink()" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md text-[10px] font-bold transition">Copy</button>
+              <div class="text-left space-y-1">
+                <div class="text-slate-300 text-[11px] font-bold">1. Your Share Link</div>
+                <div class="text-slate-500 text-[10px]">লিংকটি শেয়ার করলেই নতুন ইউজার আপনার Referral Code-সহ ওয়েবসাইটে যাবে।</div>
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-2 rounded-lg">
+                  <input type="text" id="referLinkInput" readonly value="Loading referral link..." class="bg-transparent text-[10px] text-emerald-400 w-full outline-none font-mono">
+                  <button onclick="copyReferLink()" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md text-[10px] font-bold transition">Copy Link</button>
+                </div>
+              </div>
+              <div class="text-left space-y-1">
+                <div class="text-slate-300 text-[11px] font-bold">2. Your Referral Code</div>
+                <div class="text-slate-500 text-[10px]">কেউ সরাসরি কোড চাইলে তাকে এই কোডটি দিন। Activation-এর সময় এই কোড লিখতে হবে।</div>
+                <div class="flex items-center gap-2 bg-slate-900 border border-emerald-500/30 p-2 rounded-lg">
+                  <input type="text" id="yourReferralCode" readonly value="Loading code..." class="bg-transparent text-sm tracking-widest font-bold text-emerald-300 w-full outline-none font-mono">
+                  <button onclick="copyYourReferralCode()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded-md text-[10px] font-bold transition">Copy Code</button>
+                </div>
               </div>
               <button onclick="executeShareTask()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-600/20">
                 <i class="fa-solid fa-paper-plane"></i> Share Now To Complete
@@ -2362,9 +2373,13 @@ function closeReferModal() {
 
 function copyReferLink() {
     const input = document.getElementById('referLinkInput');
-    input.select();
-    navigator.clipboard.writeText(input.value);
-    showToast('রেফারেল লিঙ্ক কপি করা হয়েছে!');
+    if (!input || !input.value || input.value.includes('Loading')) return showToast('Referral link এখনো লোড হয়নি।', true);
+    navigator.clipboard.writeText(input.value).then(() => showToast('রেফারেল লিঙ্ক কপি করা হয়েছে!')).catch(() => showToast('লিঙ্ক কপি করা যায়নি।', true));
+}
+function copyYourReferralCode() {
+    const input = document.getElementById('yourReferralCode');
+    if (!input || !input.value || input.value.includes('Loading')) return showToast('Referral Code এখনো লোড হয়নি।', true);
+    navigator.clipboard.writeText(input.value).then(() => showToast('Referral Code কপি করা হয়েছে!')).catch(() => showToast('Code কপি করা যায়নি।', true));
 }
 
 async function executeShareTask() {
@@ -3632,6 +3647,7 @@ async function updateReferralUi() {
     const valueEl = document.getElementById('referralEarnings');
     const countEl = document.getElementById('referActiveCount');
     const linkEl = document.getElementById('referLinkInput');
+    const codeEl = document.getElementById('yourReferralCode');
     try {
         const { data: authData, error: authError } = await supabaseClient.auth.getUser();
         if (authError) throw authError;
@@ -3640,6 +3656,7 @@ async function updateReferralUi() {
         if (error) throw error;
         const stats = data || {};
         const code = String(stats.referral_code || '');
+        if (codeEl) codeEl.value = code || 'Code unavailable';
         if (linkEl && code) {
             const base = window.location.origin + window.location.pathname;
             linkEl.value = base + '?ref=' + encodeURIComponent(code);
@@ -3653,6 +3670,7 @@ async function updateReferralUi() {
         if (countEl) countEl.textContent = '— / 20';
         if (valueEl) valueEl.textContent = '—';
         if (linkEl) linkEl.value = 'Login required to load referral link';
+        if (codeEl) codeEl.value = 'Login required';
     }
 }
     </script>
