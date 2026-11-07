@@ -778,7 +778,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                       23h 59m 59s
                     </div>
                     <div class="text-[9.5px] text-slate-400">
-                      Protidin matro ১ bar withdraw korte parben. Somoy shes hole abar form chalu hobe.
+                      একটি request দেওয়ার পর পরবর্তী ২৪ ঘণ্টা অপেক্ষা করতে হবে। সময় শেষ হলে button আবার চালু হবে।
                     </div>
                 </div>
                 
@@ -862,7 +862,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                             <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳20)</label>
                             <input type="number" id="withdrawAmount" min="20" placeholder="20" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
-                        <button onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
+                        <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
                     </div>
                 </div>
             </div>
@@ -1224,8 +1224,8 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   <div class="relative w-full max-w-sm rounded-2xl border border-amber-400/40 bg-slate-900 p-5 text-center shadow-2xl">
     <button type="button" onclick="closeDailyWithdrawLimitModal()" aria-label="Close" class="absolute right-3 top-2 text-xl text-slate-400 hover:text-white">×</button>
     <div class="text-3xl text-amber-300"><i class="fa-solid fa-calendar-check"></i></div>
-    <h3 id="dailyWithdrawLimitTitle" class="mt-3 text-base font-extrabold text-white">আজকের Withdrawal Request জমা হয়েছে</h3>
-    <p class="mt-2 text-xs leading-relaxed text-slate-300">প্রতিদিন সর্বোচ্চ ১ বার withdrawal request দেওয়া যাবে। আজ আর নতুন request দিতে পারবেন না। বাংলাদেশ সময় রাত ১২টার পর আবার request দিতে পারবেন।</p>
+    <h3 id="dailyWithdrawLimitTitle" class="mt-3 text-base font-extrabold text-white">২৪ ঘণ্টার Withdrawal Cooldown</h3>
+    <p class="mt-2 text-xs leading-relaxed text-slate-300">একটি withdrawal request দেওয়ার পর ঠিক ২৪ ঘণ্টা পূর্ণ না হওয়া পর্যন্ত নতুন request দেওয়া যাবে না। Countdown শেষ হলে button আবার চালু হবে।</p>
     <button type="button" onclick="closeDailyWithdrawLimitModal()" class="mt-4 w-full rounded-xl bg-amber-400 py-3 text-xs font-extrabold text-slate-950">ঠিক আছে</button>
   </div>
 </div>
@@ -2930,6 +2930,12 @@ function removeLegacyProfilePaymentTable() {
 }
 
 function switchTab(tabId) {
+    if (tabId === 'tabWallet') {
+        syncWithdrawCooldown().catch(error => {
+            console.error('Withdrawal cooldown refresh failed:', error);
+            showToast('Withdrawal cooldown যাচাই করা যায়নি।', true);
+        });
+    }
     if (tabId === 'tabTasks') {
         showToast('Tasks বর্তমানে locked আছে।', true);
         return;
@@ -3135,6 +3141,60 @@ function getWithdrawFormData() {
   return { method, amount, balance, accountNumber, accountName, bankName, date: new Date() };
 }
 
+let withdrawCooldownUntil = 0;
+let withdrawCooldownTimer = null;
+
+function updateWithdrawCooldownUi() {
+  const button = document.getElementById('withdrawSubmitButton');
+  const timerBox = document.getElementById('withdrawTimerBox');
+  const display = document.getElementById('countdownDisplay');
+  const remaining = Math.max(0, withdrawCooldownUntil - Date.now());
+  const locked = remaining > 0;
+
+  if (button) {
+    button.disabled = locked;
+    button.className = locked
+      ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
+      : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
+    button.textContent = locked ? '২৪ ঘণ্টার cooldown চলছে' : 'VERIFY & CONTINUE';
+  }
+  if (timerBox) timerBox.classList.toggle('hidden', !locked);
+  if (display && locked) {
+    const total = Math.ceil(remaining / 1000);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    display.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+  }
+  if (!locked && withdrawCooldownTimer) {
+    clearInterval(withdrawCooldownTimer);
+    withdrawCooldownTimer = null;
+  }
+}
+
+async function syncWithdrawCooldown() {
+  const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+  if (authError) throw authError;
+  const user = authData?.user;
+  if (!user) throw new Error('Withdrawal করতে আগে Login করুন।');
+
+  const { data: rows, error } = await supabaseClient
+    .from('withdrawal_requests')
+    .select('created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (error) throw error;
+
+  const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
+  withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
+  updateWithdrawCooldownUi();
+  if (withdrawCooldownUntil > Date.now() && !withdrawCooldownTimer) {
+    withdrawCooldownTimer = setInterval(updateWithdrawCooldownUi, 1000);
+  }
+  return withdrawCooldownUntil > Date.now();
+}
+
 function openDailyWithdrawLimitModal() {
   document.getElementById('dailyWithdrawLimitModal')?.classList.remove('hidden');
   document.body.classList.add('overflow-hidden');
@@ -3151,33 +3211,13 @@ function closeDailyWithdrawLimitModal() {
 
 async function openWithdrawVerification() {
   try {
-    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-    if (authError) throw authError;
-    const user = authData?.user;
-    if (!user) {
-      showToast('Withdrawal করতে আগে Login করুন।', true);
-      return;
-    }
-
-    // Bangladesh calendar day: only one withdrawal request per day.
-    const dhakaDate = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit'
-    }).format(new Date());
-    const dayStart = new Date(dhakaDate + 'T00:00:00+06:00').toISOString();
-    const { data: todayRequests, error: dailyLimitError } = await supabaseClient
-      .from('withdrawal_requests')
-      .select('id')
-      .eq('user_id', user.id)
-      .gte('created_at', dayStart)
-      .limit(1);
-    if (dailyLimitError) throw dailyLimitError;
-    if (Array.isArray(todayRequests) && todayRequests.length > 0) {
+    if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
       return;
     }
   } catch (err) {
-    console.error('Withdrawal daily limit check failed:', err);
-    showToast('আজকের withdrawal limit যাচাই করা যায়নি। আবার চেষ্টা করুন।', true);
+    console.error('Withdrawal 24-hour cooldown check failed:', err);
+    showToast('Withdrawal cooldown যাচাই করা যায়নি। আবার চেষ্টা করুন।', true);
     return;
   }
 
@@ -3279,6 +3319,7 @@ async function submitWithdrawRequest() {
     document.getElementById('withdrawResultId').textContent = request.id;
     document.getElementById('withdrawResultPage')?.classList.remove('hidden');
     if (hint) hint.textContent = 'Request submitted';
+    syncWithdrawCooldown().catch(error => console.error('Withdrawal cooldown refresh failed:', error));
     openDailyWithdrawLimitModal();
   } catch (error) {
     console.error('Withdrawal request submission failed:', error);
