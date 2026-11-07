@@ -1200,7 +1200,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <input type="text" id="depositTrx" placeholder="e.g. 9J8A7K2M" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
               </div>
 
-              <div>
+              <div id="activationReferralCodeSection">
                 <label class="text-[11px] text-slate-400 mb-1 block font-medium">Referral Code (Optional)</label>
                 <input type="text" id="activationReferralCode" maxlength="20" autocomplete="off" placeholder="যিনি Refer করেছেন তাঁর code" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 uppercase focus:outline-none focus:border-emerald-500">
                 <p class="mt-1 text-[9px] text-slate-500">না থাকলে খালি রাখুন। Admin approval-এর আগে referral count হবে না।</p>
@@ -2817,6 +2817,12 @@ function openPaymentModal(packagePrice = null, requestType = 'activation') {
     selectedVipPackage = plan ? { ...plan } : null;
     paymentRequestType = plan ? 'vip_package' : requestType;
 
+    const referralSection = document.getElementById('activationReferralCodeSection');
+    const referralInput = document.getElementById('activationReferralCode');
+    const isActivationRequest = !plan && paymentRequestType === 'activation';
+    referralSection?.classList.toggle('hidden', !isActivationRequest);
+    if (referralInput && !isActivationRequest) referralInput.value = '';
+
     if (amountInput) {
         amountInput.readOnly = !!plan;
         amountInput.min = plan ? String(plan.price) : '100';
@@ -3312,7 +3318,9 @@ function closeWithdrawResult() {
 async function handleActivationSubmit() {
   const number = document.getElementById('depositNum')?.value?.trim() || '';
   const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
-  const referralCode = (document.getElementById('activationReferralCode')?.value?.trim() || new URLSearchParams(window.location.search).get('ref') || '').trim().toUpperCase();
+  const referralCode = (!selectedVipPackage && paymentRequestType === 'activation'
+    ? (document.getElementById('activationReferralCode')?.value?.trim() || new URLSearchParams(window.location.search).get('ref') || '')
+    : '').trim().toUpperCase();
   const amount = Number(document.getElementById('paymentAmount')?.value || 100);
   const selectedPlan = selectedVipPackage ? { ...selectedVipPackage } : null;
   const packagePlan = selectedPlan
