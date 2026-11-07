@@ -1411,10 +1411,10 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
               </div>
               <button onclick="closeRedeemCodeModal()" class="text-slate-400 hover:text-white text-sm" aria-label="Close"><i class="fas fa-times"></i></button>
             </div>
-            <p class="text-slate-400">তোমার secret code লিখে ৳50 wallet balance-এ যোগ করো। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
+            <p class="text-slate-400">তোমার secret code লিখে wallet reward নাও। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
             <input id="redeemSecretCodeInput" type="text" maxlength="64" autocomplete="off" placeholder="Enter secret code" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm font-bold uppercase tracking-wider text-white outline-none focus:border-emerald-400">
-            <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem ৳50</button>
-            <p class="text-[10px] text-slate-500">Valid code হলে ৳50 যোগ হবে।</p>
+            <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem Code</button>
+            <p class="text-[10px] text-slate-500">Code অনুযায়ী ৳10 বা ৳20 wallet-এ যোগ হবে।</p>
           </div>
         </div>
 
@@ -2295,7 +2295,7 @@ function updateRedeemCodeLockState() {
         icon.innerHTML = locked ? '<i class="fas fa-lock text-sm"></i>' : '<i class="fas fa-ticket text-sm"></i>';
     }
     const hint = option.querySelector('.redeem-code-hint');
-    if (hint) hint.textContent = locked ? 'আগে account active করুন' : 'Code দিয়ে ৳50 wallet-এ নিন';
+    if (hint) hint.textContent = locked ? 'আগে account active করুন' : 'Code দিয়ে wallet reward নিন';
     const status = option.querySelector('.redeem-code-status');
     if (status) status.innerHTML = locked ? '<i class="fas fa-lock text-red-400 text-xs"></i>' : '<i class="fas fa-chevron-right text-slate-500 text-xs"></i>';
 }
@@ -2338,8 +2338,10 @@ async function redeemSecretCode() {
             showToast(result?.message || 'Code valid নয় অথবা আগে ব্যবহার হয়েছে।', true);
             return;
         }
+        const rewardAmount = Number(result.amount);
+        if (!Number.isFinite(rewardAmount) || rewardAmount <= 0) throw new Error('Invalid reward amount returned by redemption service.');
         const newBalance = Number(result.balance);
-        window.appState.balance = Number.isFinite(newBalance) ? Math.max(Number(window.appState.balance || 0), newBalance) : Number(window.appState.balance || 0) + 50;
+        window.appState.balance = Number.isFinite(newBalance) ? Math.max(Number(window.appState.balance || 0), newBalance) : Number(window.appState.balance || 0) + rewardAmount;
         updateBalanceDisplays();
         // The RPC already saved the credited balance in Supabase. Avoid stale saveAllProgress overwrites.
         const phone = window.appState.userPhone || localStorage.getItem('currentLoggedInUser');
@@ -2350,14 +2352,14 @@ async function redeemSecretCode() {
             saved.progressData = { ...(saved.progressData || defaultProgressData()), balance: window.appState.balance, isActive: !!window.appState.isActive };
             localStorage.setItem(key, JSON.stringify(saved));
         }
-        saveLocalTransaction({ type: 'Secret code reward', amount: 50, status: 'Credited', code });
+        saveLocalTransaction({ type: 'Secret code reward', amount: rewardAmount, status: 'Credited', code });
         closeRedeemCodeModal();
-        showToast('৳50 wallet balance-এ যোগ হয়েছে!');
+        showToast('৳' + rewardAmount + ' wallet balance-এ যোগ হয়েছে!');
     } catch (error) {
         console.error('Secret code redemption failed:', error);
         showToast('Redeem করা যায়নি। Service setup/check করুন।', true);
     } finally {
-        if (button) { button.disabled = false; button.textContent = 'Redeem ৳50'; }
+        if (button) { button.disabled = false; button.textContent = 'Redeem Code'; }
     }
 }
 
