@@ -3134,35 +3134,51 @@ function getWithdrawFormData() {
 }
 
 async function openWithdrawVerification() {
-  // Check prior successful withdrawals to enforce active referral rule for 2nd time onwards
+  // First approved withdrawal is free. One active referral unlocks all later withdrawals.
   try {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user) {
-      const { data: history } = await supabaseClient
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    const user = authData?.user;
+    if (!user) {
+      showToast('Withdrawal করতে আগে Login করুন।', true);
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('app_data')
+      .eq('id', user.id)
+      .single();
+    if (profileError) throw profileError;
+
+    const alreadyUnlocked = profile?.app_data?.withdrawReferralUnlocked === true;
+    if (!alreadyUnlocked) {
+      const { data: history, error: historyError } = await supabaseClient
         .from('withdrawal_requests')
         .select('id')
         .eq('user_id', user.id)
         .eq('status', 'approved');
-      
+      if (historyError) throw historyError;
+
       const successfulCount = Array.isArray(history) ? history.length : 0;
-      
-      if (successfulCount > 0) {
-        // Check active referrals
-        const { count: activeRefCount } = await supabaseClient
+      if (successfulCount >= 1) {
+        const { count: activeRefCount, error: referralError } = await supabaseClient
           .from('profiles')
           .select('*', { count: 'exact', head: true })
           .filter('app_data->>referredBy', 'eq', user.id)
           .eq('is_active', true);
-        
-        // If active referrals less than required, show refer prompt popup!
-        if ((activeRefCount || 0) < successfulCount) {
-          openWithdrawReferPrompt(); // Ei popup-ta already tomar code-e ache!
+        if (referralError) throw referralError;
+
+        if ((activeRefCount || 0) < 1) {
+          openWithdrawReferPrompt();
           return;
         }
       }
     }
   } catch (err) {
-    console.warn('Withdrawal referral restriction check skipped:', err);
+    console.error('Withdrawal eligibility check failed:', err);
+    showToast('Withdrawal যাচাই করা যায়নি। আবার চেষ্টা করুন।', true);
+    return;
   }
 
   const details = getWithdrawFormData();
