@@ -1224,7 +1224,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
   <div class="w-full max-w-sm rounded-2xl border border-emerald-500/40 bg-slate-900 p-5 text-center shadow-2xl">
     <div class="text-3xl text-emerald-300"><i class="fa-solid fa-user-plus"></i></div>
     <h3 id="withdrawReferPromptTitle" class="mt-3 text-base font-extrabold text-white">১টি Active Referral প্রয়োজন</h3>
-    <p class="mt-2 text-xs leading-relaxed text-slate-300">পরবর্তী withdrawal করতে কমপক্ষে ১ জন active referral থাকতে হবে। Referral করতে নিচের বাটনে চাপ দিন।</p>
+    <p class="mt-2 text-xs leading-relaxed text-slate-300">আপনার প্রথম withdrawal সম্পন্ন হয়েছে। দ্বিতীয় এবং পরবর্তী withdrawal চালু করতে কমপক্ষে ১ জন Active Referral প্রয়োজন। একজন referral account ৳100 দিয়ে Active করলেই সব পরবর্তী withdrawal স্থায়ীভাবে Unlock হবে।</p>
     <div class="mt-4 grid grid-cols-2 gap-2">
       <button type="button" onclick="closeWithdrawReferPrompt()" class="rounded-xl border border-slate-700 bg-slate-800 py-3 text-xs font-bold text-slate-300">পরে করব</button>
       <button type="button" onclick="closeWithdrawReferPrompt(); openReferModal();" class="rounded-xl bg-emerald-500 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-900/30">Refer Now</button>
@@ -3286,7 +3286,15 @@ async function submitWithdrawRequest() {
     withdrawRequestCompleted = false;
     if (holdButton) holdButton.disabled = false;
     if (hint) hint.textContent = 'আবার চেপে ধরে চেষ্টা করুন';
-    showToast('Withdrawal request জমা হয়নি: ' + (error?.message || 'আবার চেষ্টা করুন'), true);
+    const errorMessage = String(error?.message || '');
+    if (errorMessage.includes('One active referral is required')) {
+      document.getElementById('withdrawReviewPage')?.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+      withdrawPreviewData = null;
+      openWithdrawReferPrompt();
+      return;
+    }
+    showToast('Withdrawal request জমা হয়নি: ' + (errorMessage || 'আবার চেষ্টা করুন'), true);
   }
 }
 
