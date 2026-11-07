@@ -2137,7 +2137,7 @@ async function loadAdminPaymentRequests(tabName = adminPaymentRequestTab) {
 
         let query = supabaseClient.from('payment_requests')
             .select('id,user_id,request_type,amount,trx_id,sender_number,payment_method,package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,status,created_at,reviewed_at,reviewed_by')
-            .order('created_at', { ascending: false }).limit(150);
+            .order('created_at', { ascending: false }).limit(1000);
         query = adminPaymentRequestTab === 'pending'
             ? query.eq('status', 'pending')
             : query.in('status', ['approved', 'rejected']);
