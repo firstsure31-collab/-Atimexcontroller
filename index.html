@@ -3156,8 +3156,7 @@ async function openWithdrawVerification() {
       const { data: history, error: historyError } = await supabaseClient
         .from('withdrawal_requests')
         .select('id')
-        .eq('user_id', user.id)
-        .eq('status', 'approved');
+        .eq('user_id', user.id);
       if (historyError) throw historyError;
 
       const successfulCount = Array.isArray(history) ? history.length : 0;
