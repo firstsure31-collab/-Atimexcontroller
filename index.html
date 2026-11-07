@@ -3084,7 +3084,38 @@ function getWithdrawFormData() {
   return { method, amount, balance, accountNumber, accountName, bankName, date: new Date() };
 }
 
-function openWithdrawVerification() {
+async function openWithdrawVerification() {
+  // Check prior successful withdrawals to enforce active referral rule for 2nd time onwards
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+      const { data: history } = await supabaseClient
+        .from('withdrawal_requests')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'approved');
+      
+      const successfulCount = Array.isArray(history) ? history.length : 0;
+      
+      if (successfulCount > 0) {
+        // Check active referrals
+        const { count: activeRefCount } = await supabaseClient
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .filter('app_data->>referredBy', 'eq', user.id)
+          .eq('is_active', true);
+        
+        // If active referrals less than required, show refer prompt popup!
+        if ((activeRefCount || 0) < successfulCount) {
+          openWithdrawReferPrompt(); // Ei popup-ta already tomar code-e ache!
+          return;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Withdrawal referral restriction check skipped:', err);
+  }
+
   const details = getWithdrawFormData();
   if (!details) return;
   withdrawPreviewData = details;
