@@ -1200,6 +1200,12 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <input type="text" id="depositTrx" placeholder="e.g. 9J8A7K2M" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
               </div>
 
+              <div>
+                <label class="text-[11px] text-slate-400 mb-1 block font-medium">Referral Code (Optional)</label>
+                <input type="text" id="activationReferralCode" maxlength="20" autocomplete="off" placeholder="যিনি Refer করেছেন তাঁর code" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 uppercase focus:outline-none focus:border-emerald-500">
+                <p class="mt-1 text-[9px] text-slate-500">না থাকলে খালি রাখুন। Admin approval-এর আগে referral count হবে না।</p>
+              </div>
+
               <button type="button" onclick="handleActivationSubmit()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-check"></i>
                 <span>SUBMIT FOR VERIFICATION</span>
@@ -3240,6 +3246,7 @@ function closeWithdrawResult() {
 async function handleActivationSubmit() {
   const number = document.getElementById('depositNum')?.value?.trim() || '';
   const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
+  const referralCode = document.getElementById('activationReferralCode')?.value?.trim()?.toUpperCase() || '';
   const amount = Number(document.getElementById('paymentAmount')?.value || 100);
   const selectedPlan = selectedVipPackage ? { ...selectedVipPackage } : null;
   const packagePlan = selectedPlan
@@ -3257,6 +3264,10 @@ async function handleActivationSubmit() {
   }
   if (!/^[A-Z0-9]{8,20}$/.test(trxId)) {
     showToast('সঠিক TrxID / reference দিন।', true);
+    return;
+  }
+  if (referralCode && !/^[A-Z0-9]{5,20}$/.test(referralCode)) {
+    showToast('Referral Code-এর format ঠিক নয়।', true);
     return;
   }
   if (!Number.isInteger(amount) || amount < 100) {
@@ -3292,6 +3303,7 @@ async function handleActivationSubmit() {
       trx_id: trxId,
       sender_number: number,
       payment_method: activeGateway?.method || 'bKash',
+      referral_code: (!packagePlan && paymentRequestType === 'activation') ? (referralCode || null) : null,
       package_id: packagePlan?.id || null,
       package_name: packagePlan?.name || null,
       package_duration_days: packagePlan?.durationDays || null,
