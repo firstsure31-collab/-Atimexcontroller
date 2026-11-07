@@ -1777,10 +1777,34 @@ function removeProfilePic() {
     closeProfilePicModal();
     if(typeof showToast === 'function') showToast('Profile picture removed!');
 }
-        function openLeaderboardModal() {
+        async function openLeaderboardModal() {
     const modal = document.getElementById('leaderboardModal');
     if (modal) modal.classList.remove('hidden');
-    // Ekhane online database (Firebase) theke top referrers data fetch kore render korar logic bosbe
+    const list = document.getElementById('leaderboardListContainer');
+    const totalEl = document.getElementById('leaderboardTotalReferrals');
+    const poolEl = document.getElementById('leaderboardActivePool');
+    if (list) list.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-center text-xs text-slate-400">Loading daily active referrals…</div>';
+    try {
+        const { data, error } = await supabaseClient.rpc('get_daily_referral_leaderboard', { p_limit: 20 });
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const total = rows.reduce((sum, row) => sum + Number(row.active_referrals || 0), 0);
+        if (totalEl) totalEl.textContent = String(total);
+        if (poolEl) poolEl.textContent = String(rows.length);
+        if (!list) return;
+        if (!rows.length) {
+            list.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-center text-xs text-slate-400">আজ এখনো কোনো Active Referral নেই।</div>';
+            return;
+        }
+        list.innerHTML = rows.map((row, index) => {
+            const rank = Number(row.rank_no || index + 1);
+            const name = String(row.nickname || 'User').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+            return '<div class="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-800/70 p-3"><div class="flex items-center gap-3"><span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-xs font-black text-emerald-300">#' + rank + '</span><span class="text-xs font-bold text-white">' + name + '</span></div><span class="text-xs font-black text-emerald-300">' + Number(row.active_referrals || 0) + ' Active</span></div>';
+        }).join('');
+    } catch (error) {
+        console.error('Daily referral leaderboard failed:', error);
+        if (list) list.innerHTML = '<div class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-center text-xs text-rose-300">Leaderboard load হয়নি। Database function ও login/session check করুন।</div>';
+    }
 }
 
 function closeLeaderboardModal() {
@@ -3246,7 +3270,7 @@ function closeWithdrawResult() {
 async function handleActivationSubmit() {
   const number = document.getElementById('depositNum')?.value?.trim() || '';
   const trxId = document.getElementById('depositTrx')?.value?.trim()?.toUpperCase() || '';
-  const referralCode = document.getElementById('activationReferralCode')?.value?.trim()?.toUpperCase() || '';
+  const referralCode = (document.getElementById('activationReferralCode')?.value?.trim() || new URLSearchParams(window.location.search).get('ref') || '').trim().toUpperCase();
   const amount = Number(document.getElementById('paymentAmount')?.value || 100);
   const selectedPlan = selectedVipPackage ? { ...selectedVipPackage } : null;
   const packagePlan = selectedPlan
@@ -3604,10 +3628,32 @@ function creditReferralReward(amount) {
     saveAllProgress();
     return true;
 }
-function updateReferralUi() {
-    const earned = Number(window.appState?.referralEarned || 0);
+async function updateReferralUi() {
     const valueEl = document.getElementById('referralEarnings');
-    if (valueEl) valueEl.textContent = earned.toLocaleString('en-BD', {minimumFractionDigits:0, maximumFractionDigits:2});
+    const countEl = document.getElementById('referActiveCount');
+    const linkEl = document.getElementById('referLinkInput');
+    try {
+        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) throw authError;
+        if (!authData?.user) throw new Error('Login required');
+        const { data, error } = await supabaseClient.rpc('get_my_referral_stats');
+        if (error) throw error;
+        const stats = data || {};
+        const code = String(stats.referral_code || '');
+        if (linkEl && code) {
+            const base = window.location.origin + window.location.pathname;
+            linkEl.value = base + '?ref=' + encodeURIComponent(code);
+        }
+        if (countEl) countEl.textContent = Number(stats.active_referrals || 0).toLocaleString('en-BD') + ' / 20';
+        if (valueEl) valueEl.textContent = Number(stats.referral_bonus || 0).toLocaleString('en-BD', {minimumFractionDigits:0, maximumFractionDigits:2});
+        const lockMsg = document.getElementById('refWithdrawLockMsg');
+        if (lockMsg) lockMsg.textContent = '🔒 Database verified: ' + Number(stats.active_referrals || 0) + ' Active Referrals';
+    } catch (error) {
+        console.error('Referral stats load failed:', error);
+        if (countEl) countEl.textContent = '— / 20';
+        if (valueEl) valueEl.textContent = '—';
+        if (linkEl) linkEl.value = 'Login required to load referral link';
+    }
 }
     </script>
 </body>
