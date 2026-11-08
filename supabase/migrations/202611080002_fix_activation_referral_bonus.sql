@@ -44,12 +44,11 @@ BEGIN
         RAISE EXCEPTION 'Self referral is not allowed';
     END IF;
 
-    SELECT LOWER(COALESCE(
-        p.app_data #>> '{progressData,isActive}',
-        p.app_data ->> 'is_active',
-        p.app_data ->> 'isActive',
-        'false'
-    )) IN ('true', '1')
+    SELECT (
+        LOWER(COALESCE(p.app_data #>> '{progressData,isActive}', 'false')) IN ('true', '1')
+        OR LOWER(COALESCE(p.app_data ->> 'is_active', 'false')) IN ('true', '1')
+        OR LOWER(COALESCE(p.app_data ->> 'isActive', 'false')) IN ('true', '1')
+    )
     INTO v_referred_active
     FROM public.profiles p
     WHERE p.id = p_referred_user_id;
@@ -182,6 +181,119 @@ BEGIN
 END;
 $function$;
 
+
+-- Keep both active flags in sync. Some app readers use progressData.isActive,
+-- while older backend functions read the root-level is_active flag.
+CREATE OR REPLACE FUNCTION public.admin_review_payment_request(
+    p_request_id uuid,
+    p_action text
+)
+RETURNS public.payment_requests
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+    v_request public.payment_requests;
+    v_updated_count integer := 0;
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM public.atimex_admins
+        WHERE user_id = auth.uid()
+    ) THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    IF p_action NOT IN ('approved', 'rejected') THEN
+        RAISE EXCEPTION 'Invalid action';
+    END IF;
+
+    SELECT *
+    INTO v_request
+    FROM public.payment_requests
+    WHERE id = p_request_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Request not found';
+    END IF;
+
+    IF v_request.status <> 'pending' THEN
+        RAISE EXCEPTION 'Request already reviewed';
+    END IF;
+
+    IF p_action = 'approved' THEN
+        IF v_request.request_type = 'deposit' THEN
+            UPDATE public.profiles
+            SET
+                balance = COALESCE(balance, 0) + v_request.amount,
+                app_data = jsonb_set(
+                    COALESCE(app_data, '{}'::jsonb),
+                    '{progressData}',
+                    COALESCE(app_data->'progressData', '{}'::jsonb)
+                    || jsonb_build_object(
+                        'balance',
+                        COALESCE(
+                            NULLIF(app_data #>> '{progressData,balance}', '')::numeric,
+                            0
+                        ) + v_request.amount
+                    ),
+                    true
+                ),
+                updated_at = now()
+            WHERE id = v_request.user_id;
+
+            GET DIAGNOSTICS v_updated_count = ROW_COUNT;
+
+        ELSIF v_request.request_type = 'activation' THEN
+            UPDATE public.profiles
+            SET
+                app_data = jsonb_set(
+                    jsonb_set(
+                        COALESCE(app_data, '{}'::jsonb),
+                        '{is_active}',
+                        'true'::jsonb,
+                        true
+                    ),
+                    '{progressData}',
+                    COALESCE(app_data->'progressData', '{}'::jsonb)
+                        || jsonb_build_object('isActive', true),
+                    true
+                ),
+                updated_at = now()
+            WHERE id = v_request.user_id;
+
+            GET DIAGNOSTICS v_updated_count = ROW_COUNT;
+
+        ELSIF v_request.request_type = 'vip_package' THEN
+            IF v_request.package_id IS NULL
+               OR v_request.package_duration_days IS NULL
+               OR v_request.package_daily_amount IS NULL THEN
+                RAISE EXCEPTION 'Package information is incomplete';
+            END IF;
+        ELSE
+            RAISE EXCEPTION 'Unknown request type: %', v_request.request_type;
+        END IF;
+
+        IF v_request.request_type <> 'vip_package'
+           AND v_updated_count = 0 THEN
+            RAISE EXCEPTION 'User profile not found: %', v_request.user_id;
+        END IF;
+    END IF;
+
+    UPDATE public.payment_requests
+    SET
+        status = p_action,
+        reviewed_at = now(),
+        reviewed_by = auth.uid()
+    WHERE id = p_request_id
+    RETURNING * INTO v_request;
+
+    RETURN v_request;
+END;
+$function$;
+
 -- Repair previously approved activations that had a valid referral code but
 -- were skipped by the old trigger. Only currently active referred accounts are
 -- eligible, and existing ledger entries are never credited twice.
@@ -208,12 +320,11 @@ BEGIN
               existing_referral.id IS NULL
               OR existing_referral.referrer_id = rc.user_id
           )
-          AND LOWER(COALESCE(
-              referred_profile.app_data #>> '{progressData,isActive}',
-              referred_profile.app_data ->> 'is_active',
-              referred_profile.app_data ->> 'isActive',
-              'false'
-          )) IN ('true', '1')
+          AND (
+              LOWER(COALESCE(referred_profile.app_data #>> '{progressData,isActive}', 'false')) IN ('true', '1')
+              OR LOWER(COALESCE(referred_profile.app_data ->> 'is_active', 'false')) IN ('true', '1')
+              OR LOWER(COALESCE(referred_profile.app_data ->> 'isActive', 'false')) IN ('true', '1')
+          )
         ORDER BY
             pr.user_id,
             (existing_referral.id IS NOT NULL) DESC,
