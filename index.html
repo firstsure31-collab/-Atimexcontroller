@@ -2617,9 +2617,14 @@ async function openSpinModal() {
 
     spinTestAdmin = !!admin && admin.id === ATIMEX_ADMIN_UID;
     spinTestAdminId = spinTestAdmin ? admin.id : null;
-    spinDemoPoints = spinTestAdmin
-        ? Math.max(0, Number(localStorage.getItem('atimex_admin_demo_spin_points_' + admin.id)) || 0)
-        : 0;
+    spinDemoPoints = 0;
+    if (spinTestAdmin) {
+        try {
+            spinDemoPoints = Math.max(0, Number(localStorage.getItem('atimex_admin_demo_spin_points_' + admin.id)) || 0);
+        } catch (error) {
+            console.warn('Could not read local demo points:', error);
+        }
+    }
 
     const modal = document.getElementById('spinModal');
     if (modal) {
@@ -2867,6 +2872,7 @@ async function startSpin() {
     const finishSpin = () => {
         if (!isSpinning) return;
         isSpinning = false;
+        btn.classList.remove('is-spinning');
 
         const wonPoints = rewards[randomIndex];
         spinDemoPoints = Math.max(0, Number(spinDemoPoints) || 0) + wonPoints;
