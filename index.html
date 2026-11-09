@@ -2747,13 +2747,8 @@ function buyCustomPackage(price, spinCount, type = '') {
     showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
 }
 
-const SPIN_DEMO_REWARDS = [
-    10, 20, 50, 20, 100,
-    200, 10, 20, 100, 50,
-    80, 10, 10, 10, 10,
-    10, 20, 150, 20, 20,
-    50, 150, 10, 200, 10
-];
+// Original 10-sector Lucky Spin reward layout (display/test points only).
+const SPIN_DEMO_REWARDS = [10, 50, 20, 100, 200, 80, 500, 20, 150, 2500];
 
 let isSpinning = false;
 let spinStartPending = false;
