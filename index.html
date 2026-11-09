@@ -1465,9 +1465,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <div class="spin-top-line"></div>
                 <button onclick="closeSpinModal()" aria-label="Close Lucky Spin" class="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[.07] text-lg text-slate-300 transition hover:border-amber-300/40 hover:bg-white/15 hover:text-white">×</button>
                 <div class="relative z-10 w-full text-center">
-                    <div class="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.08] px-3.5 py-1.5 text-[9px] font-black tracking-[.24em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_10px_#fbbf24]"></span> ATIMEX • EXCLUSIVE REWARDS</div>
+                    <div id="spinModeBadge" class="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.08] px-3.5 py-1.5 text-[9px] font-black tracking-[.24em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span> ATIMEX • COMING SOON</div>
                     <h3 class="text-[27px] font-black leading-none tracking-tight text-white">LUCKY <span class="text-amber-300">SPIN</span></h3>
-                    <p class="mt-2 text-[11px] tracking-wide text-slate-400">Spin the wheel. Unlock your reward.</p>
+                    <p id="spinModeDescription" class="mt-2 text-[11px] tracking-wide text-slate-400">Spin feature is temporarily unavailable.</p>
                     <div class="mt-4 flex justify-center"><p id="spinsLeftText" class="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-slate-950/70 px-4 py-2 text-[10px] font-extrabold tracking-[.12em] text-amber-100">SPINS AVAILABLE · 0</p></div>
                 </div>
                 <div class="spin-wheel-stage relative z-10 mx-auto my-5">
@@ -1475,21 +1475,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                     <div id="wheel" class="spin-wheel-disc" role="img" aria-label="Lucky Spin reward wheel">
                         <svg viewBox="0 0 100 100" class="h-full w-full" aria-hidden="true">
                             <defs><radialGradient id="spinWheelShade"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></radialGradient></defs>
-                            <path d="M50 50 L100 50 A50 50 0 0 1 90.45 79.39 Z" fill="#f43f5e"/><path d="M50 50 L90.45 79.39 A50 50 0 0 1 65.45 97.55 Z" fill="#f97316"/>
-                            <path d="M50 50 L65.45 97.55 A50 50 0 0 1 34.55 97.55 Z" fill="#eab308"/><path d="M50 50 L34.55 97.55 A50 50 0 0 1 9.55 79.39 Z" fill="#10b981"/>
-                            <path d="M50 50 L9.55 79.39 A50 50 0 0 1 0 50 Z" fill="#06b6d4"/><path d="M50 50 L0 50 A50 50 0 0 1 9.55 20.61 Z" fill="#3b82f6"/>
-                            <path d="M50 50 L9.55 20.61 A50 50 0 0 1 34.55 2.45 Z" fill="#6366f1"/><path d="M50 50 L34.55 2.45 A50 50 0 0 1 65.45 2.45 Z" fill="#8b5cf6"/>
-                            <path d="M50 50 L65.45 2.45 A50 50 0 0 1 90.45 20.61 Z" fill="#ec4899"/><path d="M50 50 L90.45 20.61 A50 50 0 0 1 100 50 Z" fill="#14b8a6"/>
+                            <g id="spinWheelSectors"></g>
                             <circle cx="50" cy="50" r="49" fill="url(#spinWheelShade)"/>
-                            <g fill="#fff" font-family="Arial,sans-serif" font-size="4.3" font-weight="800" text-anchor="middle" dominant-baseline="middle">
-                                <text x="50" y="14">৳10</text><text x="68" y="22" transform="rotate(-54 68 22)">৳50</text>
-                                <text x="78" y="42" transform="rotate(-18 78 42)">৳20</text><text x="78" y="58" transform="rotate(18 78 58)">৳100</text>
-                                <text x="68" y="78" transform="rotate(54 68 78)">৳200</text><text x="50" y="86">৳80</text>
-                                <text x="32" y="78" transform="rotate(-54 32 78)">৳500</text><text x="22" y="58" transform="rotate(-18 22 58)">৳20</text>
-                                <text x="22" y="42" transform="rotate(18 22 42)">৳150</text><text x="32" y="22" transform="rotate(54 32 22)">৳2500</text>
-                            </g>
                             <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(255,255,255,.5)" stroke-width=".7"/>
-                            <path d="M50 1V99 M1 50H99" stroke="rgba(255,255,255,.18)" stroke-width=".45"/>
                         </svg>
                     </div>
                     <div class="spin-wheel-halo"></div>
@@ -2616,13 +2604,28 @@ function closeWelcomeOpenAuth() {
     document.getElementById('authModal').classList.remove('hidden');
 }
 
-function openSpinModal() {
-    const oldToast=document.getElementById('toast');
-    if(oldToast)oldToast.classList.add('hidden');
+async function openSpinModal() {
+    const oldToast = document.getElementById('toast');
+    if (oldToast) oldToast.classList.add('hidden');
+
+    let admin = null;
+    try {
+        admin = await getCurrentAdminUser();
+    } catch (error) {
+        console.warn('Spin demo admin check failed:', error);
+    }
+
+    spinTestAdmin = !!admin && admin.id === ATIMEX_ADMIN_UID;
+    spinTestAdminId = spinTestAdmin ? admin.id : null;
+    spinDemoPoints = spinTestAdmin
+        ? Math.max(0, Number(localStorage.getItem('atimex_admin_demo_spin_points_' + admin.id)) || 0)
+        : 0;
+
     const modal = document.getElementById('spinModal');
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        renderSpinWheel();
         updateSpinUI();
     }
 }
@@ -2639,14 +2642,53 @@ function showSpinComingSoon() {
 function updateSpinUI() {
     const textEl = document.getElementById('spinsLeftText');
     const button = document.getElementById('spinBtn');
-    if (textEl) textEl.textContent = 'COMING SOON';
+    const badge = document.getElementById('spinModeBadge');
+    const description = document.getElementById('spinModeDescription');
+    const result = document.getElementById('spinResult');
+    const isAdmin = !!spinTestAdmin && spinTestAdminId === ATIMEX_ADMIN_UID;
+
+    if (!isAdmin) {
+        if (badge) badge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span> ATIMEX • COMING SOON';
+        if (description) description.textContent = 'Spin feature is temporarily unavailable.';
+        if (textEl) textEl.textContent = 'COMING SOON';
+        if (button) {
+            button.disabled = true;
+            button.onclick = null;
+            button.setAttribute('aria-label', 'Coming soon');
+            button.classList.add('cursor-not-allowed', 'opacity-95');
+            button.classList.remove('cursor-pointer');
+            const label = button.querySelector('span');
+            const hint = button.querySelector('small');
+            if (label) label.textContent = 'COMING';
+            if (hint) hint.textContent = 'SOON';
+        }
+        if (result) {
+            result.innerHTML = '<span>ATIMEX LUCKY SPIN</span><strong>COMING SOON</strong><span>Spin feature is temporarily unavailable</span>';
+            result.classList.remove('spin-result-win');
+        }
+        return;
+    }
+
+    if (badge) badge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_#6ee7b7]"></span> ATIMEX • ADMIN DEMO MODE';
+    if (description) description.textContent = 'Admin-only test. Demo points have no cash value and never change Main Balance.';
+    if (textEl) {
+        textEl.textContent = 'TEST SPINS · ' + spinDemoRemaining + '  |  DEMO POINTS · ' + spinDemoPoints.toLocaleString('en-BD');
+    }
     if (button) {
-        button.disabled = true;
-        button.classList.add('cursor-not-allowed');
+        button.disabled = isSpinning || spinDemoRemaining < 1;
+        button.onclick = startSpin;
+        button.setAttribute('aria-label', 'Start demo spin');
+        button.classList.toggle('cursor-not-allowed', button.disabled);
+        button.classList.toggle('opacity-95', button.disabled);
+        button.classList.toggle('cursor-pointer', !button.disabled);
         const label = button.querySelector('span');
         const hint = button.querySelector('small');
-        if (label) label.textContent = 'COMING';
-        if (hint) hint.textContent = 'SOON';
+        if (label) label.textContent = isSpinning ? 'WAIT' : 'SPIN';
+        if (hint) hint.textContent = isSpinning ? '...' : 'DEMO';
+    }
+    if (result && !isSpinning) {
+        result.innerHTML = '<span class="text-emerald-300">ADMIN TEST MODE</span><strong>DEMO SPIN READY</strong><span>Points only · Main Balance unchanged</span>';
+        result.classList.remove('spin-result-win');
     }
 }
 
@@ -2700,24 +2742,94 @@ function buyCustomPackage(price, spinCount, type = '') {
     showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
 }
 
+const SPIN_DEMO_REWARDS = [
+    10, 20, 50, 20, 100,
+    200, 10, 20, 100, 50,
+    80, 10, 10, 10, 10,
+    10, 20, 150, 20, 20,
+    50, 150, 10, 200, 10
+];
+
 let isSpinning = false;
+let spinStartPending = false;
 let currentDegree = 0;
+let spinTestAdmin = false;
+let spinTestAdminId = null;
+let spinDemoRemaining = 999;
+let spinDemoPoints = 0;
 
-function startSpin() {
-    const state = window.appState;
+function renderSpinWheel() {
+    const svg = document.querySelector('#wheel svg');
+    const group = svg?.querySelector('#spinWheelSectors');
+    if (!svg || !group) return;
 
-    // Account activation check
-    if (!state?.isActive) {
-        showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
-        closeSpinModal();
+    while (group.firstChild) group.removeChild(group.firstChild);
+    const ns = 'http://www.w3.org/2000/svg';
+    const colors = ['#f43f5e', '#f97316', '#eab308', '#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6'];
+    const angle = 360 / SPIN_DEMO_REWARDS.length;
+    const polar = (degrees, radius) => {
+        const radians = degrees * Math.PI / 180;
+        return { x: 50 + Math.cos(radians) * radius, y: 50 + Math.sin(radians) * radius };
+    };
+
+    SPIN_DEMO_REWARDS.forEach((reward, index) => {
+        const start = -90 - angle / 2 + index * angle;
+        const end = start + angle;
+        const p1 = polar(start, 49);
+        const p2 = polar(end, 49);
+
+        const sector = document.createElementNS(ns, 'path');
+        sector.setAttribute('d', `M 50 50 L ${p1.x.toFixed(3)} ${p1.y.toFixed(3)} A 49 49 0 0 1 ${p2.x.toFixed(3)} ${p2.y.toFixed(3)} Z`);
+        sector.setAttribute('fill', colors[index % colors.length]);
+        sector.setAttribute('stroke', '#111827');
+        sector.setAttribute('stroke-width', '0.55');
+        group.appendChild(sector);
+
+        const labelPoint = polar(-90 + index * angle, 37);
+        const label = document.createElementNS(ns, 'text');
+        label.setAttribute('x', labelPoint.x.toFixed(2));
+        label.setAttribute('y', labelPoint.y.toFixed(2));
+        label.setAttribute('fill', '#ffffff');
+        label.setAttribute('font-family', 'Arial,sans-serif');
+        label.setAttribute('font-size', '2.8');
+        label.setAttribute('font-weight', '800');
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('dominant-baseline', 'middle');
+        label.textContent = String(reward);
+        group.appendChild(label);
+    });
+
+    svg.setAttribute('aria-label', '25-sector demo points wheel');
+}
+
+async function startSpin() {
+    if (spinStartPending || isSpinning) return;
+    spinStartPending = true;
+
+    let admin = null;
+    try {
+        admin = await getCurrentAdminUser();
+    } catch (error) {
+        console.error('Admin demo spin verification failed:', error);
+    }
+
+    if (!admin || admin.id !== ATIMEX_ADMIN_UID) {
+        spinStartPending = false;
+        spinTestAdmin = false;
+        spinTestAdminId = null;
+        updateSpinUI();
+        showToast('এই account-এ Spin test access নেই।', true);
         return;
     }
-    if (isSpinning) return;
 
-    // Remaining spin check
-    const spins = Number(state.spinsLeft || 0);
+    spinTestAdmin = true;
+    spinTestAdminId = admin.id;
+
+    const spins = Math.max(0, Number(spinDemoRemaining) || 0);
     if (spins < 1) {
-        showToast('আপনার কোনো স্পিন বাকি নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
+        spinStartPending = false;
+        updateSpinUI();
+        showToast('ডেমো test spin শেষ। পেজ refresh করে আবার test করতে পারবেন।', true);
         return;
     }
 
@@ -2725,28 +2837,22 @@ function startSpin() {
     const wheel = modal?.querySelector('.spin-wheel-disc');
     const btn = modal?.querySelector('#spinBtn');
     if (!wheel || !btn || !wheel.querySelector('svg')) {
+        spinStartPending = false;
         console.error('Lucky Spin UI is incomplete:', { modal: !!modal, wheel: !!wheel, button: !!btn });
         showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
         return;
     }
 
-    // 25 Reward sectors (Max reward capped at 200)
-    const rewards = [
-        10, 20, 50, 20, 100, 
-        200, 10, 20, 100, 50, 
-        80, 10, 10, 10, 10, 
-        10, 20, 150, 20, 20, 
-        50, 150, 10, 200, 10
-    ];
-
+    const rewards = SPIN_DEMO_REWARDS;
     const randomIndex = Math.floor(Math.random() * rewards.length);
     const segmentAngle = 360 / rewards.length;
     const sectorCenterFromTop = segmentAngle / 2 + randomIndex * segmentAngle;
     const targetOffset = (360 - sectorCenterFromTop + 360) % 360;
     const fullTurns = 6;
 
+    spinStartPending = false;
     isSpinning = true;
-    state.spinsLeft = spins - 1;
+    spinDemoRemaining = spins - 1;
     updateSpinUI();
     btn.disabled = true;
     const spinLabel = btn.querySelector('span');
@@ -2755,32 +2861,30 @@ function startSpin() {
     if (spinHint) spinHint.textContent = '...';
     btn.classList.add('is-spinning');
 
-    // Keep the accumulated angle
     currentDegree += (fullTurns * 360) + ((targetOffset - (currentDegree % 360) + 360) % 360);
     wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
 
     const finishSpin = () => {
         if (!isSpinning) return;
         isSpinning = false;
-        btn.disabled = false;
-        if (spinLabel) spinLabel.textContent = Number(state.spinsLeft || 0) > 0 ? 'SPIN' : 'BUY';
-        if (spinHint) spinHint.textContent = Number(state.spinsLeft || 0) > 0 ? 'TO WIN' : 'PACK';
-        btn.disabled = Number(state.spinsLeft || 0) < 1;
-        btn.classList.remove('is-spinning');
 
-        const wonAmount = rewards[randomIndex];
-        state.balance = Number(state.balance || 0) + wonAmount;
-        state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
-        updateBalanceDisplays();
-        saveLocalTransaction({type:'Lucky Spin reward',amount:wonAmount,status:'Credited'});
-        Promise.resolve(saveAllProgress()).catch(error => console.error('Spin reward save failed:', error));
+        const wonPoints = rewards[randomIndex];
+        spinDemoPoints = Math.max(0, Number(spinDemoPoints) || 0) + wonPoints;
+        if (spinTestAdminId === ATIMEX_ADMIN_UID) {
+            try {
+                localStorage.setItem('atimex_admin_demo_spin_points_' + spinTestAdminId, String(spinDemoPoints));
+            } catch (error) {
+                console.warn('Demo points could not be saved locally:', error);
+            }
+        }
 
+        updateSpinUI();
         const result = document.getElementById('spinResult');
         if (result) {
-            result.innerHTML = '<span class="text-emerald-300">YOU WON</span><strong>৳' + wonAmount.toLocaleString('en-BD') + '</strong><span>Reward added to your balance</span>';
+            result.innerHTML = '<span class="text-emerald-300">DEMO RESULT</span><strong>+' + wonPoints.toLocaleString('en-BD') + ' POINTS</strong><span>Demo only · Main Balance unchanged</span>';
             result.classList.add('spin-result-win');
         }
-        showToast('অভিনন্দন! আপনি ৳' + wonAmount.toLocaleString('en-BD') + ' জিতেছেন!');
+        showToast('ডেমো Spin: +' + wonPoints.toLocaleString('en-BD') + ' points। Main Balance অপরিবর্তিত।');
     };
 
     let spinFallback;
@@ -2791,12 +2895,13 @@ function startSpin() {
         finishSpin();
     };
     wheel.addEventListener('transitionend', onSpinEnd);
-    
+
     spinFallback = window.setTimeout(() => {
         wheel.removeEventListener('transitionend', onSpinEnd);
         finishSpin();
     }, 6500);
 }
+
 function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const amountInput = document.getElementById('paymentAmount');
     const amountLabel = document.querySelector('label[for="paymentAmount"]');
