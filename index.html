@@ -518,40 +518,48 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 @media(max-height:760px){#spinModal{align-items:flex-start}.spin-premium-panel{margin:auto 0;padding:16px}.spin-wheel-stage{width:min(58vw,230px);height:min(58vw,230px);margin-top:12px;margin-bottom:12px}.spin-packages{max-height:25vh}}
 @media(prefers-reduced-motion:reduce){.spin-wheel-disc{transition-duration:1ms}}
 
-/* White + neon-green laser orbit around Refer & Earn only; button stays still. */
-.refer-earn-laser-wrap {
+/* Same masked orbit effect as Total Spent, recolored white + neon green for Refer & Earn only. */
+@property --refer-earn-orbit-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.refer-earn-white-green-orbit {
   position: relative;
   isolation: isolate;
-  width: 100%;
-  border-radius: 13px;
+  overflow: hidden;
 }
-.refer-earn-laser-wrap::before {
+.refer-earn-white-green-orbit::before {
   content: "";
   position: absolute;
-  z-index: -1;
-  inset: -2px;
-  border-radius: 15px;
-  background: conic-gradient(from 0deg, transparent 0deg 245deg, rgba(255,255,255,.95) 265deg, #ffffff 278deg, #39ff88 296deg, #00e676 312deg, transparent 334deg 360deg);
-  animation: referEarnLaserOrbit 3.2s linear infinite;
-  filter: drop-shadow(0 0 3px rgba(0,255,120,.75)) drop-shadow(0 0 5px rgba(255,255,255,.35));
+  inset: 0;
+  z-index: 2;
+  padding: 1.6px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--refer-earn-orbit-angle),
+    transparent 0deg 300deg,
+    #ffffff 320deg,
+    #d9ffe9 330deg,
+    #00e676 340deg,
+    transparent 355deg 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: referEarnWhiteGreenOrbit 2.6s linear infinite;
 }
-.refer-earn-laser-wrap::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: -1px;
-  border-radius: 14px;
-  background: #0f172a;
-}
-.refer-earn-laser-button {
+.refer-earn-white-green-orbit > * {
   position: relative;
   z-index: 1;
 }
-@keyframes referEarnLaserOrbit {
-  to { transform: rotate(360deg); }
+@keyframes referEarnWhiteGreenOrbit {
+  to { --refer-earn-orbit-angle: 360deg; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .refer-earn-laser-wrap::before { animation: none; }
+  .refer-earn-white-green-orbit::before { animation: none; }
 }
 
 </style>
@@ -1021,8 +1029,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                         <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
                       </button>
 
-                      <div class="refer-earn-laser-wrap">
-                        <button onclick="openReferModal()" class="refer-earn-laser-button w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
+                      <button onclick="openReferModal()" class="refer-earn-white-green-orbit w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
                           <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                               <i class="fas fa-user-plus text-sm"></i>
@@ -1033,7 +1040,6 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                           </div>
                           <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">৳50/Refer</span>
                         </button>
-                      </div>
                       <button id="redeemCodeOption" onclick="openRedeemCodeModal()" class="mt-2 w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl transition cursor-pointer">
                         <div class="flex items-center space-x-3">
                           <div class="redeem-code-icon w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
