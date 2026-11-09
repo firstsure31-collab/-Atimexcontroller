@@ -2704,16 +2704,17 @@ let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
-    showSpinComingSoon();
-    return;
     const state = window.appState;
+
+    // Account activation check
     if (!state?.isActive) {
-        showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
+        showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
         closeSpinModal();
         return;
     }
     if (isSpinning) return;
 
+    // Remaining spin check
     const spins = Number(state.spinsLeft || 0);
     if (spins < 1) {
         showToast('আপনার কোনো স্পিন বাকি নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
@@ -2725,12 +2726,19 @@ function startSpin() {
     const btn = modal?.querySelector('#spinBtn');
     if (!wheel || !btn || !wheel.querySelector('svg')) {
         console.error('Lucky Spin UI is incomplete:', { modal: !!modal, wheel: !!wheel, button: !!btn });
-        showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
+        showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
         return;
     }
 
-    // These values follow the visible SVG sectors clockwise from the top pointer.
-    const rewards = [10, 50, 20, 100, 200, 80, 500, 20, 150, 2500];
+    // 25 Reward sectors (Max reward capped at 200)
+    const rewards = [
+        10, 20, 50, 20, 100, 
+        200, 10, 20, 100, 50, 
+        80, 10, 10, 10, 10, 
+        10, 20, 150, 20, 20, 
+        50, 150, 10, 200, 10
+    ];
+
     const randomIndex = Math.floor(Math.random() * rewards.length);
     const segmentAngle = 360 / rewards.length;
     const sectorCenterFromTop = segmentAngle / 2 + randomIndex * segmentAngle;
@@ -2747,7 +2755,7 @@ function startSpin() {
     if (spinHint) spinHint.textContent = '...';
     btn.classList.add('is-spinning');
 
-    // Keep the accumulated angle: modulo here would remove the full turns on later spins.
+    // Keep the accumulated angle
     currentDegree += (fullTurns * 360) + ((targetOffset - (currentDegree % 360) + 360) % 360);
     wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
 
@@ -2783,7 +2791,7 @@ function startSpin() {
         finishSpin();
     };
     wheel.addEventListener('transitionend', onSpinEnd);
-    // Fallback also removes the listener, preventing stale handlers on later spins.
+    
     spinFallback = window.setTimeout(() => {
         wheel.removeEventListener('transitionend', onSpinEnd);
         finishSpin();
