@@ -479,6 +479,16 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 }
 @keyframes notificationGoldLaser { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #profileNotificationButton.notification-unread-glow::after { animation: none; } }
+#profileNotificationButton.profile-notification-attention { animation: profileNotificationNudge 4s ease-in-out infinite; transform-origin: center; }
+@keyframes profileNotificationNudge {
+  0%, 88%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  90% { transform: translateY(-2px) rotate(-7deg) scale(1.04); }
+  92% { transform: translateY(0) rotate(7deg) scale(1.04); }
+  94% { transform: translateY(-1px) rotate(-4deg) scale(1.02); }
+  96% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { #profileNotificationButton.profile-notification-attention { animation: none; } }
+
 
 /* Premium Lucky Spin experience */
 /* ATIMEX premium arcade wheel */
@@ -930,7 +940,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
 <div class="mx-auto w-full max-w-sm rounded-xl border border-amber-400/50 bg-amber-400/10 px-3 py-2 text-center shadow-[0_0_12px_rgba(251,191,36,.16)]">
     <p class="text-[11px] font-bold leading-relaxed text-amber-200">📢 আপাতত কারও Profile Picture add করার প্রয়োজন নেই। এখানে একটু glitch/সমস্যা রয়েছে। পরবর্তীতে আপনাদের জানানো হবে।</p>
 </div>
-<button id="profileNotificationButton" type="button" onclick="openUserNotifications()" class="absolute right-1 top-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-[10px] text-amber-300 shadow-sm" aria-label="Notifications">
+<button id="profileNotificationButton" type="button" onclick="openUserNotifications()" class="profile-notification-attention absolute right-1 top-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-[10px] text-amber-300 shadow-sm" aria-label="Notifications">
 <i class="fa-solid fa-bell"></i><span id="profileNotificationBadge" class="hidden absolute -right-1 -top-1 min-w-3 rounded-full bg-rose-500 px-0.5 text-[6px] font-black text-white"></span>
 </button>
                 <h3 class="font-bold text-slate-100 text-base" id="profileNickname">Nickname</h3>
