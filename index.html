@@ -1199,9 +1199,9 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
               <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Select Deposit Method</label>
               
               <div class="grid grid-cols-2 gap-3">
-                <button type="button" onclick="selectPaymentProvider('bKash', '01940779877')" id="btnbKash" class="pay-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" onclick="selectPaymentProvider('bKash', '01731567454')" id="btnbKash" class="pay-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span></div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">bKash Active · 01940779877</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">bKash Active · 01731567454</span></div>
                 </button>
                 <button type="button" onclick="selectPaymentProvider('Nagad', '01940779877')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span></div>
@@ -1223,7 +1223,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex justify-between items-center shadow-inner">
               <div class="space-y-0.5">
                 <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide" id="selectedProviderLabel">bKash Account / Details</div>
-                <div class="text-sm font-black text-emerald-400 font-mono select-all" id="selectedProviderNum">01940779877</div>
+                <div class="text-sm font-black text-emerald-400 font-mono select-all" id="selectedProviderNum">01731567454</div>
               </div>
               <button type="button" onclick="copyDepositNumber()" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer">
                 <i class="fa-regular fa-copy"></i> Copy
@@ -2453,7 +2453,7 @@ window.appState = window.appState || {
     hasBoughtStarter: false
 };
 
-let activeGateway = { method: 'bKash', number: '01940779877' };
+let activeGateway = { method: 'bKash', number: '01731567454' };
 
 const SUPABASE_URL = 'https://hddswjhehlwbpytsgndm.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ';
@@ -2911,7 +2911,7 @@ function closePaymentModal() {
 function selectPaymentProvider(method, num) {
     if (!['bKash', 'Nagad'].includes(method)) return;
     activeGateway.method = method;
-    activeGateway.number = '01940779877';
+    activeGateway.number = method === 'bKash' ? '01731567454' : '01940779877';
     document.getElementById('selectedProviderLabel').innerText = method + ' Account / Details';
     document.getElementById('selectedProviderNum').innerText = activeGateway.number;
     document.querySelectorAll('.pay-provider-btn').forEach(btn => btn.classList.remove('active'));
