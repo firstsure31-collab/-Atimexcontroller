@@ -2347,6 +2347,7 @@ function openRedeemCodeModal() {
     const modal = document.getElementById('redeemCodeModal');
     const input = document.getElementById('redeemSecretCodeInput');
     if (input) input.value = '';
+    clearRedeemFeedback();
     modal?.classList.remove('hidden');
     setTimeout(() => input?.focus(), 50);
 }
@@ -2394,7 +2395,7 @@ async function redeemSecretCode() {
         const result = Array.isArray(data) ? data[0] : data;
         if (!result || result.success !== true) {
             const codeStatus = String(result?.message || result?.status || '').trim().toLowerCase();
-            if (/already[\\s_-]*(used|redeemed)|already.{0,30}(used|redeem)|code.{0,20}(used|redeemed)/i.test(codeStatus)) {
+            if (/already[\s_-]*(used|redeemed)|already.{0,30}(used|redeem)|code.{0,20}(used|redeemed)/i.test(codeStatus)) {
                 showRedeemFeedback('এই কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে।', true);
             } else {
                 showRedeemFeedback('সঠিক রিডিম কোড বসান।', true);
@@ -2421,7 +2422,7 @@ async function redeemSecretCode() {
     } catch (error) {
         console.error('Secret code redemption failed:', error);
         const errorText = [error?.message, error?.details, error?.hint].filter(Boolean).join(' ').toLowerCase();
-        if (/already[\\s_-]*(used|redeemed)|already.{0,35}(used|redeem)|code.{0,20}(used|redeemed)/i.test(errorText)) {
+        if (/already[\s_-]*(used|redeemed)|already.{0,35}(used|redeem)|code.{0,20}(used|redeemed)/i.test(errorText)) {
             showRedeemFeedback('এই কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে।', true);
         } else if (/invalid|not found|does not exist|unknown code/i.test(errorText)) {
             showRedeemFeedback('সঠিক রিডিম কোড বসান।', true);
