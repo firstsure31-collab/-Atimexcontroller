@@ -3861,7 +3861,7 @@ async function updateReferralUi() {
   }
   window.addEventListener('load', async function () {
     try {
-      const client = window.supabaseClient;
+      const client = (typeof supabaseClient !== 'undefined' ? supabaseClient : window.supabaseClient);
       if (!client?.auth) { applyMaintenanceAccess(null); return; }
       const { data, error } = await client.auth.getSession();
       if (error) throw error;
