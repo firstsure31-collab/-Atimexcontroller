@@ -3847,38 +3847,53 @@ async function updateReferralUi() {
 
 <script>
 (function () {
-  // Only the admin UID is unlocked. Add approved member emails here after owner authorization.
-  const ATIMEX_MAINTENANCE_ALLOWED_EMAILS = [];
-  const ATIMEX_MAINTENANCE_ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-  const lock = () => document.getElementById('atimexMaintenanceLock');
-  function applyMaintenanceAccess(user) {
-    const email = String(user?.email || '').trim().toLowerCase();
-    const allowed = !!user && (
-      user.id === ATIMEX_MAINTENANCE_ADMIN_UID ||
-      ATIMEX_MAINTENANCE_ALLOWED_EMAILS.includes(email)
-    );
-    const el = lock();
-    if (el) el.style.display = allowed ? 'none' : 'flex';
-    document.documentElement.classList.toggle('atimex-maintenance-active', !allowed);
-    document.documentElement.style.overflow = allowed ? '' : 'hidden';
-  }
-  // The overlay is visible immediately. Only verified admin/allowlisted sessions can dismiss it.
-  applyMaintenanceAccess(null);
-  (async function () {
-    try {
-      const client = supabaseClient;
-      if (!client?.auth) return;
-      const { data, error } = await client.auth.getSession();
-      if (error) throw error;
-      applyMaintenanceAccess(data?.session?.user || null);
-      client.auth.onAuthStateChange((_event, session) => {
-        applyMaintenanceAccess(session?.user || null);
-      });
-    } catch (error) {
-      console.error('ATIMEX maintenance access check failed:', error);
-      applyMaintenanceAccess(null);
+  'use strict';
+  // Hard allowlist: only this exact authenticated Supabase user ID can open the app.
+  const ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+  let authSubscription = null;
+
+  function setLocked(locked) {
+    const overlay = document.getElementById('atimexMaintenanceLock');
+    if (overlay) {
+      overlay.style.display = locked ? 'flex' : 'none';
+      overlay.setAttribute('aria-hidden', locked ? 'false' : 'true');
     }
-  })();
+    document.documentElement.classList.toggle('atimex-maintenance-active', locked);
+    document.documentElement.style.overflow = locked ? 'hidden' : '';
+    if (document.body) document.body.style.overflow = locked ? 'hidden' : '';
+  }
+
+  function checkUser(user) {
+    // No email exceptions: UID match is mandatory.
+    setLocked(!!user && user.id === ADMIN_UID);
+  }
+
+  // Fail closed immediately. No session, unknown session, or auth error = locked.
+  setLocked(true);
+
+  async function initializeMaintenanceGate() {
+    try {
+      if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
+        setLocked(true);
+        return;
+      }
+
+      // Subscribe before reading the current session to avoid missing a login/logout event.
+      const subscriptionResult = supabaseClient.auth.onAuthStateChange((_event, session) => {
+        checkUser(session?.user || null);
+      });
+      authSubscription = subscriptionResult?.data?.subscription || null;
+
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      checkUser(data?.session?.user || null);
+    } catch (error) {
+      console.error('ATIMEX maintenance access check failed; keeping site locked.', error);
+      setLocked(true);
+    }
+  }
+
+  initializeMaintenanceGate();
 })();
 </script>
 
