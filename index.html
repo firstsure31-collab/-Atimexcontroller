@@ -2565,7 +2565,16 @@ async function loadCloudUser(user, phone){
  const saved={...local,...cloudData,progressData:mergedProgress,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  localStorage.setItem(localKey,JSON.stringify(saved));
  applySavedUser(saved,safePhone);
- await persistCloudUser(user.id,safePhone,saved,email);
+ // Existing cloud profiles are authoritative. Do not upsert them during login/session refresh,
+ // because a second write from a stale page could overwrite a newer server-side wallet credit.
+ const hasCloudProgressData = !!row
+   && row.app_data
+   && typeof row.app_data === 'object'
+   && row.app_data.progressData
+   && typeof row.app_data.progressData === 'object';
+ if (!hasCloudProgressData) {
+   await persistCloudUser(user.id,safePhone,saved,email);
+ }
 }
 window.onload = async function(){
     const welcomeModal = document.getElementById('welcomeModal');
@@ -3648,11 +3657,18 @@ async function claimDailyReward(){
     const {data,error}=await supabaseClient.rpc('claim_monthly_daily_reward');if(error)throw error;
     const result=Array.isArray(data)?data[0]:data;
     if(!result||result.claimed!==true)throw new Error(result?.message||'আজকের reward claim করা যায়নি।');
-    const amount=Number(result.amount)||0;
-    a.balance=Number(result.balance??(Number(a.balance||0)+amount));
-    a.totalEarned=Number(result.total_earned??(Number(a.totalEarned||0)+amount));
+    const amount=Number(result.amount);
+    const creditedBalance=Number(result.balance);
+    const creditedTotalEarned=Number(result.total_earned);
+    if(!Number.isFinite(amount)||amount<=0||
+       !Number.isFinite(creditedBalance)||!Number.isFinite(creditedTotalEarned)){
+      throw new Error('Server claim response is incomplete; balance was not changed on this device.');
+    }
+    // claim_monthly_daily_reward already updates profiles.app_data inside one database transaction.
+    // Use its authoritative values and never send a second whole-profile upsert after the claim.
+    a.balance=creditedBalance;
+    a.totalEarned=creditedTotalEarned;
     updateBalanceDisplays();
-    await saveAllProgress();
     saveLocalTransaction({type:'Daily Claim Day '+(result.day_number||''),amount,status:'Credited'});
     window.monthlyDailyClaimState=result;
     renderDailyClaimCalendar(result);
