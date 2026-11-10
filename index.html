@@ -3848,52 +3848,67 @@ async function updateReferralUi() {
 <script>
 (function () {
   'use strict';
-  // Hard allowlist: only this exact authenticated Supabase user ID can open the app.
   const ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-  let authSubscription = null;
+  let verifiedAdmin = false;
+  let checking = false;
 
-  function setLocked(locked) {
+  function paintGate() {
+    const locked = !verifiedAdmin;
     const overlay = document.getElementById('atimexMaintenanceLock');
     if (overlay) {
-      overlay.style.display = locked ? 'flex' : 'none';
+      overlay.style.setProperty('display', locked ? 'flex' : 'none', 'important');
       overlay.setAttribute('aria-hidden', locked ? 'false' : 'true');
     }
     document.documentElement.classList.toggle('atimex-maintenance-active', locked);
-    document.documentElement.style.overflow = locked ? 'hidden' : '';
-    if (document.body) document.body.style.overflow = locked ? 'hidden' : '';
+    document.documentElement.style.setProperty('overflow', locked ? 'hidden' : '');
+    if (document.body) document.body.style.setProperty('overflow', locked ? 'hidden' : '');
   }
 
-  function checkUser(user) {
-    // No email exceptions: UID match is mandatory.
-    setLocked(!!user && user.id === ADMIN_UID);
-  }
-
-  // Fail closed immediately. No session, unknown session, or auth error = locked.
-  setLocked(true);
-
-  async function initializeMaintenanceGate() {
+  async function verifyAdminWithServer() {
+    if (checking) return;
+    checking = true;
+    // Fail closed while the server verifies the current account.
+    verifiedAdmin = false;
+    paintGate();
     try {
-      if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
-        setLocked(true);
-        return;
-      }
-
-      // Subscribe before reading the current session to avoid missing a login/logout event.
-      const subscriptionResult = supabaseClient.auth.onAuthStateChange((_event, session) => {
-        checkUser(session?.user || null);
-      });
-      authSubscription = subscriptionResult?.data?.subscription || null;
-
-      const { data, error } = await supabaseClient.auth.getSession();
+      if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) return;
+      const { data, error } = await supabaseClient.auth.getUser();
       if (error) throw error;
-      checkUser(data?.session?.user || null);
+      verifiedAdmin = data?.user?.id === ADMIN_UID;
     } catch (error) {
-      console.error('ATIMEX maintenance access check failed; keeping site locked.', error);
-      setLocked(true);
+      console.error('ATIMEX admin verification failed; access remains locked.', error);
+      verifiedAdmin = false;
+    } finally {
+      checking = false;
+      paintGate();
     }
   }
 
-  initializeMaintenanceGate();
+  // Never trust email or local UI state. Only server-verified auth.getUser() for the
+  // exact admin UID can remove the lock. Any auth event immediately locks, then rechecks.
+  paintGate();
+  if (typeof supabaseClient !== 'undefined' && supabaseClient?.auth) {
+    supabaseClient.auth.onAuthStateChange(() => {
+      verifiedAdmin = false;
+      paintGate();
+      setTimeout(verifyAdminWithServer, 0);
+    });
+    verifyAdminWithServer();
+  } else {
+    // Supabase client is declared later in this page; retry once after scripts initialize.
+    window.addEventListener('load', verifyAdminWithServer, { once: true });
+  }
+
+  // Keep the lock visible if another front-end script accidentally hides it.
+  const observer = new MutationObserver(() => {
+    if (!verifiedAdmin) paintGate();
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+    childList: true,
+    subtree: true
+  });
 })();
 </script>
 
