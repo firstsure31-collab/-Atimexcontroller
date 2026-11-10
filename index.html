@@ -3828,5 +3828,54 @@ async function updateReferralUi() {
     }
 }
     </script>
+
+<!-- ATIMEX TEMPORARY MAINTENANCE LOCK -->
+<style>
+  #atimexMaintenanceLock { position:fixed; inset:0; z-index:2147483000; display:none; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at top,#12352d 0%,#020617 62%); color:#f8fafc; text-align:center; }
+  #atimexMaintenanceLock .maintenance-card { width:min(100%,420px); border:1px solid rgba(52,211,153,.35); border-radius:24px; padding:30px 24px; background:rgba(15,23,42,.96); box-shadow:0 20px 80px rgba(0,0,0,.55),0 0 35px rgba(16,185,129,.12); }
+</style>
+<div id="atimexMaintenanceLock" role="dialog" aria-modal="true" aria-labelledby="atimexMaintenanceTitle">
+  <div class="maintenance-card">
+    <div style="font-size:34px;margin-bottom:12px">🔒</div>
+    <h1 id="atimexMaintenanceTitle" style="font-size:24px;font-weight:900;letter-spacing:2px;color:#6ee7b7">ATIMEX</h1>
+    <p style="margin-top:8px;font-size:17px;font-weight:800">Temporary Maintenance</p>
+    <p style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">নিরাপত্তাজনিত কারণে ATIMEX সাময়িকভাবে বন্ধ রাখা হয়েছে। অনুমোদিত সদস্যদের জন্য পুনরায় চালু করা হবে।</p>
+    <p style="margin-top:18px;font-size:10px;letter-spacing:1.5px;color:#64748b">PLEASE CHECK BACK LATER</p>
+  </div>
+</div>
+<script>
+(function () {
+  // Add approved member emails here when the owner supplies them.
+  const ATIMEX_MAINTENANCE_ALLOWED_EMAILS = [];
+  const ATIMEX_MAINTENANCE_ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+  const lock = () => document.getElementById('atimexMaintenanceLock');
+  function applyMaintenanceAccess(user) {
+    const email = String(user?.email || '').trim().toLowerCase();
+    const allowed = !!user && (
+      user.id === ATIMEX_MAINTENANCE_ADMIN_UID ||
+      ATIMEX_MAINTENANCE_ALLOWED_EMAILS.includes(email)
+    );
+    const el = lock();
+    if (el) el.style.display = allowed ? 'none' : 'flex';
+    document.documentElement.style.overflow = allowed ? '' : 'hidden';
+  }
+  window.addEventListener('load', async function () {
+    try {
+      const client = window.supabaseClient;
+      if (!client?.auth) { applyMaintenanceAccess(null); return; }
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      applyMaintenanceAccess(data?.session?.user || null);
+      client.auth.onAuthStateChange((_event, session) => {
+        setTimeout(() => applyMaintenanceAccess(session?.user || null), 0);
+      });
+    } catch (error) {
+      console.error('ATIMEX maintenance access check failed:', error);
+      applyMaintenanceAccess(null);
+    }
+  }, { once: true });
+})();
+</script>
+
 </body>
 </html>
