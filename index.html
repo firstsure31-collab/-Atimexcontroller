@@ -1452,6 +1452,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
             <p class="text-slate-400">তোমার secret code লিখে wallet reward নাও। প্রতিটি code একবারই ব্যবহার করা যাবে।</p>
             <input id="redeemSecretCodeInput" type="text" maxlength="64" autocomplete="off" placeholder="Enter secret code" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm font-bold uppercase tracking-wider text-white outline-none focus:border-emerald-400">
             <button id="redeemSecretCodeButton" onclick="redeemSecretCode()" class="w-full rounded-xl bg-emerald-500 py-3 font-extrabold text-white hover:bg-emerald-400">Redeem Code</button>
+            <p id="redeemCodeFeedback" role="status" aria-live="polite" class="hidden rounded-xl border px-3 py-2 text-xs font-semibold"></p>
             <p class="text-[10px] text-slate-500">Code অনুযায়ী ৳10, ৳20, ৳50 বা ৳100 wallet-এ যোগ হবে।</p>
           </div>
         </div>
@@ -2354,6 +2355,24 @@ function closeRedeemCodeModal() {
     document.getElementById('redeemCodeModal')?.classList.add('hidden');
 }
 
+function clearRedeemFeedback() {
+    const feedback = document.getElementById('redeemCodeFeedback');
+    if (!feedback) return;
+    feedback.textContent = '';
+    feedback.className = 'hidden rounded-xl border px-3 py-2 text-xs font-semibold';
+}
+
+function showRedeemFeedback(message, isError = true) {
+    const feedback = document.getElementById('redeemCodeFeedback');
+    if (feedback) {
+        feedback.textContent = message;
+        feedback.className = isError
+            ? 'rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300'
+            : 'rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-300';
+    }
+    showToast(message, isError);
+}
+
 async function redeemSecretCode() {
     if (!window.appState?.isActive) {
         closeRedeemCodeModal();
@@ -2364,20 +2383,21 @@ async function redeemSecretCode() {
     const input = document.getElementById('redeemSecretCodeInput');
     const button = document.getElementById('redeemSecretCodeButton');
     const code = (input?.value || '').trim().toUpperCase();
-    if (!code) { showToast('Secret code লিখুন।', true); return; }
-    if (!window.appState?.isLoggedIn) { showToast('আগে Login করুন।', true); return; }
-    if (!supabaseClient?.rpc) { showToast('Code redemption service এখন পাওয়া যাচ্ছে না।', true); return; }
+    if (!code) { showRedeemFeedback('Secret code লিখুন।', true); return; }
+    if (!window.appState?.isLoggedIn) { showRedeemFeedback('আগে Login করুন।', true); return; }
+    if (!supabaseClient?.rpc) { showRedeemFeedback('Code redemption service এখন পাওয়া যাচ্ছে না।', true); return; }
+    clearRedeemFeedback();
     if (button) { button.disabled = true; button.textContent = 'Redeeming…'; }
     try {
         const { data, error } = await supabaseClient.rpc('redeem_giveaway_code', { p_code: code });
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
         if (!result || result.success !== true) {
-            const codeStatus = String(result?.message || result?.status || '').toLowerCase();
-            if (['already_used', 'already_redeemed', 'used'].includes(codeStatus)) {
-                showToast('এই কোডটি ব্যবহার করা হয়ে গেছে।', true);
+            const codeStatus = String(result?.message || result?.status || '').trim().toLowerCase();
+            if (/already[\\s_-]*(used|redeemed)|already.{0,30}(used|redeem)|code.{0,20}(used|redeemed)/i.test(codeStatus)) {
+                showRedeemFeedback('এই কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে।', true);
             } else {
-                showToast('সঠিক রিডিম কোড বসান।', true);
+                showRedeemFeedback('সঠিক রিডিম কোড বসান।', true);
             }
             return;
         }
@@ -2400,7 +2420,14 @@ async function redeemSecretCode() {
         showToast('আপনার রিডিম সফল হয়েছে! ৳' + rewardAmount + ' wallet balance-এ যোগ হয়েছে।');
     } catch (error) {
         console.error('Secret code redemption failed:', error);
-        showToast('Redeem করা যায়নি। Service setup/check করুন।', true);
+        const errorText = [error?.message, error?.details, error?.hint].filter(Boolean).join(' ').toLowerCase();
+        if (/already[\\s_-]*(used|redeemed)|already.{0,35}(used|redeem)|code.{0,20}(used|redeemed)/i.test(errorText)) {
+            showRedeemFeedback('এই কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে।', true);
+        } else if (/invalid|not found|does not exist|unknown code/i.test(errorText)) {
+            showRedeemFeedback('সঠিক রিডিম কোড বসান।', true);
+        } else {
+            showRedeemFeedback('রিডিম করা যায়নি। আবার চেষ্টা করুন।', true);
+        }
     } finally {
         if (button) { button.disabled = false; button.textContent = 'Redeem Code'; }
     }
