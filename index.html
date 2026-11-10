@@ -3849,65 +3849,47 @@ async function updateReferralUi() {
 (function () {
   'use strict';
   const ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-  let verifiedAdmin = false;
-  let checking = false;
+  let authEventVersion = 0;
 
-  function paintGate() {
-    const locked = !verifiedAdmin;
+  function applySession(session) {
+    const userId = session?.user?.id || null;
+    const isAdmin = userId === ADMIN_UID;
     const overlay = document.getElementById('atimexMaintenanceLock');
+
     if (overlay) {
-      overlay.style.setProperty('display', locked ? 'flex' : 'none', 'important');
-      overlay.setAttribute('aria-hidden', locked ? 'false' : 'true');
+      overlay.style.setProperty('display', isAdmin ? 'none' : 'flex', 'important');
+      overlay.setAttribute('aria-hidden', isAdmin ? 'true' : 'false');
     }
-    document.documentElement.classList.toggle('atimex-maintenance-active', locked);
-    document.documentElement.style.setProperty('overflow', locked ? 'hidden' : '');
-    if (document.body) document.body.style.setProperty('overflow', locked ? 'hidden' : '');
+    document.documentElement.classList.toggle('atimex-maintenance-active', !isAdmin);
+    document.documentElement.style.overflow = isAdmin ? '' : 'hidden';
+    if (document.body) document.body.style.overflow = isAdmin ? '' : 'hidden';
+
+    console.info('[ATIMEX maintenance] session UID:', userId, '| admin access:', isAdmin);
   }
 
-  async function verifyAdminWithServer() {
-    if (checking) return;
-    checking = true;
-    // Fail closed while the server verifies the current account.
-    verifiedAdmin = false;
-    paintGate();
-    try {
-      if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) return;
-      const { data, error } = await supabaseClient.auth.getUser();
-      if (error) throw error;
-      verifiedAdmin = data?.user?.id === ADMIN_UID;
-    } catch (error) {
-      console.error('ATIMEX admin verification failed; access remains locked.', error);
-      verifiedAdmin = false;
-    } finally {
-      checking = false;
-      paintGate();
-    }
+  // Lock by default until the stored Supabase session is read.
+  applySession(null);
+
+  if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
+    console.error('[ATIMEX maintenance] Supabase client unavailable; access remains locked.');
+    return;
   }
 
-  // Never trust email or local UI state. Only server-verified auth.getUser() for the
-  // exact admin UID can remove the lock. Any auth event immediately locks, then rechecks.
-  paintGate();
-  if (typeof supabaseClient !== 'undefined' && supabaseClient?.auth) {
-    supabaseClient.auth.onAuthStateChange(() => {
-      verifiedAdmin = false;
-      paintGate();
-      setTimeout(verifyAdminWithServer, 0);
-    });
-    verifyAdminWithServer();
-  } else {
-    // Supabase client is declared later in this page; retry once after scripts initialize.
-    window.addEventListener('load', verifyAdminWithServer, { once: true });
-  }
-
-  // Keep the lock visible if another front-end script accidentally hides it.
-  const observer = new MutationObserver(() => {
-    if (!verifiedAdmin) paintGate();
+  // Subscribe first. Every auth event wins over any older pending session read.
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    authEventVersion++;
+    applySession(session || null);
   });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class'],
-    childList: true,
-    subtree: true
+
+  const versionAtReadStart = authEventVersion;
+  supabaseClient.auth.getSession().then(({ data, error }) => {
+    if (error) throw error;
+    if (authEventVersion === versionAtReadStart) {
+      applySession(data?.session || null);
+    }
+  }).catch(error => {
+    console.error('[ATIMEX maintenance] Could not read Supabase session; keeping access locked.', error);
+    if (authEventVersion === versionAtReadStart) applySession(null);
   });
 })();
 </script>
