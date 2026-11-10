@@ -2373,7 +2373,12 @@ async function redeemSecretCode() {
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
         if (!result || result.success !== true) {
-            showToast(result?.message || 'Code valid নয় অথবা আগে ব্যবহার হয়েছে।', true);
+            const codeStatus = String(result?.message || result?.status || '').toLowerCase();
+            if (['already_used', 'already_redeemed', 'used'].includes(codeStatus)) {
+                showToast('এই কোডটি ব্যবহার করা হয়ে গেছে।', true);
+            } else {
+                showToast('সঠিক রিডিম কোড বসান।', true);
+            }
             return;
         }
         const rewardAmount = Number(result.amount);
@@ -2392,7 +2397,7 @@ async function redeemSecretCode() {
         }
         saveLocalTransaction({ type: 'Secret code reward', amount: rewardAmount, status: 'Credited', code });
         closeRedeemCodeModal();
-        showToast('৳' + rewardAmount + ' wallet balance-এ যোগ হয়েছে!');
+        showToast('আপনার রিডিম সফল হয়েছে! ৳' + rewardAmount + ' wallet balance-এ যোগ হয়েছে।');
     } catch (error) {
         console.error('Secret code redemption failed:', error);
         showToast('Redeem করা যায়নি। Service setup/check করুন।', true);
