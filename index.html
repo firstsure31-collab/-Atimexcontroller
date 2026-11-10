@@ -1411,7 +1411,7 @@ document.getElementById("typingInput")?.addEventListener("input",()=>{const el=d
                 <article class="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div><p class="text-[9px] font-black uppercase tracking-wider text-amber-300">Withdrawal request</p><h4 data-withdraw-field="amount" class="mt-1 text-2xl font-black text-white">৳0.00</h4><p data-withdraw-field="user" class="mt-1 text-[10px] text-slate-400">User</p></div>
-                    <span data-withdraw-field="status" class="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[9px] font-black text-amber-200">PENDING</span>
+                    <div class="flex flex-col items-end gap-1"><span data-withdraw-field="status" class="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[9px] font-black text-amber-200">PENDING</span><p data-withdraw-field="ordinal" class="text-[9px] font-bold tracking-wide text-emerald-300">Checking withdrawal count...</p></div>
                   </div>
                   <div class="mt-4 grid grid-cols-1 gap-2 rounded-xl border border-white/5 bg-slate-950/70 p-3 sm:grid-cols-2">
                     <div><p class="text-[9px] text-slate-500">Payment method</p><p data-withdraw-field="method" class="mt-1 text-[11px] font-bold text-white">—</p></div>
@@ -1985,6 +1985,14 @@ async function openAdminWithdrawalModal() {
     await loadAdminWithdrawalRequests();
 }
 
+function formatWithdrawalOrdinal(value) {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1) return '';
+    const mod100 = n % 100;
+    const suffix = mod100 >= 11 && mod100 <= 13 ? 'th' : ({1:'st',2:'nd',3:'rd'}[n % 10] || 'th');
+    return n + suffix + ' time';
+}
+
 async function loadAdminWithdrawalRequests() {
     const target = document.getElementById('adminWithdrawalRequestList');
     const badge = document.getElementById('adminWithdrawalPendingCount');
@@ -2017,6 +2025,25 @@ async function loadAdminWithdrawalRequests() {
             (profiles || []).forEach(profile => { profilesById[profile.id] = profile; });
         }
 
+        // Counts are calculated by Supabase across every request status, not just the visible page.
+        // The RPC is admin-only and returns each request's chronological lifetime ordinal.
+        const ordinalByRequestId = {};
+        try {
+            const requestIds = requests.map(row => row.id).filter(Boolean);
+            if (requestIds.length) {
+                const { data: ordinalRows, error: ordinalError } = await supabaseClient.rpc(
+                    'admin_get_withdrawal_request_numbers',
+                    { p_request_ids: requestIds }
+                );
+                if (ordinalError) throw ordinalError;
+                (ordinalRows || []).forEach(item => {
+                    ordinalByRequestId[item.request_id] = Number(item.withdrawal_number);
+                });
+            }
+        } catch (ordinalError) {
+            console.warn('Withdrawal count RPC unavailable; run the supplied SQL:', ordinalError);
+        }
+
         const template = document.getElementById('adminWithdrawalRequestCardTemplate');
         if (!template || !target) return;
         target.innerHTML = '';
@@ -2030,6 +2057,10 @@ async function loadAdminWithdrawalRequests() {
             setField('amount', formatAtimexMoney(row.amount));
             setField('user', (profile.nickname || 'User') + ' · ' + (profile.email || profile.phone || row.user_id));
             setField('status', String(row.status || 'pending').toUpperCase());
+            const withdrawalOrdinal = ordinalByRequestId[row.id];
+            setField('ordinal', withdrawalOrdinal
+                ? formatWithdrawalOrdinal(withdrawalOrdinal)
+                : 'Run SQL to enable count');
             setField('method', row.method === 'VISA' && row.bank_name ? 'Bank transfer · ' + row.bank_name : row.method);
             setField('number', row.account_number + (row.account_name ? ' · ' + row.account_name : ''));
             setField('date', formatAdminDate(row.created_at));
