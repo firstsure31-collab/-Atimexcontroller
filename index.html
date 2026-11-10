@@ -2390,6 +2390,21 @@ async function redeemSecretCode() {
     clearRedeemFeedback();
     if (button) { button.disabled = true; button.textContent = 'Redeeming…'; }
     try {
+        // First ask Supabase whether this code exists and whether it was already redeemed.
+        const { data: statusData, error: statusError } = await supabaseClient.rpc('check_giveaway_code_status', { p_code: code });
+        if (statusError) throw statusError;
+        const statusResult = Array.isArray(statusData) ? statusData[0] : statusData;
+        const databaseStatus = String(statusResult?.status || statusResult?.message || '').trim().toLowerCase();
+        if (['already_used', 'already_redeemed', 'used'].includes(databaseStatus)) {
+            showRedeemFeedback('এই কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে।', true);
+            return;
+        }
+        if (databaseStatus !== 'available') {
+            showRedeemFeedback('সঠিক রিডিম কোড বসান।', true);
+            return;
+        }
+
+        // Only an available code proceeds to the existing atomic reward-redemption RPC.
         const { data, error } = await supabaseClient.rpc('redeem_giveaway_code', { p_code: code });
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
