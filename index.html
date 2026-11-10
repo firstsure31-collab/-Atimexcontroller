@@ -3848,70 +3848,23 @@ async function updateReferralUi() {
 <script>
 (function () {
   'use strict';
-  const ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-  const ALLOWED_EMAILS = new Set(  [
-    "ahmedfahimfa0103774@gmail.com",
-    "skmasudalom.45@gmail.com",
-    "rhffghjjccnjk4@gmail.com",
-    "sakibgaming599@gmail.com",
-    "mrraselislamhakim@gmail.com",
-    "nahidnasir0909@gmail.com",
-    "mdsourovkhan2008@gmail.com",
-    "mdriyadrana709@gmail.com",
-    "ra1122namy@gmail.com",
-    "tarek90805@gmail.com",
-    "likhun3137@gmail.com",
-    "tasimmassi@gmail.com"
-  ].map(email => email.toLowerCase()));
-  let authEventVersion = 0;
 
-  function applySession(session) {
-    const user = session?.user || null;
-    const userId = user?.id || null;
-    const email = String(user?.email || '').trim().toLowerCase();
-
-    // Logged-out visitors must be able to reach Login/Register.
-    // Once signed in, only the Admin UID and the approved email list can enter.
-    const isAllowed = !userId || userId === ADMIN_UID || ALLOWED_EMAILS.has(email);
-    const shouldLock = !isAllowed;
+  // Temporary maintenance restriction is disabled for everyone.
+  function unlockSite() {
     const overlay = document.getElementById('atimexMaintenanceLock');
-
     if (overlay) {
-      overlay.style.setProperty('display', shouldLock ? 'flex' : 'none', 'important');
-      overlay.setAttribute('aria-hidden', shouldLock ? 'false' : 'true');
+      overlay.style.setProperty('display', 'none', 'important');
+      overlay.setAttribute('aria-hidden', 'true');
     }
-    document.documentElement.classList.toggle('atimex-maintenance-active', shouldLock);
-    document.documentElement.style.overflow = shouldLock ? 'hidden' : '';
-    if (document.body) document.body.style.overflow = shouldLock ? 'hidden' : '';
-
-    console.info('[ATIMEX maintenance] session UID:', userId,
-      '| email:', email || '(logged out)', '| access allowed:', isAllowed);
+    document.documentElement.classList.remove('atimex-maintenance-active');
+    document.documentElement.style.overflow = '';
+    if (document.body) document.body.style.overflow = '';
   }
 
-  // Start with Login/Register accessible while the saved session is checked.
-  applySession(null);
-
-  if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
-    console.error('[ATIMEX maintenance] Supabase client unavailable; login remains accessible.');
-    return;
+  unlockSite();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', unlockSite, { once: true });
   }
-
-  // Subscribe first so newer auth events take precedence over a pending session read.
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    authEventVersion++;
-    applySession(session || null);
-  });
-
-  const versionAtReadStart = authEventVersion;
-  supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) throw error;
-    if (authEventVersion === versionAtReadStart) {
-      applySession(data?.session || null);
-    }
-  }).catch(error => {
-    console.error('[ATIMEX maintenance] Could not read Supabase session; leaving Login/Register accessible.', error);
-    if (authEventVersion === versionAtReadStart) applySession(null);
-  });
 })();
 </script>
 
