@@ -919,11 +919,11 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
 <div id="tabTasks" class="tab-content hidden space-y-4">
   <section class="relative overflow-hidden rounded-2xl border border-emerald-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/60 p-4 shadow-lg shadow-emerald-950/20">
     <div class="absolute right-3 top-3 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-extrabold text-emerald-200">TOTAL REFER · <span id="taskTotalRefer">—</span></div>
-    <div class="pr-24"><p class="text-[10px] font-black uppercase tracking-[.18em] text-emerald-300">Daily Task</p><h2 class="mt-1 text-lg font-black text-white">Refer &amp; Earn</h2><p class="mt-1 text-[11px] leading-relaxed text-slate-300">আপনার referral link শেয়ার করুন। নতুন কেউ এই link দিয়ে সফলভাবে account register করলে ৳২ reward পাবেন।</p></div>
-    <div class="mt-4 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">প্রতি verified registration</span><b class="text-sm font-black text-emerald-300">৳২</b></div>
-    <div class="mt-2 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">আজকের সর্বোচ্চ</span><b class="text-xs font-extrabold text-white">২৫ জন · ৳৫০</b></div>
+    <div class="pr-24"><p class="text-[10px] font-black uppercase tracking-[.18em] text-emerald-300">Daily Task</p><h2 class="mt-1 text-lg font-black text-white">Refer &amp; Earn</h2><p class="mt-1 text-[11px] leading-relaxed text-slate-300">আপনার referral link শেয়ার করুন। নতুন কেউ এই link দিয়ে সফলভাবে account register করলে ৳১ reward পাবেন।</p></div>
+    <div class="mt-4 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">প্রতি verified registration</span><b class="text-sm font-black text-emerald-300">৳১</b></div>
+    <div class="mt-2 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">আজকের সর্বোচ্চ</span><b class="text-xs font-extrabold text-white">৩০ জন · ৳৩০</b></div>
     <button type="button" onclick="shareTaskReferralLink()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-xs font-black text-white shadow-lg shadow-emerald-950/40 hover:bg-emerald-400"><i class="fa-solid fa-share-nodes"></i> SHARE REFERRAL LINK</button>
-    <p id="taskReferralStatus" class="mt-2 text-center text-[10px] text-slate-400">আজকের verified referral: — / ২৫</p>
+    <p id="taskReferralStatus" class="mt-2 text-center text-[10px] text-slate-400">আজকের verified referral: — / ৩০</p>
   </section>
   <section class="rounded-2xl border border-slate-700 bg-slate-900/70 p-3"><div class="flex items-center justify-between"><h3 class="text-xs font-extrabold text-white">How it works</h3><i class="fa-solid fa-circle-info text-emerald-300"></i></div><p class="mt-2 text-[10px] leading-relaxed text-slate-400">শুধু share button চাপলে reward যোগ হবে না। নতুন user আপনার link দিয়ে register করলে database যাচাই করে reward যোগ করবে। একই account দ্বিতীয়বার গণনা হবে না।</p></section>
 </div>
@@ -3860,7 +3860,7 @@ async function syncTaskReferralStats(){
     if(error)throw error;
     const row=Array.isArray(data)?data[0]:(data||{});
     if(countEl)countEl.textContent=Number(row.total_referrals||0).toLocaleString('en-BD');
-    if(statusEl)statusEl.textContent='আজকের verified referral: '+Number(row.today_referrals||0)+' / ২৫ · মোট reward ৳'+Number(row.total_reward||0).toLocaleString('en-BD');
+    if(statusEl)statusEl.textContent='আজকের verified referral: '+Number(row.today_referrals||0)+' / ৩০ · মোট reward ৳'+Number(row.total_reward||0).toLocaleString('en-BD');
   }catch(error){
     console.error('Task referral stats failed:',error);
     if(countEl)countEl.textContent='—';
