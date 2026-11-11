@@ -916,7 +916,17 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             </div>
 
             <!-- 3. TASKS TAB: intentionally empty; navigation remains locked -->
-<div id="tabTasks" class="tab-content hidden"></div>
+<div id="tabTasks" class="tab-content hidden space-y-4">
+  <section class="relative overflow-hidden rounded-2xl border border-emerald-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/60 p-4 shadow-lg shadow-emerald-950/20">
+    <div class="absolute right-3 top-3 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-extrabold text-emerald-200">TOTAL REFER · <span id="taskTotalRefer">—</span></div>
+    <div class="pr-24"><p class="text-[10px] font-black uppercase tracking-[.18em] text-emerald-300">Daily Task</p><h2 class="mt-1 text-lg font-black text-white">Refer &amp; Earn</h2><p class="mt-1 text-[11px] leading-relaxed text-slate-300">আপনার referral link শেয়ার করুন। নতুন কেউ এই link দিয়ে সফলভাবে account register করলে ৳২ reward পাবেন।</p></div>
+    <div class="mt-4 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">প্রতি verified registration</span><b class="text-sm font-black text-emerald-300">৳২</b></div>
+    <div class="mt-2 flex items-center justify-between rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2"><span class="text-[10px] text-slate-400">আজকের সর্বোচ্চ</span><b class="text-xs font-extrabold text-white">২৫ জন · ৳৫০</b></div>
+    <button type="button" onclick="shareTaskReferralLink()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-xs font-black text-white shadow-lg shadow-emerald-950/40 hover:bg-emerald-400"><i class="fa-solid fa-share-nodes"></i> SHARE REFERRAL LINK</button>
+    <p id="taskReferralStatus" class="mt-2 text-center text-[10px] text-slate-400">আজকের verified referral: — / ২৫</p>
+  </section>
+  <section class="rounded-2xl border border-slate-700 bg-slate-900/70 p-3"><div class="flex items-center justify-between"><h3 class="text-xs font-extrabold text-white">How it works</h3><i class="fa-solid fa-circle-info text-emerald-300"></i></div><p class="mt-2 text-[10px] leading-relaxed text-slate-400">শুধু share button চাপলে reward যোগ হবে না। নতুন user আপনার link দিয়ে register করলে database যাচাই করে reward যোগ করবে। একই account দ্বিতীয়বার গণনা হবে না।</p></section>
+</div>
 
 <!-- 4. SERVER / VIP PACKAGES TAB -->
 <div id="tabServer" class="tab-content hidden space-y-3"><div class="space-y-3 pt-2">
@@ -1044,11 +1054,11 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                 <i class="fa-solid fa-wallet text-lg"></i>
                 <span class="text-[10px] font-medium">Wallet</span>
             </button>
-            <button onclick="switchTab('tabTasks')" id="navTasks" aria-disabled="true" title="Tasks locked" class="nav-btn tasks-locked flex flex-col items-center gap-1 relative cursor-not-allowed">
-                <div class="tasks-locked-icon w-10 h-10 -mt-5 rounded-full flex items-center justify-center border-2 border-slate-900">
-                    <i class="fa-solid fa-lock text-sm"></i>
+            <button onclick="switchTab('tabTasks')" id="navTasks" title="Tasks" class="nav-btn flex flex-col items-center gap-1 relative cursor-pointer text-slate-400 hover:text-slate-200">
+                <div class="w-10 h-10 -mt-5 rounded-full flex items-center justify-center border-2 border-slate-900 bg-emerald-500 text-white shadow-lg shadow-emerald-900/40">
+                    <i class="fa-solid fa-list-check text-sm"></i>
                 </div>
-                <span class="text-[10px] font-medium mt-1">Locked</span>
+                <span class="text-[10px] font-medium mt-1">Tasks</span>
             </button>
             <button onclick="switchTab('tabServer')" id="navServer" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer">
                 <i class="fa-solid fa-crown text-lg"></i>
@@ -2677,7 +2687,7 @@ async function handleAuthSubmit(){
    if(!login.data?.user)throw new Error('Login হয়নি। Email ও password যাচাই করুন।');
    data=login.data;
   }else{
-   const signup=await supabaseClient.auth.signUp({email,password:pass,options:{data:{nickname:nick,phone}}});
+   const signup=await supabaseClient.auth.signUp({email,password:pass,options:{data:{nickname:nick,phone,task_referral_code:(new URLSearchParams(window.location.search).get('ref')||'').trim().toUpperCase()}}});
    if(signup.error)throw signup.error;
    if(!signup.data?.user)throw new Error('Supabase account তৈরি করতে পারেনি। Email provider settings check করুন।');
    data=signup.data;
@@ -2689,12 +2699,16 @@ async function handleAuthSubmit(){
   const localPhone=authMode==='register'?phone:(data.user.user_metadata?.phone||'');
   if(authMode==='login'){
    await loadCloudUser(data.user,localPhone);
+   const loginTaskRef=String(data.user.user_metadata?.task_referral_code||'').trim().toUpperCase();
+   if(loginTaskRef){try{await supabaseClient.rpc('complete_task_referral_signup',{p_referral_code:loginTaskRef});}catch(refErr){console.warn('Task referral completion deferred:',refErr);}}
    showToast('Login সফল! আপনার cloud data load হয়েছে।');
    setTimeout(() => window.location.reload(), 500);
    return;
   }
   const saved={phone:localPhone,email,nickname:nick,progressData:defaultProgressData(),avatar:localStorage.getItem('userProfilePic')||null};
   await persistCloudUser(data.user.id,localPhone,saved,email);
+  const signupTaskRef=String(data.user.user_metadata?.task_referral_code||'').trim().toUpperCase();
+  if(signupTaskRef){const {error:taskRefError}=await supabaseClient.rpc('complete_task_referral_signup',{p_referral_code:signupTaskRef});if(taskRefError)console.warn('Task referral completion deferred:',taskRefError);}
   localStorage.setItem(localPhone?'user_'+localPhone:'user_email_'+email,JSON.stringify(saved));
   localStorage.setItem('atimexNickname',nick);
   applySavedUser(saved,localPhone);
@@ -3062,8 +3076,7 @@ function switchTab(tabId) {
         });
     }
     if (tabId === 'tabTasks') {
-        showToast('Tasks বর্তমানে locked আছে।', true);
-        return;
+        syncTaskReferralStats().catch(error => console.error('Task referral stats load failed:', error));
     }
     if (tabId === 'tabProfile') { updateRedeemCodeLockState(); loadUserNotifications(); }
     const tabIds = ['tabHome', 'tabWallet', 'tabTasks', 'tabServer', 'tabProfile'];
@@ -3828,6 +3841,54 @@ function creditReferralReward(amount) {
     updateBalanceDisplays();
     saveAllProgress();
     return true;
+}
+async function getTaskReferralCode(){
+  const {data:{user},error:authError}=await supabaseClient.auth.getUser();
+  if(authError)throw authError;
+  if(!user)throw new Error('আগে Login করুন।');
+  const {data,error}=await supabaseClient.rpc('get_my_referral_stats');
+  if(error)throw error;
+  const code=String(data?.referral_code||'').trim().toUpperCase();
+  if(!code)throw new Error('আপনার referral code পাওয়া যায়নি।');
+  return code;
+}
+async function syncTaskReferralStats(){
+  const countEl=document.getElementById('taskTotalRefer'),statusEl=document.getElementById('taskReferralStatus');
+  if(!countEl&&!statusEl)return;
+  try{
+    const {data,error}=await supabaseClient.rpc('get_task_referral_stats');
+    if(error)throw error;
+    const row=Array.isArray(data)?data[0]:(data||{});
+    if(countEl)countEl.textContent=Number(row.total_referrals||0).toLocaleString('en-BD');
+    if(statusEl)statusEl.textContent='আজকের verified referral: '+Number(row.today_referrals||0)+' / ২৫ · মোট reward ৳'+Number(row.total_reward||0).toLocaleString('en-BD');
+  }catch(error){
+    console.error('Task referral stats failed:',error);
+    if(countEl)countEl.textContent='—';
+    if(statusEl)statusEl.textContent='Stats load হয়নি · '+(error.message||'SQL setup প্রয়োজন');
+  }
+}
+async function shareTaskReferralLink(){
+  const button=document.querySelector('#tabTasks button[onclick="shareTaskReferralLink()"]');
+  if(button){button.disabled=true;button.classList.add('opacity-60');}
+  try{
+    const code=await getTaskReferralCode();
+    const link=window.location.origin+window.location.pathname+'?ref='+encodeURIComponent(code);
+    const shareData={title:'Join ATIMEX',text:'আমার referral link দিয়ে ATIMEX-এ account খুলুন:',url:link};
+    if(navigator.share){
+      try{await navigator.share(shareData);showToast('Share sheet খোলা হয়েছে। নতুন user register করলে verified referral গণনা হবে।');}
+      catch(error){if(error?.name==='AbortError')return;throw error;}
+    }else if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(link);
+      showToast('Referral link copy হয়েছে। এখন যেকোনো app-এ paste করে share করুন।');
+    }else{
+      window.prompt('আপনার referral link copy করুন:',link);
+    }
+  }catch(error){
+    console.error('Task referral share failed:',error);
+    showToast('Referral link share করা যায়নি: '+(error.message||'আবার চেষ্টা করুন'),true);
+  }finally{
+    if(button){button.disabled=false;button.classList.remove('opacity-60');}
+  }
 }
 async function updateReferralUi() {
     const valueEl = document.getElementById('referralEarnings');
