@@ -2748,24 +2748,38 @@ function closeSpinModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-function showSpinComingSoon() {
-    showToast('Lucky Spin packages Coming Soon! এখনো purchase করা যাচ্ছে না।', true);
-}
 
 function updateSpinUI() {
+    const state = window.appState;
     const textEl = document.getElementById('spinsLeftText');
     const button = document.getElementById('spinBtn');
-    if (textEl) textEl.textContent = 'COMING SOON';
+    
+    const spinsLeft = Number(state?.spinsLeft || 0);
+
+    if (textEl) {
+        textEl.textContent = 'SPINS AVAILABLE · ' + spinsLeft;
+    }
+
     if (button) {
-        button.disabled = true;
-        button.classList.add('cursor-not-allowed');
+        button.disabled = spinsLeft < 1;
+        
+        if (spinsLeft < 1) {
+            button.classList.add('cursor-not-allowed', 'opacity-95');
+        } else {
+            button.classList.remove('cursor-not-allowed', 'opacity-95');
+        }
+
         const label = button.querySelector('span');
         const hint = button.querySelector('small');
-        if (label) label.textContent = 'COMING';
-        if (hint) hint.textContent = 'SOON';
+        
+        if (label) {
+            label.textContent = spinsLeft > 0 ? 'SPIN' : 'BUY';
+        }
+        if (hint) {
+            hint.textContent = spinsLeft > 0 ? 'TO WIN' : 'PACK';
+        }
     }
 }
-
 const VIP_PACKAGE_DETAILS = {
     300:  { id:'starter-vip',   name:'STARTER VIP PLAN',   price:300,  durationDays:20, dailyAmount:30,   statedTotal:600 },
     500:  { id:'standard-vip',  name:'STANDARD VIP PLAN',  price:500,  durationDays:20, dailyAmount:55,   statedTotal:1100 },
