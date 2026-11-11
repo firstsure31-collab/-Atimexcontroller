@@ -763,7 +763,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
 </div>
                  
                 <!-- 🎡 Lucky Spin Wheel Card -->
-                <div onclick="openSpinModal()" class="cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 p-3.5 rounded-2xl flex items-center justify-between shadow-lg my-3 transition transform active:scale-95">
+                <div onclick="showSpinComingSoon()" class="cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 p-3.5 rounded-2xl flex items-center justify-between shadow-lg my-3 transition transform active:scale-95">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-slate-950/20 border border-slate-950/30 flex items-center justify-center text-slate-950 text-xl font-black">
                             🎡
@@ -774,7 +774,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                         </div>
                     </div>
                     <div class="bg-slate-950 text-amber-400 text-xs font-bold px-3 py-2 rounded-xl shadow">
-                        স্পিন করুন <i class="fa-solid fa-arrow-right ml-1"></i>
+                        Coming Soon <i class="fa-solid fa-clock ml-1"></i>
                     </div>
                 </div>
 
@@ -1523,12 +1523,12 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                     </div>
                     <div class="spin-wheel-halo"></div>
                     <div class="spin-pointer" aria-hidden="true"></div>
-                    <button id="spinBtn" type="button" onclick="startSpin()" aria-label="Start Spin" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer"><span>SPIN</span><small>TO WIN</small></button>
+                    <button id="spinBtn" type="button" onclick="showSpinComingSoon()" aria-label="Spin Coming Soon" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer"><span>SOON</span><small>COMING</small></button>
                 </div>
                 <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>ATIMEX LUCKY SPIN</span><strong>READY TO SPIN</strong><span>Tap the wheel to start winning</span></div>
 
                 <div class="spin-packages relative z-10 mt-1 space-y-2 max-h-44 overflow-y-auto pr-1 w-full">
-    <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-emerald-400">ACTIVE</span></div>
+    <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-black tracking-widest text-amber-200">SPIN PACKAGES</p><span class="text-[9px] text-amber-300">COMING SOON</span></div>
     
     <!-- Package 1: Starter -->
     <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 p-2 rounded-xl">
@@ -2732,15 +2732,15 @@ function closeWelcomeOpenAuth() {
     document.getElementById('authModal').classList.remove('hidden');
 }
 
-function openSpinModal() {
-    const oldToast=document.getElementById('toast');
-    if(oldToast)oldToast.classList.add('hidden');
-    const modal = document.getElementById('spinModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        updateSpinUI();
+function showSpinComingSoon() {
+    if (typeof showAppNotice === 'function') {
+        showAppNotice('COMING SOON', 'Lucky Spin feature is temporarily unavailable. Please check back later.');
+    } else {
+        showToast('Lucky Spin — Coming Soon!', true);
     }
+}
+function openSpinModal() {
+    showSpinComingSoon();
 }
 
 function closeSpinModal() {
@@ -2834,6 +2834,8 @@ let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
+    showSpinComingSoon();
+    return;
     const state = window.appState;
 
     // Account activation check
