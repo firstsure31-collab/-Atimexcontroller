@@ -3333,15 +3333,47 @@ function closeDailyWithdrawLimitModal() {
   }
 }
 
+async function checkFourthWithdrawalReferralGate(userId) {
+  if (!userId) throw new Error('Withdrawal করতে আগে Login করুন।');
+
+  const { count, error: countError } = await supabaseClient
+    .from('withdrawal_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId);
+  if (countError) throw countError;
+
+  // First three submitted withdrawal requests remain unrestricted.
+  if (Number(count || 0) < 3) return true;
+
+  // From the fourth request onward, use the database's verified active-referral count.
+  const { data, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
+  if (referralError) throw referralError;
+  const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
+  const activeReferrals = Number(stats.active_referrals);
+
+  if (!Number.isFinite(activeReferrals)) {
+    throw new Error('Database থেকে Active Referral count যাচাই করা যায়নি।');
+  }
+  if (activeReferrals < 1) {
+    showToast('প্রথম ৩ বার Withdraw সম্পন্ন। ৪র্থ Withdraw-এর জন্য অন্তত ১ জন Active Referral করুন।', true);
+    return false;
+  }
+  return true;
+}
+
 async function openWithdrawVerification() {
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
       return;
     }
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) throw new Error('Withdrawal করতে আগে Login করুন।');
+    if (!(await checkFourthWithdrawalReferralGate(authData.user.id))) return;
   } catch (err) {
-    console.error('Withdrawal 24-hour cooldown check failed:', err);
-    showToast('Withdrawal cooldown যাচাই করা যায়নি। আবার চেষ্টা করুন।', true);
+    console.error('Withdrawal eligibility check failed:', err);
+    showToast('Withdrawal eligibility যাচাই করা যায়নি: ' + (err.message || 'আবার চেষ্টা করুন।'), true);
     return;
   }
 
@@ -3406,6 +3438,12 @@ async function submitWithdrawRequest() {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
     if (!authData?.user) throw new Error('Withdrawal করতে আগে Login করুন।');
+    if (!(await checkFourthWithdrawalReferralGate(authData.user.id))) {
+      withdrawRequestCompleted = false;
+      if (holdButton) holdButton.disabled = false;
+      closeWithdrawVerification();
+      return;
+    }
 
     const { data: request, error: requestError } = await supabaseClient.rpc('submit_withdrawal_request', {
       p_amount: details.amount,
