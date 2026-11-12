@@ -2890,7 +2890,7 @@ function startSpin() {
         return;
     }
 
-    // নিরাপদ ও সুনির্দিষ্ট রিওয়ার্ড অ্যারে (সর্বোচ্চ ৳২০০ বা এর নিচে সীমিত)
+    // নিরাপদ ও সুনির্দিষ্ট রিওয়ার্ড অ্যারে (২৫টি সেগমেন্ট, যা চাকার ডিজাইনের সাথে সামঞ্জস্যপূর্ণ)
     const rewards = [
         10, 20, 50, 20, 100, 
         200, 10, 20, 100, 50, 
@@ -2900,9 +2900,11 @@ function startSpin() {
     ];
 
     const randomIndex = Math.floor(Math.random() * rewards.length);
-    const segmentAngle = 360 / rewards.length;
-    const sectorCenterFromTop = segmentAngle / 2 + randomIndex * segmentAngle;
-    const targetOffset = (360 - sectorCenterFromTop + 360) % 360;
+    const totalSegments = rewards.length;
+    const segmentAngle = 360 / totalSegments;
+
+    // পজিশন নিখুঁত করার জন্য সঠিক অ্যাঙ্গেল ক্যালকুলেশন
+    const targetDegree = 360 - (randomIndex * segmentAngle + segmentAngle / 2);
     const fullTurns = 6;
 
     isSpinning = true;
@@ -2915,8 +2917,11 @@ function startSpin() {
     if (spinHint) spinHint.textContent = '...';
     btn.classList.add('is-spinning');
 
-    // Keep the accumulated angle
-    currentDegree += (fullTurns * 360) + ((targetOffset - (currentDegree % 360) + 360) % 360);
+    // একিউমুলেটেড রোটেশন ডিগ্রি হিসাব করে চাকা ঘোরানো
+    const normalizedCurrent = currentDegree % 360;
+    const extraTurn = (targetDegree - normalizedCurrent + 360) % 360;
+    currentDegree += (fullTurns * 360) + extraTurn;
+    
     wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
 
     const finishSpin = () => {
