@@ -1007,7 +1007,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                         <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
                       </button>
 
-                      <button onclick="openReferModal()" class="refer-earn-white-green-orbit w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-pointer">
+                      <button id="referEarnProfileButton" onclick="openReferModal()" disabled aria-disabled="true" title="Account active হলে Refer & Earn unlock হবে" class="refer-earn-white-green-orbit w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl transition cursor-not-allowed">
                           <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                               <i class="fas fa-user-plus text-sm"></i>
@@ -1016,7 +1016,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                               <h4 class="text-white text-xs font-semibold">Refer & Earn</h4>
                             </div>
                           </div>
-                          <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium">৳50/Refer</span>
+                          <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1"><span>৳50/Refer</span><i id="referEarnLockIcon" class="fas fa-lock text-[9px]"></i></span>
                         </button>
                       <button id="redeemCodeOption" onclick="openRedeemCodeModal()" class="mt-2 w-full flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl transition cursor-pointer">
                         <div class="flex items-center space-x-3">
@@ -2458,7 +2458,25 @@ async function redeemSecretCode() {
     }
 }
 
+function updateReferEarnLockState() {
+    const button = document.getElementById('referEarnProfileButton');
+    const lockIcon = document.getElementById('referEarnLockIcon');
+    if (!button) return;
+    const isActive = window.appState?.isActive === true;
+    button.disabled = !isActive;
+    button.setAttribute('aria-disabled', String(!isActive));
+    button.title = isActive ? 'Refer & Earn' : 'Account active হলে Refer & Earn unlock হবে';
+    button.classList.toggle('cursor-not-allowed', !isActive);
+    button.classList.toggle('cursor-pointer', isActive);
+    if (lockIcon) lockIcon.classList.toggle('hidden', isActive);
+}
+
 function openReferModal() {
+    if (window.appState?.isActive !== true) {
+        showToast('Refer & Earn ব্যবহার করতে আগে account active করুন।', true);
+        updateReferEarnLockState();
+        return;
+    }
     document.getElementById('referModal').classList.remove('hidden');
     if (typeof updateReferralUi === 'function') updateReferralUi();
 }
@@ -2539,6 +2557,7 @@ function applySavedUser(saved, phone){
  window.appState.balance=Number(p.balance)||0;window.appState.totalEarned=Number(p.totalEarned)||0;
  window.appState.totalSpent=Number(p.totalSpent)||0;window.appState.referralEarned=Number(p.referralEarned)||0;
  window.appState.completedTasks=Number(p.completedTasks)||0;window.appState.isActive=!!p.isActive;
+ updateReferEarnLockState();
  window.appState.spinsLeft=Number(p.spinsLeft)||0;window.appState.hasBoughtStarter=!!p.hasBoughtStarter;
  if(safePhone)localStorage.setItem('currentLoggedInUser',safePhone);else localStorage.removeItem('currentLoggedInUser');
  const ph=document.getElementById('profilePhone');if(ph)ph.innerText=safePhone||'Mobile number not added';
@@ -3034,6 +3053,7 @@ function updateAccountStatusBadge(){
  if(label)label.textContent=active?'Active':'Inactive';
 }
 function activateAccountUIOnly() {
+    updateReferEarnLockState();
     updateRedeemCodeLockState();
     const userBadge = document.getElementById('userBadge');
     const badgeText = document.getElementById('badgeText');
