@@ -1532,7 +1532,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                     </div>
                     <div class="spin-wheel-halo"></div>
                     <div class="spin-pointer" aria-hidden="true"></div>
-                    <button id="spinBtn" type="button" onclick="showSpinComingSoon()" aria-label="Spin Coming Soon" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer"><span>SOON</span><small>COMING</small></button>
+                    <button id="spinBtn" type="button" onclick="startspin()" aria-label="Spin Coming Soon" class="spin-center-button absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer"><span>SOON</span><small>COMING</small></button>
                 </div>
                 <div id="spinResult" aria-live="polite" class="spin-result relative z-10 mb-4"><span>ATIMEX LUCKY SPIN</span><strong>READY TO SPIN</strong><span>Tap the wheel to start winning</span></div>
 
@@ -1545,7 +1545,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">Starter Spin</span>
             <p class="text-[10px] text-slate-400">১ টি স্পিন (একবার অফার)</p>
         </div>
-        <button id="starterPackBtn" onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০</button>
+        <button id="starterPackBtn" onclick="buySpinPackage(1, 50)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০</button>
     </div>
 
     <!-- Package 2: Standard -->
@@ -1554,7 +1554,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">Standard Spin</span>
             <p class="text-[10px] text-slate-400">১ টি স্পিন (দৈনিক সেরা)</p>
         </div>
-        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০</button>
+        <button onclick="buySpinPackage(1, 100)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০</button>
     </div>
 
     <!-- Package 3: Double Pack -->
@@ -1563,7 +1563,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">Double Pack</span>
             <p class="text-[10px] text-slate-400">২ টি স্পিন</p>
         </div>
-        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳২০০</button>
+        <button onclick="buySpinPackage(2, 200)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳২০০</button>
     </div>
 
     <!-- Package 4: Triple Pack -->
@@ -1572,7 +1572,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">Triple Pack</span>
             <p class="text-[10px] text-slate-400">৩ টি স্পিন</p>
         </div>
-        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৩০০</button>
+        <button onclick="buySpinPackage(3, 300)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৩০০</button>
     </div>
 
     <!-- Package 5: Mega Pack -->
@@ -1581,7 +1581,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">Mega Pack</span>
             <p class="text-[10px] text-slate-400">৫ টি স্পিন</p>
         </div>
-        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০০</button>
+        <button onclick="buySpinPackage(5, 500)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳৫০০</button>
     </div>
 
     <!-- Package 6: VIP Ultimate Pack -->
@@ -1590,7 +1590,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             <span class="text-xs font-bold text-white">VIP Ultimate Pack</span>
             <p class="text-[10px] text-slate-400">১০ টি স্পিন</p>
         </div>
-        <button onclick="showSpinComingSoon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
+        <button onclick="buySpinPackage(10, 1000)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
     </div>
 </div>
 
@@ -2835,26 +2835,26 @@ function handlePackageBuy(price) {
     }
     openPaymentModal(plan.price);
 }
-
 function buyCustomPackage(price, spinCount, type = '') {
-    showSpinComingSoon();
-    return;
     if (type === 'starter' && window.appState.hasBoughtStarter) {
-        showToast('স্টার্টার অফারটি একবারই কেনা সম্ভব!', true);
+        showToast('স্টার্টার অফারটি একবারের বেশি নেওয়া সম্ভব নয়।', true);
         return;
     }
+    
     if (window.appState.balance < price) {
         showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
         closeSpinModal();
-        setTimeout(() => openPaymentModal(), 1000);
+        setTimeout(() => openPaymentModal(0, 1000), 300);
         return;
     }
+
     window.appState.balance -= price;
     window.appState.totalSpent = Number(window.appState.totalSpent || 0) + Number(price);
     window.appState.spinsLeft += spinCount;
+    
     if (type === 'starter') window.appState.hasBoughtStarter = true;
     updateSpinUI();
-    saveLocalTransaction({type:'Spin package purchase',amount:Number(price),status:'Purchased',spinCount});
+    saveLocalTransaction({type: 'Spin package purchase', amount: Number(price), status: 'Purchased', spinCount});
     updateBalanceDisplays();
     saveAllProgress();
     showToast(`${spinCount}টি স্পিন সফলভাবে কেনা হয়েছে!`);
@@ -2890,7 +2890,7 @@ function startSpin() {
         return;
     }
 
-    // নিরাপদ ও সুনির্দিষ্ট রিওয়ার্ড অ্যারে (সর্বੋচ্চ ৳২০০ বা এর নিচে সীমিত)
+    // নিরাপদ ও সুনির্দিষ্ট রিওয়ার্ড অ্যারে (সর্বোচ্চ ৳২০০ বা এর নিচে সীমিত)
     const rewards = [
         10, 20, 50, 20, 100, 
         200, 10, 20, 100, 50, 
@@ -2932,7 +2932,7 @@ function startSpin() {
         state.balance = Number(state.balance || 0) + wonAmount;
         state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
         updateBalanceDisplays();
-        saveLocalTransaction({type:'Lucky Spin reward', amount:wonAmount, status:'Credited'});
+        saveLocalTransaction({type: 'Lucky Spin reward', amount: wonAmount, status: 'Credited'});
         Promise.resolve(saveAllProgress()).catch(error => console.error('Spin reward save failed:', error));
 
         const result = document.getElementById('spinResult');
