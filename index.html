@@ -1097,6 +1097,12 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
     <div class="mt-5 flex items-center justify-between"><div><h4 class="text-sm font-extrabold text-white">Monthly Claim Calendar</h4><p id="dailyClaimMonthLabel" class="mt-0.5 text-[10px] text-slate-400">Day 1 — 30 · মাস শেষে আবার Day 1</p></div><span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-bold text-emerald-300">30 DAYS</span></div>
 
     <div id="dailyClaimCalendar" class="mt-3 space-y-3" aria-live="polite"></div>
+    <div id="dailyClaimExpiredNotice" class="hidden mt-4 rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-950 p-4 text-center shadow-lg shadow-amber-950/20">
+      <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-amber-400/30 bg-amber-400/10 text-2xl text-amber-300"><i class="fa-solid fa-hourglass-end"></i></div>
+      <h4 class="mt-3 text-sm font-black text-amber-200">Your free subscription has expired</h4>
+      <p class="mt-2 text-[11px] leading-relaxed text-slate-300">আপনার ৩ দিনের Free Daily Claim মেয়াদ শেষ। Daily reward চালু রাখতে যেকোনো একটি VIP Pack active করুন।</p>
+      <button type="button" onclick="closeDailyClaim();switchTab('tabServer')" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-xs font-extrabold text-slate-950 shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-400">Buy a Pack</button>
+    </div>
 
     <div class="mt-4 rounded-2xl border border-slate-700/70 bg-slate-950/70 p-3">
       <div class="flex items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-gift"></i></span><div class="min-w-0 flex-1"><p id="dailyClaimRewardTitle" class="text-[11px] font-extrabold text-white">Daily Reward</p><p id="dailyClaimRewardDescription" class="text-[9px] text-slate-400">আজকের claim status যাচাই হচ্ছে</p></div><span class="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold text-emerald-300">FIRST STEP</span></div>
@@ -3801,6 +3807,7 @@ async function claimDailyReward(){
   const a=window.appState||{};
   if(!a.isActive){showToast('আগে account active করুন।',true);return;}
   const state=window.monthlyDailyClaimState||{};
+  if(state.free_expired===true){refreshDailyClaimUi();return;}
   if(state.can_claim!==true){showToast('আজকের claim এখন available নয়।',true);await syncDailyClaimCooldown();return;}
   const button=document.getElementById('dailyClaimAction');if(button){button.disabled=true;button.textContent='Claiming...';}
   try{
@@ -3839,6 +3846,22 @@ function refreshDailyClaimUi(){
   const day=Number(state.day_number)||1,claimed=Array.isArray(state.claimed_days)&&state.claimed_days.map(Number).includes(day);
   const available=state.can_claim===true&&!claimed;
   if(window.dailyClaimStatusError){dailyClaimSetCard('locked','Claim status unavailable — try again later');if(action){action.disabled=true;action.textContent='Claim status unavailable';}return;}
+  const expiredNotice=document.getElementById('dailyClaimExpiredNotice');
+  const calendar=document.getElementById('dailyClaimCalendar');
+  const claimControls=action?.parentElement;
+  if(state.free_expired===true){
+    if(expiredNotice)expiredNotice.classList.remove('hidden');
+    if(calendar)calendar.classList.add('hidden');
+    if(claimControls)claimControls.classList.add('hidden');
+    dailyClaimSetCard('locked','Free subscription expired');
+    const subtitle=document.getElementById('dailyClaimCardSubtitle');
+    if(subtitle)subtitle.textContent='৩ দিনের Free Claim শেষ · Buy a VIP Pack';
+    if(status)status.textContent='Free subscription expired';
+    return;
+  }
+  if(expiredNotice)expiredNotice.classList.add('hidden');
+  if(calendar)calendar.classList.remove('hidden');
+  if(claimControls)claimControls.classList.remove('hidden');
   const summary=document.getElementById('dailyClaimSummary');
   if(summary)summary.innerHTML='<div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Combined daily package earning</div><div class="mt-2 text-3xl font-black text-emerald-300">৳'+amount.toLocaleString('en-BD')+'<span class="ml-1 text-xs font-semibold text-slate-400">/ day</span></div><div class="mt-2 text-[10px] text-slate-400">'+(packages.length?packages.length+' active package(s) combined':'No active package · ৳20/day')+'</div>';
   if(!a.isActive){dailyClaimSetCard('locked','Account activation required');if(action){action.disabled=true;action.textContent='Account activation required';}if(status)status.textContent='আগে account active করুন।';return;}
