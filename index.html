@@ -3267,6 +3267,14 @@ function getWithdrawFormData() {
 
 let withdrawCooldownUntil = 0;
 let withdrawCooldownTimer = null;
+let withdrawAttemptCount = null;
+
+function getWithdrawAttemptLabel() {
+  if (!Number.isFinite(withdrawAttemptCount)) return 'WITHDRAW COUNT LOADING…';
+  const next = Math.max(1, withdrawAttemptCount + 1);
+  const suffix = next === 1 ? 'ST' : (next === 2 ? 'ND' : (next === 3 ? 'RD' : 'TH'));
+  return 'WITHDRAW ' + next + suffix + ' TIME · VERIFY & CONTINUE';
+}
 
 function updateWithdrawCooldownUi() {
   const button = document.getElementById('withdrawSubmitButton');
@@ -3280,7 +3288,7 @@ function updateWithdrawCooldownUi() {
     button.className = locked
       ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
       : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
-    button.textContent = locked ? '২৪ ঘণ্টার cooldown চলছে' : 'VERIFY & CONTINUE';
+    button.textContent = locked ? '২৪ ঘণ্টার cooldown চলছে' : getWithdrawAttemptLabel();
   }
   if (timerBox) timerBox.classList.toggle('hidden', !locked);
   if (display && locked) {
@@ -3302,14 +3310,14 @@ async function syncWithdrawCooldown() {
   const user = authData?.user;
   if (!user) throw new Error('Withdrawal করতে আগে Login করুন।');
 
-  const { data: rows, error } = await supabaseClient
-    .from('withdrawal_requests')
-    .select('created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  const [{ data: rows, error }, { data: countData, error: countError }] = await Promise.all([
+    supabaseClient.from('withdrawal_requests').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
+    supabaseClient.rpc('get_my_withdrawal_count')
+  ]);
   if (error) throw error;
+  if (countError) throw countError;
 
+  withdrawAttemptCount = Number(countData || 0);
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
   updateWithdrawCooldownUi();
@@ -3370,7 +3378,6 @@ async function openWithdrawVerification() {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
     if (!authData?.user) throw new Error('Withdrawal করতে আগে Login করুন।');
-    if (!(await checkFourthWithdrawalReferralGate(authData.user.id))) return;
   } catch (err) {
     console.error('Withdrawal eligibility check failed:', err);
     showToast('Withdrawal eligibility যাচাই করা যায়নি: ' + (err.message || 'আবার চেষ্টা করুন।'), true);
@@ -3438,12 +3445,6 @@ async function submitWithdrawRequest() {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
     if (!authData?.user) throw new Error('Withdrawal করতে আগে Login করুন।');
-    if (!(await checkFourthWithdrawalReferralGate(authData.user.id))) {
-      withdrawRequestCompleted = false;
-      if (holdButton) holdButton.disabled = false;
-      closeWithdrawVerification();
-      return;
-    }
 
     const { data: request, error: requestError } = await supabaseClient.rpc('submit_withdrawal_request', {
       p_amount: details.amount,
@@ -3454,6 +3455,14 @@ async function submitWithdrawRequest() {
     });
     if (requestError) throw requestError;
     if (!request?.id) throw new Error('Request ID পাওয়া যায়নি।');
+
+    // A fourth-or-later request can be auto-rejected by the database without deducting balance.
+    if (String(request.status || '').toLowerCase() === 'rejected') {
+      closeWithdrawVerification();
+      await syncWithdrawCooldown();
+      showToast('আপনার Withdraw Request Auto-Reject হয়েছে। পরবর্তী Withdraw unlock করতে নতুন Active Referral প্রয়োজন।', true);
+      return;
+    }
 
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles').select('balance,app_data').eq('id', authData.user.id).single();
