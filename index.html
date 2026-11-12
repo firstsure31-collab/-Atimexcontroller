@@ -1508,6 +1508,7 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                 <div class="spin-panel-glow"></div>
                 <div class="spin-top-line"></div>
                 <button onclick="closeSpinModal()" aria-label="Close Lucky Spin" class="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[.07] text-lg text-slate-300 transition hover:border-amber-300/40 hover:bg-white/15 hover:text-white">×</button>
+                <button onclick="openSpinLeaderboard()" class="absolute right-4 top-14 z-30 rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1.5 text-[9px] font-black tracking-wider text-amber-200 shadow-lg shadow-amber-500/10 transition hover:bg-amber-300/20">🏆 LEADERBOARD</button>
                 <div class="relative z-10 w-full text-center">
                     <div class="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.08] px-3.5 py-1.5 text-[9px] font-black tracking-[.24em] text-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_10px_#fbbf24]"></span> ATIMEX • EXCLUSIVE REWARDS</div>
                     <h3 class="text-[27px] font-black leading-none tracking-tight text-white">LUCKY <span class="text-amber-300">SPIN</span></h3>
@@ -1608,6 +1609,22 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
     </div>
     <button onclick="buyCustomPackage(1000, 10)" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">কিনুন ৳১০০০</button>
 </div>
+
+        <!-- LIVE SPIN LEADERBOARD -->
+        <div id="spinLeaderboardModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
+            <div class="w-full max-w-sm overflow-hidden rounded-3xl border border-amber-300/30 bg-slate-900 p-5 text-white shadow-2xl">
+                <div class="mb-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-[9px] font-black tracking-[.25em] text-amber-300">ATIMEX • LIVE RANKING</p>
+                        <h3 class="mt-1 text-lg font-black">🏆 SPIN LEADERBOARD</h3>
+                    </div>
+                    <button onclick="closeSpinLeaderboard()" aria-label="Close leaderboard" class="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl text-slate-300">×</button>
+                </div>
+                <p id="spinLeaderboardStatus" class="mb-3 text-center text-[10px] text-slate-400">Loading live leaderboard...</p>
+                <div id="spinLeaderboardList" class="max-h-[55vh] space-y-2 overflow-y-auto"></div>
+                <button onclick="openSpinLeaderboard()" class="mt-4 w-full rounded-xl border border-amber-300/30 bg-amber-300/10 py-2.5 text-xs font-bold text-amber-200">↻ Refresh</button>
+            </div>
+        </div>
 
         <!-- TOAST NOTIFICATION -->
         <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2">
@@ -2905,20 +2922,15 @@ function pickWeightedIndex(weights) {
 let isSpinning = false;
 let currentDegree = 0;
 
-function startSpin() {
+async function startSpin() {
     const state = window.appState;
-
-    // Account activation check
     if (!state?.isActive) {
         showToast('Account active না হওয়া পর্যন্ত Lucky Spin locked থাকবে।', true);
         closeSpinModal();
         return;
     }
     if (isSpinning) return;
-
-    // Remaining spin check
-    const spins = Number(state.spinsLeft || 0);
-    if (spins < 1) {
+    if (Number(state.spinsLeft || 0) < 1) {
         showToast('আপনার কোনো স্পিন বাকি নেই! আগে স্পিন প্যাকেজ কিনুন।', true);
         return;
     }
@@ -2927,31 +2939,11 @@ function startSpin() {
     const wheel = modal?.querySelector('.spin-wheel-disc');
     const btn = modal?.querySelector('#spinBtn');
     if (!wheel || !btn || !wheel.querySelector('svg')) {
-        console.error('Lucky Spin UI is incomplete:', { modal: !!modal, wheel: !!wheel, button: !!btn });
         showToast('Spin wheel load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
         return;
     }
 
-    // Rewards: index i == slice i on the SVG wheel (10 slices x 36deg).
-    // Slice i is centred at (i * segmentAngle) degrees clockwise from the top pointer.
-    const rewards = SPIN_REWARDS;
-    const totalSegments = rewards.length;
-    const segmentAngle = 360 / totalSegments;
-    // Weighted pick: small rewards are frequent, big rewards are rare (see SPIN_WEIGHTS).
-    // randomIndex drives the payout AND the rotation below, so the wheel always stops on the slice that pays.
-    if (SPIN_WEIGHTS.length !== totalSegments) console.warn('SPIN_WEIGHTS length must match SPIN_REWARDS length');
-    const randomIndex = pickWeightedIndex(SPIN_WEIGHTS);
-
-    // Rotating the wheel clockwise by R moves slice i to angle (i*segmentAngle + R).
-    // We need that to be 0 (top/pointer), so R = 360 - i*segmentAngle.
-    // A small jitter keeps the stop inside the slice (never on a divider line).
-    const jitter = (Math.random() - 0.5) * segmentAngle * 0.6;
-    const targetDegree = (360 - randomIndex * segmentAngle + jitter + 360) % 360;
-    const fullTurns = 6;
-
     isSpinning = true;
-    state.spinsLeft = spins - 1;
-    updateSpinUI();
     btn.disabled = true;
     const spinLabel = btn.querySelector('span');
     const spinHint = btn.querySelector('small');
@@ -2959,51 +2951,104 @@ function startSpin() {
     if (spinHint) spinHint.textContent = '...';
     btn.classList.add('is-spinning');
 
-    // একিউমুলেটেড রোটেশন ডিগ্রি হিসাব করে চাকা ঘোরানো
-    const normalizedCurrent = currentDegree % 360;
-    const extraTurn = (targetDegree - normalizedCurrent + 360) % 360;
-    currentDegree += (fullTurns * 360) + extraTurn;
-    
-    wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
+    let spinFallback = null;
+    let onSpinEnd = null;
+    try {
+        // Reward, balance and spin count are decided and saved atomically on Supabase.
+        const { data, error } = await supabaseClient.rpc('play_lucky_spin');
+        if (error) throw error;
+        if (!data || data.success !== true) throw new Error('Spin result পাওয়া যায়নি');
 
-    const finishSpin = () => {
-        if (!isSpinning) return;
-        isSpinning = false;
-        btn.disabled = false;
-        if (spinLabel) spinLabel.textContent = Number(state.spinsLeft || 0) > 0 ? 'SPIN' : 'BUY';
-        if (spinHint) spinHint.textContent = Number(state.spinsLeft || 0) > 0 ? 'TO WIN' : 'PACK';
-        btn.disabled = Number(state.spinsLeft || 0) < 1;
-        btn.classList.remove('is-spinning');
-
-        const wonAmount = rewards[randomIndex];
-        state.balance = Number(state.balance || 0) + wonAmount;
-        state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
-        updateBalanceDisplays();
-        saveLocalTransaction({type: 'Lucky Spin reward', amount: wonAmount, status: 'Credited'});
-        Promise.resolve(saveAllProgress()).catch(error => console.error('Spin reward save failed:', error));
-
-        const result = document.getElementById('spinResult');
-        if (result) {
-            result.innerHTML = '<span class="text-emerald-300">YOU WON</span><strong>৳' + wonAmount.toLocaleString('en-BD') + '</strong><span>Reward added to your balance</span>';
-            result.classList.add('spin-result-win');
+        const wonAmount = Number(data.reward_amount);
+        const randomIndex = Number(data.slice_index);
+        if (![10,20,50,100,200].includes(wonAmount) || !Number.isInteger(randomIndex) || randomIndex < 0 || randomIndex > 4) {
+            throw new Error('Server spin result invalid');
         }
-        showToast('অভিনন্দন! আপনি ৳' + wonAmount.toLocaleString('en-BD') + ' জিতেছেন!');
-    };
 
-    let spinFallback;
-    const onSpinEnd = (event) => {
-        if (event.propertyName !== 'transform') return;
-        window.clearTimeout(spinFallback);
-        wheel.removeEventListener('transitionend', onSpinEnd);
-        finishSpin();
-    };
-    wheel.addEventListener('transitionend', onSpinEnd);
-    
-    spinFallback = window.setTimeout(() => {
-        wheel.removeEventListener('transitionend', onSpinEnd);
-        finishSpin();
-    }, 6500);
+        const totalSegments = SPIN_REWARDS.length;
+        const segmentAngle = 360 / totalSegments;
+        const jitter = (Math.random() - 0.5) * segmentAngle * 0.6;
+        const targetDegree = (360 - randomIndex * segmentAngle + jitter + 360) % 360;
+        const normalizedCurrent = currentDegree % 360;
+        const extraTurn = (targetDegree - normalizedCurrent + 360) % 360;
+        currentDegree += (6 * 360) + extraTurn;
+        wheel.style.transform = 'rotate(' + currentDegree + 'deg)';
+
+        const finishSpin = () => {
+            if (!isSpinning) return;
+            isSpinning = false;
+            window.clearTimeout(spinFallback);
+            wheel.removeEventListener('transitionend', onSpinEnd);
+            state.balance = Number(data.balance);
+            state.spinsLeft = Number(data.spins_left);
+            state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
+            updateSpinUI();
+            updateBalanceDisplays();
+            btn.classList.remove('is-spinning');
+            saveLocalTransaction({type: 'Lucky Spin reward', amount: wonAmount, status: 'Credited'});
+            const result = document.getElementById('spinResult');
+            if (result) {
+                result.innerHTML = '<span class="text-emerald-300">YOU WON</span><strong>৳' + wonAmount.toLocaleString('en-BD') + '</strong><span>Reward added to your balance</span>';
+                result.classList.add('spin-result-win');
+            }
+            showToast('অভিনন্দন! আপনি ৳' + wonAmount.toLocaleString('en-BD') + ' জিতেছেন!');
+        };
+        onSpinEnd = (event) => {
+            if (event.propertyName !== 'transform') return;
+            finishSpin();
+        };
+        wheel.addEventListener('transitionend', onSpinEnd);
+        spinFallback = window.setTimeout(finishSpin, 6500);
+    } catch (error) {
+        console.error('Secure Spin failed:', error);
+        isSpinning = false;
+        btn.classList.remove('is-spinning');
+        updateSpinUI();
+        showToast(error.message || 'Spin সম্পন্ন হয়নি। আবার চেষ্টা করুন।', true);
+    }
 }
+
+async function openSpinLeaderboard() {
+    const modal = document.getElementById('spinLeaderboardModal');
+    const list = document.getElementById('spinLeaderboardList');
+    const status = document.getElementById('spinLeaderboardStatus');
+    if (!modal || !list || !status) return;
+    modal.classList.remove('hidden');
+    list.innerHTML = '';
+    status.textContent = 'Loading live leaderboard...';
+    try {
+        const { data, error } = await supabaseClient.rpc('get_spin_leaderboard', { p_limit: 50 });
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        if (!rows.length) {
+            status.textContent = 'এখনো কোনো verified Spin reward নেই।';
+            return;
+        }
+        status.textContent = 'LIVE • Verified Spin earnings';
+        rows.forEach((entry) => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-3 rounded-xl border border-slate-700/70 bg-slate-800/70 px-3 py-3';
+            const rank = document.createElement('span');
+            rank.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs font-black text-amber-300';
+            rank.textContent = '#' + entry.rank_no;
+            const name = document.createElement('span');
+            name.className = 'min-w-0 flex-1 truncate text-left text-xs font-bold text-white';
+            name.textContent = entry.nickname || 'Member';
+            const amount = document.createElement('strong');
+            amount.className = 'shrink-0 text-sm font-black text-emerald-300';
+            amount.textContent = '৳' + Number(entry.total_spin_earned || 0).toLocaleString('en-BD');
+            row.append(rank, name, amount);
+            list.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Spin leaderboard load failed:', error);
+        status.textContent = 'Leaderboard load হয়নি: ' + (error.message || 'আবার চেষ্টা করুন');
+    }
+}
+function closeSpinLeaderboard() {
+    document.getElementById('spinLeaderboardModal')?.classList.add('hidden');
+}
+
 function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const amountInput = document.getElementById('paymentAmount');
     const amountLabel = document.querySelector('label[for="paymentAmount"]');
