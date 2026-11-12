@@ -2749,7 +2749,12 @@ async function handleAuthSubmit(){
   setTimeout(() => window.location.reload(), 500);
  }catch(e){
   console.error('Supabase '+authMode+' error:',e);
-  showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
+  const authErrorText=String(e?.message||e?.code||'');
+  if(authMode==='login'&&/banned|ban_duration|user_banned/i.test(authErrorText)){
+   showToast('Your account is suspended',true);
+  }else{
+   showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
+  }
  }finally{
   if(btn){btn.disabled=false;btn.innerText=authMode==='register'?'Create Account':'Login';}
  }
