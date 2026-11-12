@@ -3288,7 +3288,16 @@ function updateWithdrawCooldownUi() {
     button.className = locked
       ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
       : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
-    button.textContent = locked ? '২৪ ঘণ্টার cooldown চলছে' : getWithdrawAttemptLabel();
+    if (locked) {
+      const total = Math.ceil(remaining / 1000);
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const seconds = total % 60;
+      button.textContent = getWithdrawAttemptLabel().replace(' · VERIFY & CONTINUE', '') +
+        ' · ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
+    } else {
+      button.textContent = getWithdrawAttemptLabel();
+    }
   }
   if (timerBox) timerBox.classList.toggle('hidden', !locked);
   if (display && locked) {
