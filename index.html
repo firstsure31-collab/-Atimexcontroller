@@ -2765,15 +2765,13 @@ function closeWelcomeOpenAuth() {
     document.getElementById('authModal').classList.remove('hidden');
 }
 
-function showSpinComingSoon() {
-    if (typeof showAppNotice === 'function') {
-        showAppNotice('COMING SOON', 'Lucky Spin feature is temporarily unavailable. Please check back later.');
-    } else {
-        showToast('Lucky Spin — Coming Soon!', true);
-    }
-}
 function openSpinModal() {
-    showSpinComingSoon();
+    const modal = document.getElementById('spinModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        updateSpinUI(); // স্পিন ইনফো আপডেট করার জন্য
+    }
 }
 
 function closeSpinModal() {
