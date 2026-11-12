@@ -2867,8 +2867,6 @@ let isSpinning = false;
 let currentDegree = 0;
 
 function startSpin() {
-    showSpinComingSoon();
-    return;
     const state = window.appState;
 
     // Account activation check
@@ -2895,7 +2893,7 @@ function startSpin() {
         return;
     }
 
-    // 25 Reward sectors (Max reward capped at 200)
+    // নিরাপদ ও সুনির্দিষ্ট রিওয়ার্ড অ্যারে (সর্বੋচ্চ ৳২০০ বা এর নিচে সীমিত)
     const rewards = [
         10, 20, 50, 20, 100, 
         200, 10, 20, 100, 50, 
@@ -2937,7 +2935,7 @@ function startSpin() {
         state.balance = Number(state.balance || 0) + wonAmount;
         state.totalEarned = Number(state.totalEarned || 0) + wonAmount;
         updateBalanceDisplays();
-        saveLocalTransaction({type:'Lucky Spin reward',amount:wonAmount,status:'Credited'});
+        saveLocalTransaction({type:'Lucky Spin reward', amount:wonAmount, status:'Credited'});
         Promise.resolve(saveAllProgress()).catch(error => console.error('Spin reward save failed:', error));
 
         const result = document.getElementById('spinResult');
