@@ -827,7 +827,18 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                       একটি request দেওয়ার পর পরবর্তী ২৪ ঘণ্টা অপেক্ষা করতে হবে। সময় শেষ হলে button আবার চালু হবে।
                     </div>
                 </div>
-                
+
+                <!-- Active referral requirement notice: shown live after 3 withdrawal requests -->
+                <div id="withdrawReferralRequirementNotice" class="hidden mb-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-3 text-center shadow-lg shadow-amber-950/20">
+                    <div class="flex items-center justify-center gap-2 text-[11px] font-extrabold text-amber-300">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>পরবর্তী Withdraw-এর জন্য ১ জন Active Referral প্রয়োজন</span>
+                    </div>
+                    <p id="withdrawReferralRequirementText" class="mt-1 text-[10px] leading-relaxed text-amber-100/80">
+                        প্রথম ৩টি Withdraw সম্পন্ন হয়েছে। অন্তত ১ জন referred member ৳১০০ দিয়ে account active করলে এই notice চলে যাবে।
+                    </p>
+                </div>
+
                 <!-- Withdrawal Charge List Info Box -->
                 <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
                   <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
@@ -3426,14 +3437,32 @@ async function syncWithdrawCooldown() {
   const user = authData?.user;
   if (!user) throw new Error('Withdrawal করতে আগে Login করুন।');
 
-  const [{ data: rows, error }, { data: countData, error: countError }] = await Promise.all([
+  const [
+    { data: rows, error },
+    { data: countData, error: countError },
+    { data: referralData, error: referralError }
+  ] = await Promise.all([
     supabaseClient.from('withdrawal_requests').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-    supabaseClient.rpc('get_my_withdrawal_count')
+    supabaseClient.rpc('get_my_withdrawal_count'),
+    supabaseClient.rpc('get_my_referral_stats')
   ]);
   if (error) throw error;
   if (countError) throw countError;
+  if (referralError) throw referralError;
 
   withdrawAttemptCount = Number(countData || 0);
+  const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
+  const activeReferralCount = Number(referralStats.active_referrals);
+  if (!Number.isFinite(activeReferralCount)) {
+    throw new Error('Active Referral count যাচাই করা যায়নি।');
+  }
+  const referralNotice = document.getElementById('withdrawReferralRequirementNotice');
+  const referralNoticeText = document.getElementById('withdrawReferralRequirementText');
+  const referralRequired = withdrawAttemptCount >= 3 && activeReferralCount < 1;
+  referralNotice?.classList.toggle('hidden', !referralRequired);
+  if (referralNoticeText && referralRequired) {
+    referralNoticeText.textContent = 'আপনার ' + withdrawAttemptCount + 'টি Withdraw request হয়েছে। পরবর্তী Withdraw-এর আগে অন্তত ১ জন Active Referral প্রয়োজন। Referred member ৳১০০ দিয়ে account active করলেই notice সরে যাবে।';
+  }
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
   updateWithdrawCooldownUi();
@@ -3490,6 +3519,15 @@ async function openWithdrawVerification() {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
       return;
+    }
+    if (Number(withdrawAttemptCount || 0) >= 3) {
+      const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
+      if (referralError) throw referralError;
+      const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
+      if (Number(referralStats.active_referrals || 0) < 1) {
+        showToast('পরবর্তী Withdraw-এর জন্য অন্তত ১ জন Active Referral প্রয়োজন।', true);
+        return;
+      }
     }
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
