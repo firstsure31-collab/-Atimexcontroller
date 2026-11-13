@@ -926,7 +926,20 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
             </div>
 
             <!-- 3. TASKS TAB: intentionally empty; navigation remains locked -->
+
+<div id="taskReferralLeaderboardModal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4" onclick="if(event.target===this)closeTaskReferralLeaderboard()">
+  <div class="w-full max-w-md max-h-[82vh] overflow-hidden rounded-2xl border border-emerald-400/30 bg-slate-950 shadow-2xl shadow-emerald-950/40">
+    <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 p-4">
+      <div><p class="text-[9px] font-black uppercase tracking-[.2em] text-emerald-300">Live Ranking</p><h3 class="mt-1 text-base font-black text-white">Task Referral Leaderboard</h3><p class="mt-1 text-[10px] text-slate-400">৳১ verified referral · সর্বোচ্চ referral অনুযায়ী</p></div>
+      <button type="button" onclick="closeTaskReferralLeaderboard()" class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-300"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="taskReferralLeaderboardRows" class="max-h-[58vh] space-y-2 overflow-y-auto p-3"><p class="py-8 text-center text-xs text-slate-400">Leaderboard loading…</p></div>
+    <div class="border-t border-slate-800 p-3 text-center"><button type="button" onclick="loadTaskReferralLeaderboard()" class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-[10px] font-bold text-emerald-300"><i class="fa-solid fa-rotate mr-1"></i> Refresh live count</button></div>
+  </div>
+</div>
+
 <div id="tabTasks" class="tab-content hidden space-y-4">
+  <button type="button" onclick="openTaskReferralLeaderboard()" class="flex w-full items-center justify-between rounded-2xl border border-amber-400/35 bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 p-3 text-left shadow-lg shadow-amber-950/20"><span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/10 text-amber-300"><i class="fa-solid fa-ranking-star"></i></span><span><b class="block text-xs font-black text-white">Referral Leaderboard</b><small class="mt-0.5 block text-[9px] text-slate-400">কারা কতজন refer করেছে · Live count</small></span></span><i class="fa-solid fa-chevron-right text-xs text-amber-300"></i></button>
   <section class="relative overflow-hidden rounded-2xl border border-emerald-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/60 p-4 shadow-lg shadow-emerald-950/20">
     <div class="absolute right-3 top-3 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-extrabold text-emerald-200">TOTAL REFER · <span id="taskTotalRefer">—</span></div>
     <div class="pr-24"><p class="text-[10px] font-black uppercase tracking-[.18em] text-emerald-300">Daily Task</p><h2 class="mt-1 text-lg font-black text-white">Refer &amp; Earn</h2><p class="mt-1 text-[11px] leading-relaxed text-slate-300">আপনার referral link শেয়ার করুন। নতুন কেউ এই link দিয়ে সফলভাবে account register করলে ৳১ reward পাবেন।</p></div>
@@ -4084,6 +4097,38 @@ async function syncTaskReferralStats(){
     console.error('Task referral stats failed:',error);
     if(countEl)countEl.textContent='—';
     if(statusEl)statusEl.textContent='Stats load হয়নি · '+(error.message||'SQL setup প্রয়োজন');
+  }
+}
+async function openTaskReferralLeaderboard(){
+  const modal=document.getElementById('taskReferralLeaderboardModal');
+  if(modal)modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  await loadTaskReferralLeaderboard();
+}
+function closeTaskReferralLeaderboard(){
+  document.getElementById('taskReferralLeaderboardModal')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+}
+async function loadTaskReferralLeaderboard(){
+  const box=document.getElementById('taskReferralLeaderboardRows');
+  if(!box)return;
+  box.innerHTML='<p class="py-8 text-center text-xs text-slate-400">Live leaderboard loading…</p>';
+  try{
+    const {data,error}=await supabaseClient.rpc('get_task_referral_leaderboard',{p_limit:50});
+    if(error)throw error;
+    const rows=Array.isArray(data)?data:[];
+    if(!rows.length){box.innerHTML='<p class="py-8 text-center text-xs text-slate-400">এখনো কোনো verified referral নেই।</p>';return;}
+    box.innerHTML=rows.map((row,index)=>{
+      const rank=Number(row.rank_no||index+1);
+      const name=String(row.nickname||'ATIMEX User').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const count=Number(row.total_referrals||0);
+      const reward=Number(row.total_reward||0);
+      const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
+      return '<div class="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3"><div class="flex min-w-0 items-center gap-3"><span class="flex h-8 min-w-8 items-center justify-center rounded-lg bg-emerald-500/10 px-2 text-xs font-black text-emerald-300">'+medal+'</span><div class="min-w-0"><b class="block truncate text-xs text-white">'+name+'</b><small class="text-[9px] text-slate-500">Rank '+rank+'</small></div></div><div class="shrink-0 text-right"><b class="block text-sm font-black text-emerald-300">'+count.toLocaleString('en-BD')+'</b><small class="text-[9px] text-slate-500">৳'+reward.toLocaleString('en-BD')+' earned</small></div></div>';
+    }).join('');
+  }catch(error){
+    console.error('Task referral leaderboard failed:',error);
+    box.innerHTML='<p class="py-8 text-center text-xs text-rose-300">Leaderboard load হয়নি: '+String(error.message||'SQL setup প্রয়োজন').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]))+'</p>';
   }
 }
 async function shareTaskReferralLink(){
