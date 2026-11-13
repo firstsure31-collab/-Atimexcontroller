@@ -3439,18 +3439,19 @@ async function syncWithdrawCooldown() {
 
   const [
     { data: rows, error },
-    { data: countData, error: countError },
+    { count: requestCount, error: countError },
     { data: referralData, error: referralError }
   ] = await Promise.all([
     supabaseClient.from('withdrawal_requests').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-    supabaseClient.rpc('get_my_withdrawal_count'),
+    supabaseClient.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     supabaseClient.rpc('get_my_referral_stats')
   ]);
   if (error) throw error;
   if (countError) throw countError;
   if (referralError) throw referralError;
 
-  withdrawAttemptCount = Number(countData || 0);
+  // Count this user's actual database rows directly; do not rely on the legacy count RPC.
+  withdrawAttemptCount = Number(requestCount ?? 0);
   const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
   const activeReferralCount = Number(referralStats.active_referrals);
   if (!Number.isFinite(activeReferralCount)) {
