@@ -3384,12 +3384,13 @@ function getWithdrawFormData() {
     }
   }
   const minimum = method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20);
+  const maximum = (method === 'bKash' || method === 'Nagad') ? 300 : 500;
   if (!Number.isFinite(amount) || amount < minimum) {
     showToast('সর্বনিম্ন ' + method + ' withdraw ৳' + minimum + '।', true);
     return null;
   }
-  if (amount > 500) {
-    showToast('সর্বোচ্চ withdraw ৳500।', true);
+  if (amount > maximum) {
+    showToast('সর্বোচ্চ ' + method + ' withdraw ৳' + maximum + '।', true);
     return null;
   }
   if (amount > balance) {
