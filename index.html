@@ -1975,7 +1975,26 @@ function formatAdminDate(value) {
 }
 
 async function getCurrentAdminUser() {
-    const { data, error } = await supabaseClient.auth.getUser();
+    // Refresh an expired/nearly-expired JWT before admin table queries.
+    // Supabase may otherwise return: "invalid JWT ... token is expired".
+    let { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    let session = sessionData?.session;
+    if (!session) throw new Error('Login session শেষ হয়েছে। আবার Login করুন।');
+
+    const expiresAt = Number(session.expires_at || 0);
+    if (!expiresAt || expiresAt <= Math.floor(Date.now() / 1000) + 120) {
+        const refreshed = await supabaseClient.auth.refreshSession();
+        if (refreshed.error) throw new Error('Session refresh হয়নি। আবার Login করুন: ' + refreshed.error.message);
+        session = refreshed.data?.session || session;
+    }
+
+    let { data, error } = await supabaseClient.auth.getUser();
+    if (error && /jwt|token.*expired|invalid.*signature/i.test(String(error.message || error))) {
+        const refreshed = await supabaseClient.auth.refreshSession();
+        if (refreshed.error) throw new Error('Session refresh হয়নি। আবার Login করুন: ' + refreshed.error.message);
+        ({ data, error } = await supabaseClient.auth.getUser());
+    }
     if (error) throw error;
     const user = data?.user;
     // UI visibility only. The review RPC independently checks public.atimex_admins server-side.
