@@ -2655,6 +2655,7 @@ async function persistCloudUser(userId, phone, saved, email){
         email: safeEmail,
         phone: safePhone,
         nickname: nickname,
+        balance: Number(saved.progressData?.balance ?? window.appState?.balance ?? 0),
         app_data: {
           ...saved,
           email: safeEmail,
@@ -3969,6 +3970,9 @@ async function claimDailyReward(){
     a.balance=creditedBalance;
     a.totalEarned=creditedTotalEarned;
     updateBalanceDisplays();
+    // Persist the RPC-confirmed balance to both profiles.balance and app_data.progressData.
+    // saveAllProgress uses the current authoritative in-memory values set above.
+    await saveAllProgress();
     saveLocalTransaction({type:'Daily Claim Day '+(result.day_number||''),amount,status:'Credited'});
     window.monthlyDailyClaimState=result;
     renderDailyClaimCalendar(result);
