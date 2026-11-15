@@ -556,6 +556,75 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
   .refer-earn-white-green-orbit::before { animation: none; }
 }
 
+
+
+/* ATIMEX refined black + emerald visual layer — preserves existing component animations */
+:root {
+  color-scheme: dark;
+  --atimex-ink: #070d12;
+  --atimex-panel: rgba(13, 25, 28, .88);
+  --atimex-line: rgba(52, 211, 153, .14);
+}
+html, body {
+  background:
+    radial-gradient(ellipse at 12% 4%, rgba(16,185,129,.13), transparent 34%),
+    radial-gradient(ellipse at 88% 42%, rgba(20,83,65,.16), transparent 38%),
+    linear-gradient(145deg, #050a0e 0%, #091512 48%, #071019 100%) !important;
+  background-attachment: fixed;
+}
+body {
+  min-height: 100vh;
+}
+#appContainer {
+  background:
+    radial-gradient(ellipse at 92% 0%, rgba(16,185,129,.10), transparent 34%),
+    linear-gradient(165deg, #101b1b 0%, #0b1518 48%, #091116 100%) !important;
+  border-color: rgba(52,211,153,.18) !important;
+  box-shadow: 0 24px 80px rgba(0,0,0,.48), 0 0 36px rgba(16,185,129,.055) !important;
+}
+#appContainer > header {
+  background: linear-gradient(100deg, rgba(10,24,23,.97), rgba(13,27,30,.94)) !important;
+  border-bottom-color: rgba(52,211,153,.17) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,.16);
+}
+#appContainer > main {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(16,185,129,.055), transparent 42%),
+    linear-gradient(180deg, rgba(7,16,18,.32), rgba(5,12,17,.12));
+}
+#appContainer .bg-slate-900\/90 {
+  background-color: rgba(10,24,23,.94) !important;
+}
+#appContainer .bg-slate-900:not(header):not(.header-logo-inner) {
+  background-color: rgba(12,25,28,.92);
+}
+#appContainer .bg-slate-800:not(.red-beat-popup) {
+  background-color: rgba(20,35,36,.84);
+}
+#appContainer .border-slate-800,
+#appContainer .border-slate-700,
+#appContainer .border-slate-700\/50 {
+  border-color: rgba(148,163,184,.15) !important;
+}
+#tabHome .rounded-2xl.border:not(#homeBannerSlider),
+#tabHome .rounded-xl.border {
+  box-shadow: 0 10px 26px rgba(0,0,0,.15);
+}
+#homeBannerSlider {
+  border-color: rgba(52,211,153,.24) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.28), 0 0 22px rgba(16,185,129,.07);
+}
+#appContainer button:not(.withdraw-provider-btn):not(.red-beat-popup button) {
+  transition: filter .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+#appContainer button:not(:disabled):active {
+  filter: brightness(1.08);
+}
+@media (max-width: 480px) {
+  body { background-attachment: scroll; }
+  #appContainer { border-left-color: rgba(52,211,153,.12) !important; border-right-color: rgba(52,211,153,.12) !important; }
+}
+
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
