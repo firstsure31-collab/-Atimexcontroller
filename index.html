@@ -2856,6 +2856,8 @@ async function handleAuthSubmit(){
   const authErrorText=String(e?.message||e?.code||'');
   if(authMode==='login'&&/banned|ban_duration|user_banned/i.test(authErrorText)){
    showToast('Your account is suspended',true);
+  }else if(authMode==='login'&&(/invalid login credentials|invalid_credentials|email or password is incorrect/i.test(authErrorText))){
+   showToast('আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।',true);
   }else{
    showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
   }
