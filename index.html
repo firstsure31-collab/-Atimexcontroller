@@ -2823,7 +2823,15 @@ async function handleAuthSubmit(){
   let data;
   if(authMode==='login'){
    const login=await supabaseClient.auth.signInWithPassword({email,password:pass});
-   if(login.error)throw login.error;
+   if(login.error){
+    const loginErrText=String(login.error.message||'');
+    const loginErrCode=String(login.error.code||'').toLowerCase();
+    if(login.error.status===400||loginErrCode==='invalid_credentials'||/invalid login credentials|invalid_credentials|email or password is incorrect/i.test(loginErrText)){
+     showToast('আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।',true);
+     return;
+    }
+    throw login.error;
+   }
    if(!login.data?.user)throw new Error('Login হয়নি। Email ও password যাচাই করুন।');
    data=login.data;
   }else{
