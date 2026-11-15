@@ -1411,12 +1411,13 @@ function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে
                 <div><p class="text-[10px] font-bold text-amber-100">Withdrawal review queue</p><p class="mt-1 text-[9px] text-slate-400">প্রতিটি request-এর amount, method এবং account number এখানে দেখানো হবে।</p></div>
                 <span id="adminWithdrawalPendingCount" class="shrink-0 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[9px] font-black text-amber-200">0 PENDING</span>
               </div>
+              <div class="mb-3 grid grid-cols-3 gap-2">
+                <button type="button" data-withdraw-method-tab="bKash" onclick="switchAdminWithdrawalMethod('bKash')" class="rounded-xl border border-pink-400/40 bg-pink-400/10 px-2 py-3 text-center text-[11px] font-black text-pink-200">bKash <span id="adminWithdrawCountBkash" class="mt-1 block text-[9px] text-pink-300">0 PENDING</span></button>
+                <button type="button" data-withdraw-method-tab="Nagad" onclick="switchAdminWithdrawalMethod('Nagad')" class="rounded-xl border border-orange-400/30 bg-orange-400/5 px-2 py-3 text-center text-[11px] font-black text-orange-200">Nagad <span id="adminWithdrawCountNagad" class="mt-1 block text-[9px] text-orange-300">0 PENDING</span></button>
+                <button type="button" data-withdraw-method-tab="Rocket" onclick="switchAdminWithdrawalMethod('Rocket')" class="rounded-xl border border-purple-400/30 bg-purple-400/5 px-2 py-3 text-center text-[11px] font-black text-purple-200">Rocket <span id="adminWithdrawCountRocket" class="mt-1 block text-[9px] text-purple-300">0 PENDING</span></button>
+              </div>
               <div id="adminWithdrawalRequestList" class="space-y-3">
-                <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center">
-                  <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-800 text-slate-500"><i class="fa-solid fa-inbox text-xl"></i></div>
-                  <p class="mt-3 text-sm font-bold text-slate-300">Withdrawal request UI ready</p>
-                  <p class="mt-1 text-[10px] leading-5 text-slate-500">Supabase থেকে সর্বশেষ withdrawal request এখানে দেখানো হবে।</p>
-                </div>
+                <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center text-xs text-slate-400">Withdrawal request লোড হচ্ছে...</div>
               </div>
               <template id="adminWithdrawalRequestCardTemplate">
                 <article class="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
@@ -2049,6 +2050,20 @@ function formatWithdrawalOrdinal(value) {
     return n + suffix + ' time';
 }
 
+let adminWithdrawalMethod = 'bKash';
+
+function switchAdminWithdrawalMethod(method) {
+    adminWithdrawalMethod = ['bKash','Nagad','Rocket'].includes(method) ? method : 'bKash';
+    const requests = document.getElementById('adminWithdrawalRequestList');
+    document.querySelectorAll('[data-withdraw-method-tab]').forEach(button => {
+        const active = button.getAttribute('data-withdraw-method-tab') === adminWithdrawalMethod;
+        button.classList.toggle('ring-2', active);
+        button.classList.toggle('ring-white/30', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    if (requests) requests.dataset.method = adminWithdrawalMethod;
+}
+
 async function loadAdminWithdrawalRequests() {
     const target = document.getElementById('adminWithdrawalRequestList');
     const badge = document.getElementById('adminWithdrawalPendingCount');
@@ -2065,8 +2080,26 @@ async function loadAdminWithdrawalRequests() {
         if (error) throw error;
 
         const requests = Array.isArray(rows) ? rows : [];
+        const methodKey = value => {
+            const method = String(value || '').trim().toLowerCase();
+            if (method === 'bkash' || method === 'b-kash') return 'bKash';
+            if (method === 'nagad') return 'Nagad';
+            if (method === 'rocket') return 'Rocket';
+            return 'Other';
+        };
+        const pendingByMethod = { bKash: 0, Nagad: 0, Rocket: 0 };
+        requests.forEach(row => {
+            const key = methodKey(row.method);
+            if (row.status === 'pending' && pendingByMethod[key] !== undefined) pendingByMethod[key]++;
+        });
         const pendingCount = requests.filter(row => row.status === 'pending').length;
         if (badge) badge.textContent = pendingCount + ' PENDING';
+        const countNodes = {
+            bKash: document.getElementById('adminWithdrawCountBkash'),
+            Nagad: document.getElementById('adminWithdrawCountNagad'),
+            Rocket: document.getElementById('adminWithdrawCountRocket')
+        };
+        Object.entries(countNodes).forEach(([key,node]) => { if (node) node.textContent = pendingByMethod[key] + ' PENDING'; });
         if (!requests.length) {
             if (target) target.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center"><i class="fa-solid fa-inbox text-xl text-slate-500"></i><p class="mt-3 text-sm font-bold text-slate-300">কোনো withdrawal request নেই</p><p class="mt-1 text-[10px] text-slate-500">নতুন request এলে এখানে দেখা যাবে।</p></div>';
             return;
@@ -2103,7 +2136,13 @@ async function loadAdminWithdrawalRequests() {
         const template = document.getElementById('adminWithdrawalRequestCardTemplate');
         if (!template || !target) return;
         target.innerHTML = '';
-        requests.forEach(row => {
+        const visibleRequests = requests.filter(row => methodKey(row.method) === adminWithdrawalMethod);
+        if (!visibleRequests.length) {
+            const label = adminWithdrawalMethod;
+            target.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center"><i class="fa-solid fa-inbox text-xl text-slate-500"></i><p class="mt-3 text-sm font-bold text-slate-300">' + label + ' request নেই</p><p class="mt-1 text-[10px] text-slate-500">এই payment method-এ নতুন request এলে এখানে দেখা যাবে।</p></div>';
+            return;
+        }
+        visibleRequests.forEach(row => {
             const fragment = template.content.cloneNode(true);
             const profile = profilesById[row.user_id] || {};
             const setField = (name, value) => {
