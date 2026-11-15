@@ -2062,6 +2062,9 @@ function switchAdminWithdrawalMethod(method) {
         button.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
     if (requests) requests.dataset.method = adminWithdrawalMethod;
+    // Re-render the queue for the newly selected payment method.
+    // Previously only the selected tab styling changed, leaving the old bKash cards visible.
+    loadAdminWithdrawalRequests();
 }
 
 async function loadAdminWithdrawalRequests() {
