@@ -694,6 +694,122 @@ html, body {
   #appContainer { border-left-color: rgba(125,160,205,.13) !important; border-right-color: rgba(125,160,205,.13) !important; }
 }
 
+
+/* ATIMEX clean emerald redesign — new surfaces and hierarchy, existing controls/logic retained */
+:root {
+  color-scheme: light;
+  --atimex-green: #059669;
+  --atimex-green-dark: #047857;
+  --atimex-black: #101816;
+  --atimex-paper: #f4f7f5;
+  --atimex-card: #ffffff;
+  --atimex-border: #dce7e1;
+}
+html, body {
+  min-height: 100%;
+  background: #f2f6f3 !important;
+  background-image:
+    radial-gradient(ellipse at 8% 0%, rgba(16,185,129,.13), transparent 34%),
+    radial-gradient(ellipse at 100% 80%, rgba(5,150,105,.08), transparent 30%) !important;
+  color: #17231e !important;
+}
+body { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+#appContainer {
+  background: #f6f8f6 !important;
+  border: 1px solid #dce7e1 !important;
+  border-radius: 28px !important;
+  box-shadow: 0 24px 70px rgba(15, 45, 31, .13) !important;
+}
+#appContainer > header {
+  background: #101816 !important;
+  color: #f8fffb !important;
+  border: 0 !important;
+  border-bottom: 3px solid #059669 !important;
+  box-shadow: 0 8px 24px rgba(8, 30, 20, .16) !important;
+}
+#appContainer > header .text-emerald-400,
+#appContainer > header .text-emerald-300 { color: #5eeab0 !important; }
+#appContainer > main {
+  background: transparent !important;
+  padding: 18px 15px 108px !important;
+}
+#appContainer .bg-slate-900\/90,
+#appContainer .bg-slate-900:not(header):not(.header-logo-inner),
+#appContainer .bg-slate-800:not(.red-beat-popup) {
+  background: #ffffff !important;
+  color: #17231e !important;
+}
+#appContainer .border-slate-800,
+#appContainer .border-slate-700,
+#appContainer .border-slate-700\/50 {
+  border-color: #dce7e1 !important;
+}
+#appContainer main .tab-content > div:not(.hidden):not(#accountActiveBanner),
+#appContainer main .tab-content > section,
+#appContainer main .tab-content > article {
+  border-radius: 22px;
+}
+#appContainer main .tab-content .rounded-2xl.border:not(button):not(.red-beat-popup):not(.total-spent-gold-orbit):not(.refer-earn-white-green-orbit) {
+  background-color: #ffffff;
+  border-color: #dce7e1 !important;
+  box-shadow: 0 8px 22px rgba(17, 50, 34, .055);
+}
+#tabHome, #tabWallet, #tabTasks, #tabServer, #tabProfile { color: #17231e; }
+#appContainer .text-white { color: #17231e !important; }
+#appContainer .text-slate-200,
+#appContainer .text-slate-300 { color: #405249 !important; }
+#appContainer .text-slate-400,
+#appContainer .text-slate-500 { color: #718078 !important; }
+#appContainer .text-emerald-300,
+#appContainer .text-emerald-400 { color: #047857 !important; }
+#appContainer .bg-emerald-950\/40 { background: #e8f7ef !important; }
+#appContainer .bg-emerald-500\/10,
+#appContainer .bg-emerald-400\/10 { background: #e8f7ef !important; }
+#appContainer input,
+#appContainer select,
+#appContainer textarea {
+  background-color: #f7faf8 !important;
+  color: #17231e !important;
+  border-color: #cbdad1 !important;
+}
+#appContainer input::placeholder,
+#appContainer textarea::placeholder { color: #89978f !important; }
+#appContainer > nav {
+  background: rgba(255,255,255,.97) !important;
+  border-top: 1px solid #dce7e1 !important;
+  box-shadow: 0 -8px 28px rgba(17,50,34,.09) !important;
+  backdrop-filter: blur(16px);
+}
+#appContainer > nav .text-slate-400,
+#appContainer > nav .text-slate-500 { color: #718078 !important; }
+#appContainer > nav .text-emerald-400,
+#appContainer > nav .text-emerald-300 { color: #047857 !important; }
+#homeBannerSlider {
+  border-color: #a7ddc1 !important;
+  box-shadow: 0 12px 28px rgba(5,150,105,.10) !important;
+}
+#accountActiveBanner {
+  background: #fffaf0 !important;
+}
+#activeStatusBanner {
+  background: #e8f7ef !important;
+}
+#appContainer .header-logo-inner { color: #5eeab0 !important; }
+/* Remove decorative looping effects throughout the app; keep JS-driven actions intact. */
+#appContainer *, #appContainer *::before, #appContainer *::after,
+#welcomeIntro *, #welcomeModal *, #firstVisitNotice * {
+  animation: none !important;
+}
+@media (max-width: 480px) {
+  #appContainer {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+  #appContainer > main { padding: 15px 12px 104px !important; }
+}
+
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
