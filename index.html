@@ -1947,7 +1947,7 @@ function removeProfilePic() {
     const poolEl = document.getElementById('leaderboardActivePool');
     if (list) list.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-center text-xs text-slate-400">Loading daily active referrals…</div>';
     try {
-        const { data, error } = await supabaseClient.rpc('get_daily_referral_leaderboard', { p_limit: 20 });
+        const { data, error } = await supabaseClient.rpc('get_daily_referral_leaderboard', { p_limit: 1000 });
         if (error) throw error;
         const rows = Array.isArray(data) ? data : [];
         const total = rows.reduce((sum, row) => sum + Number(row.active_referrals || 0), 0);
