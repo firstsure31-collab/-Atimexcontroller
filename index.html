@@ -625,6 +625,75 @@ body {
   #appContainer { border-left-color: rgba(52,211,153,.12) !important; border-right-color: rgba(52,211,153,.12) !important; }
 }
 
+
+/* ATIMEX 2026 premium UI refresh — visual surfaces only.
+   Existing buttons, JavaScript, and all orbit/spin animations are intentionally untouched. */
+:root {
+  --atimex-ink: #080d18;
+  --atimex-panel: rgba(17, 27, 46, .88);
+  --atimex-line: rgba(125, 160, 205, .18);
+}
+html, body {
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(39, 91, 145, .20), transparent 34%),
+    radial-gradient(ellipse at 95% 28%, rgba(14, 116, 110, .14), transparent 32%),
+    linear-gradient(150deg, #070b14 0%, #0b1422 48%, #080f1b 100%) !important;
+}
+#appContainer {
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(56, 120, 174, .13), transparent 32%),
+    linear-gradient(160deg, #111c30 0%, #0c1728 52%, #0a1422 100%) !important;
+  border-color: rgba(125, 160, 205, .20) !important;
+  box-shadow: 0 26px 90px rgba(0,0,0,.52), 0 0 42px rgba(43,94,150,.08) !important;
+}
+#appContainer > header {
+  background: linear-gradient(105deg, rgba(13,25,43,.98), rgba(16,34,49,.96)) !important;
+  border-bottom-color: rgba(125,160,205,.19) !important;
+}
+#appContainer > main {
+  background:
+    radial-gradient(ellipse at 4% 0%, rgba(59,130,176,.075), transparent 38%),
+    linear-gradient(180deg, rgba(7,14,26,.16), rgba(8,16,29,.34));
+}
+#appContainer .bg-slate-900\/90 {
+  background-color: rgba(13,25,43,.96) !important;
+}
+#appContainer .bg-slate-900:not(header):not(.header-logo-inner) {
+  background-color: rgba(16,30,49,.93);
+}
+#appContainer .bg-slate-800:not(.red-beat-popup) {
+  background-color: rgba(25,42,62,.86);
+}
+#appContainer .border-slate-800,
+#appContainer .border-slate-700,
+#appContainer .border-slate-700\/50 {
+  border-color: rgba(148,174,207,.17) !important;
+}
+/* Give content panels a consistent premium glass finish without styling buttons. */
+#appContainer main .tab-content > div:not(.hidden):not(#accountActiveBanner),
+#appContainer main .tab-content > section,
+#appContainer main .tab-content > article {
+  border-color: var(--atimex-line);
+}
+#appContainer main .tab-content .rounded-2xl.border:not(button):not(.red-beat-popup):not(.total-spent-gold-orbit):not(.refer-earn-white-green-orbit) {
+  box-shadow: 0 12px 30px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.025);
+}
+#homeBannerSlider {
+  border-color: rgba(125,180,220,.28) !important;
+  box-shadow: 0 16px 38px rgba(0,0,0,.32), 0 0 24px rgba(56,120,174,.09);
+}
+#appContainer > nav {
+  background: linear-gradient(100deg, rgba(10,20,36,.98), rgba(13,29,44,.98)) !important;
+  border-top-color: rgba(125,160,205,.20) !important;
+  box-shadow: 0 -12px 32px rgba(0,0,0,.22);
+}
+#appContainer .text-slate-400 { color: #9aabc1; }
+#appContainer .text-slate-300 { color: #c0ccdc; }
+#appContainer .text-slate-500 { color: #7f91aa; }
+@media (max-width: 480px) {
+  #appContainer { border-left-color: rgba(125,160,205,.13) !important; border-right-color: rgba(125,160,205,.13) !important; }
+}
+
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
