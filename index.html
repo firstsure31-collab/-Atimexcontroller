@@ -1952,7 +1952,7 @@ function removeProfilePic() {
         const rows = Array.isArray(data) ? data : [];
         const total = rows.reduce((sum, row) => sum + Number(row.active_referrals || 0), 0);
         if (totalEl) totalEl.textContent = String(total);
-        if (poolEl) poolEl.textContent = String(rows.length);
+        if (poolEl) poolEl.textContent = String(total);
         if (!list) return;
         if (!rows.length) {
             list.innerHTML = '<div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-center text-xs text-slate-400">আজ এখনো কোনো Active Referral নেই।</div>';
