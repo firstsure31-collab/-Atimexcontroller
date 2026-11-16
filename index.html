@@ -3600,7 +3600,7 @@ function getWithdrawFormData() {
     }
   }
   const minimum = method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20);
-  const maximum = (method === 'bKash' || method === 'Nagad') ? 300 : 500;
+  const maximum = (['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500;
   if (!Number.isFinite(amount) || amount < minimum) {
     showToast('সর্বনিম্ন ' + method + ' withdraw ৳' + minimum + '।', true);
     return null;
