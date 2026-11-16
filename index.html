@@ -3481,7 +3481,7 @@ function handleWithdraw() {
         showToast('সর্বনিম্ন উইথড্র ২০ টাকা!', true);
         return;
     }
-    const maximum = (method === 'bKash' || method === 'Nagad') ? 300 : 500;
+    const maximum = (['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500;
    if (amount > maximum) {
         showToast('সর্বোচ্চ ' + method + ' withdraw ৳' + maximum + '।', true);
         return;
