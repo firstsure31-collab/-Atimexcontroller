@@ -1344,9 +1344,10 @@ html, body {
               <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Select Deposit Method</label>
               
               <div class="grid grid-cols-2 gap-3">
-                <button type="button" onclick="selectPaymentProvider('bKash', '01731567454')" id="btnbKash" class="pay-provider-btn active bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
-                  <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span></div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">bKash Active · 01731567454</span></div>
+                <button type="button" id="btnbKash" disabled class="pay-provider-btn bg-slate-700/50 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-50 grayscale cursor-not-allowed relative shadow-md">
+                  <span class="absolute top-1 right-1 bg-slate-600 text-[8px] font-black text-slate-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Coming Soon</span>
+                  <div class="bg-slate-200/70 h-14 flex items-center justify-center p-2"><span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span></div>
+                  <div class="bg-slate-800 py-1.5 text-center border-t border-slate-700"><span class="text-[11px] font-bold text-slate-400">Coming Soon</span></div>
                 </button>
                 <button type="button" onclick="selectPaymentProvider('Nagad', '01940779877')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span></div>
