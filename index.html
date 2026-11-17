@@ -1297,12 +1297,18 @@ html, body {
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="authPass" autocomplete="current-password" minlength="6" maxlength="72" placeholder="Password দিন" oninput="clearAuthPasswordError()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <div class="relative">
+                            <input type="password" id="authPass" autocomplete="current-password" minlength="6" maxlength="72" placeholder="Password দিন" oninput="clearAuthPasswordError()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 pr-11 focus:outline-none focus:border-emerald-500">
+                            <button type="button" onclick="toggleAuthPasswordVisibility('authPass','authPassEye')" aria-label="Show password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-300 p-1"><i id="authPassEye" class="fa-solid fa-eye"></i></button>
+                        </div>
                         <p id="authPasswordError" class="hidden mt-2 text-[11px] font-bold text-red-400">আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।</p>
                     </div>
                     <div id="authConfirmWrap" class="hidden">
                         <label class="text-[11px] text-slate-400 mb-1 block">Confirm Password</label>
-                        <input type="password" id="authConfirmPass" autocomplete="new-password" minlength="6" maxlength="72" placeholder="Password আবার লিখুন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <div class="relative">
+                            <input type="password" id="authConfirmPass" autocomplete="new-password" minlength="6" maxlength="72" placeholder="Password আবার লিখুন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 pr-11 focus:outline-none focus:border-emerald-500">
+                            <button type="button" onclick="toggleAuthPasswordVisibility('authConfirmPass','authConfirmPassEye')" aria-label="Show confirm password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-300 p-1"><i id="authConfirmPassEye" class="fa-solid fa-eye"></i></button>
+                        </div>
                     </div>
                     <button id="authPasswordButton" onclick="handleAuthSubmit()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer">Login</button>
                     <p class="text-[9px] text-slate-500 text-center">আপনার account, mobile number ও progress Supabase-এ আলাদাভাবে save হবে।</p>
@@ -2932,6 +2938,17 @@ window.onload = async function(){
     if (welcomeModal) welcomeModal.classList.remove('hidden');
 };
 let authMode='login';
+function toggleAuthPasswordVisibility(inputId,eyeId){
+ const input=document.getElementById(inputId);
+ const eye=document.getElementById(eyeId);
+ if(!input||!eye)return;
+ const show=input.type==='password';
+ input.type=show?'text':'password';
+ eye.classList.toggle('fa-eye',!show);
+ eye.classList.toggle('fa-eye-slash',show);
+ const button=eye.closest('button');
+ if(button)button.setAttribute('aria-label',show?'Hide password':'Show password');
+}
 function showAuthPasswordError(){
  const error=document.getElementById('authPasswordError');
  const input=document.getElementById('authPass');
