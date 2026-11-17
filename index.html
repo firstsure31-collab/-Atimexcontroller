@@ -1296,29 +1296,9 @@ html, body {
                         <input type="tel" id="authPhone" autocomplete="tel" inputmode="tel" placeholder="01XXXXXXXXX" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="text-[11px] text-slate-400 block">Password</label>
-                            <button type="button" onclick="toggleAuthNumericKeypad()" class="text-[10px] font-bold text-emerald-300 px-2 py-1 rounded-lg border border-emerald-500/30">123 Keypad</button>
-                        </div>
-                        <input type="password" id="authPass" autocomplete="current-password" minlength="6" maxlength="72" placeholder="Password দিন" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
-                        <div id="authNumericKeypad" class="hidden mt-2 rounded-xl border border-emerald-500/30 bg-slate-950 p-2 space-y-2">
-                            <div class="grid grid-cols-3 gap-2">
-                                <button type="button" onclick="authKeypadPress('1')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">1</button>
-                                <button type="button" onclick="authKeypadPress('2')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">2</button>
-                                <button type="button" onclick="authKeypadPress('3')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">3</button>
-                                <button type="button" onclick="authKeypadPress('4')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">4</button>
-                                <button type="button" onclick="authKeypadPress('5')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">5</button>
-                                <button type="button" onclick="authKeypadPress('6')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">6</button>
-                                <button type="button" onclick="authKeypadPress('7')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">7</button>
-                                <button type="button" onclick="authKeypadPress('8')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">8</button>
-                                <button type="button" onclick="authKeypadPress('9')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">9</button>
-                                <button type="button" onclick="authKeypadPress('clear')" class="rounded-lg bg-rose-900/70 py-3 text-rose-200 text-xs font-bold">Clear</button>
-                                <button type="button" onclick="authKeypadPress('0')" class="rounded-lg bg-slate-800 py-3 text-white font-bold">0</button>
-                                <button type="button" onclick="authKeypadPress('backspace')" class="rounded-lg bg-slate-700 py-3 text-white font-bold">⌫</button>
-                            </div>
-                            <button type="button" onclick="toggleAuthNumericKeypad(false)" class="w-full rounded-lg bg-emerald-500 py-2 text-xs font-bold text-white">Done</button>
-                            <p class="text-center text-[9px] text-slate-500">সংখ্যা অথবা সাধারণ কিবোর্ড—দুটিই ব্যবহার করতে পারবেন</p>
-                        </div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Password</label>
+                        <input type="password" id="authPass" autocomplete="current-password" minlength="6" maxlength="72" placeholder="Password দিন" oninput="clearAuthPasswordError()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                        <p id="authPasswordError" class="hidden mt-2 text-[11px] font-bold text-red-400">আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।</p>
                     </div>
                     <div id="authConfirmWrap" class="hidden">
                         <label class="text-[11px] text-slate-400 mb-1 block">Confirm Password</label>
@@ -2952,30 +2932,17 @@ window.onload = async function(){
     if (welcomeModal) welcomeModal.classList.remove('hidden');
 };
 let authMode='login';
-function toggleAuthNumericKeypad(force){
- const panel=document.getElementById('authNumericKeypad');
- if(!panel)return;
- const open=typeof force==='boolean'?force:panel.classList.contains('hidden');
- panel.classList.toggle('hidden',!open);
- if(open)document.getElementById('authPass')?.focus({preventScroll:true});
-}
-function authKeypadPress(key){
+function showAuthPasswordError(){
+ const error=document.getElementById('authPasswordError');
  const input=document.getElementById('authPass');
- if(!input)return;
- const start=input.selectionStart??input.value.length;
- const end=input.selectionEnd??input.value.length;
- if(key==='clear')input.value='';
- else if(key==='backspace'){
-  if(start===end&&start>0)input.value=input.value.slice(0,start-1)+input.value.slice(end);
-  else input.value=input.value.slice(0,start)+input.value.slice(end);
-  const pos=start===end?Math.max(0,start-1):start;
-  input.setSelectionRange(pos,pos);
- }else if(/^[0-9]$/.test(key)&&input.value.length<72){
-  input.value=input.value.slice(0,start)+key+input.value.slice(end);
-  const pos=start+1;input.setSelectionRange(pos,pos);
- }
- input.dispatchEvent(new Event('input',{bubbles:true}));
- input.focus({preventScroll:true});
+ if(error)error.classList.remove('hidden');
+ if(input){input.classList.add('border-red-500');input.focus({preventScroll:true});}
+}
+function clearAuthPasswordError(){
+ const error=document.getElementById('authPasswordError');
+ const input=document.getElementById('authPass');
+ if(error)error.classList.add('hidden');
+ if(input)input.classList.remove('border-red-500');
 }
 function setAuthMode(mode){
  authMode=mode==='register'?'register':'login';
@@ -3015,7 +2982,7 @@ async function handleAuthSubmit(){
     const loginErrText=String(login.error.message||'');
     const loginErrCode=String(login.error.code||'').toLowerCase();
     if(loginErrCode==='invalid_credentials'||/invalid login credentials|invalid_credentials|email or password is incorrect|invalid email or password/i.test(loginErrText)) {
-     showToast('আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।',true);
+     showAuthPasswordError();
      return;
     }
     throw login.error;
@@ -3055,8 +3022,8 @@ async function handleAuthSubmit(){
   const authErrorText=String(e?.message||e?.code||'');
   if(authMode==='login'&&/banned|ban_duration|user_banned/i.test(authErrorText)){
    showToast('Your account is suspended',true);
-  }else if(authMode==='login'&&(/invalid login credentials|invalid_credentials|email or password is incorrect/i.test(authErrorText))){
-   showToast('আপনার পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।',true);
+  }else if(authMode==='login'&&(/invalid login credentials|invalid_credentials|email or password is incorrect|invalid email or password/i.test(authErrorText))){
+   showAuthPasswordError();
   }else{
    showToast((authMode==='register'?'Register':'Login')+' হয়নি: '+(e.message||'Supabase settings/table check করুন'),true);
   }
