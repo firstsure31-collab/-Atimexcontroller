@@ -998,7 +998,7 @@ html, body {
                 <!-- Withdraw Request Form -->
                 <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-4 space-y-4">
                     <h4 class="font-bold text-slate-100 text-sm">Withdraw Money (উইথড্র করুন)</h4>
-                    <p class="text-[10px] font-semibold text-emerald-300">Withdrawal limit: ৳30–৳300 per day</p>
+                    <p class="text-[10px] font-semibold text-emerald-300">Withdraw limit: bKash ৳100–৳300 · Nagad/Rocket ৳30–৳300 · Upay ৳60–৳600</p>
                     
                     <div class="space-y-3">
                         <!-- Withdraw Method Grid Selection -->
@@ -1047,6 +1047,10 @@ html, body {
                               <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
                                 <span class="text-[10px] font-bold text-slate-200">VISA Card</span>
                               </div>
+                            </button>
+                            <button type="button" onclick="selectWithdrawMethod('Upay')" id="btnWUpay" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-amber-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                              <div class="bg-white h-12 flex items-center justify-center p-2"><span class="text-amber-600 font-black text-xl">উপায়</span></div>
+                              <div class="bg-slate-900 py-1 text-center border-t border-slate-800"><span class="text-[10px] font-bold text-slate-200">Upay Active · ৳60–৳600</span></div>
                             </button>
                           </div>
                         </div>
@@ -1354,6 +1358,10 @@ html, body {
                 <button type="button" onclick="selectPaymentProvider('Nagad', '01940779877')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span></div>
                   <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">Nagad Active · 01940779877</span></div>
+                </button>
+                <button type="button" onclick="selectPaymentProvider('Upay', '01411169877')" id="btnUpay" class="pay-provider-btn bg-slate-800/80 border-2 border-amber-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                  <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-amber-600 font-black text-xl tracking-tight">উপায়</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">Upay Active · No Deposit Limit</span></div>
                 </button>
                 <button type="button" id="btnRocket" disabled class="pay-provider-btn bg-slate-700/50 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-50 grayscale cursor-not-allowed relative shadow-md">
                   <span class="absolute top-1 right-1 bg-slate-600 text-[8px] font-black text-slate-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Maintenance</span>
@@ -3374,24 +3382,22 @@ function closePaymentModal() {
 }
 
 function selectPaymentProvider(method, num) {
-    if (!['bKash', 'Nagad'].includes(method)) return;
+    if (!['bKash', 'Nagad', 'Upay'].includes(method)) return;
     activeGateway.method = method;
-    activeGateway.number = method === 'bKash' ? '01731567454' : '01940779877';
+    activeGateway.number = method === 'bKash' ? '01731567454' : (method === 'Nagad' ? '01940779877' : '01411169877');
     const label = document.getElementById('selectedProviderLabel');
     const numbers = document.getElementById('selectedProviderNumbers');
     if (label) label.innerText = method + ' Account / Details';
     if (numbers) {
-        if (method === 'bKash') {
-            numbers.innerHTML = [
-                '01731567454',
-                '01940779877'
-            ].map(number => '<div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">' + number + '</span><button type="button" onclick="copyDepositNumber(\'' + number + '\')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>').join('');
-        } else {
-            numbers.innerHTML = '<div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">01940779877</span><button type="button" onclick="copyDepositNumber(\'01940779877\')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>';
-        }
+        const accountNumbers = method === 'bKash'
+            ? ['01731567454', '01940779877']
+            : [activeGateway.number];
+        numbers.innerHTML = accountNumbers.map(number =>
+            '<div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">' + number + '</span><button type="button" onclick="copyDepositNumber(\'' + number + '\')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>'
+        ).join('');
     }
     document.querySelectorAll('.pay-provider-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(method === 'bKash' ? 'btnbKash' : 'btnNagad')?.classList.add('active');
+    document.getElementById('btn' + method)?.classList.add('active');
 }
 
 function copyDepositNumber(number = activeGateway.number) {
@@ -3597,13 +3603,13 @@ function formatAtimexMoney(value) {
 }
 
 function selectWithdrawMethod(method) {
-  const allowed = ['bKash', 'Nagad', 'Rocket', 'VISA'];
+  const allowed = ['bKash', 'Nagad', 'Rocket', 'VISA', 'Upay'];
   if (!allowed.includes(method)) return;
   window.appState.selectedMethod = method;
   document.querySelectorAll('.withdraw-provider-btn').forEach(button => {
-    button.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500');
+    button.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500', 'border-amber-500');
   });
-  const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500' }[method];
+  const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500', Upay: 'border-amber-500' }[method];
   const selectedButton = document.getElementById('btnW' + method);
   if (selectedButton) selectedButton.classList.add('active', borderClass);
   const numberField = document.getElementById('withdrawNum');
@@ -3611,8 +3617,8 @@ function selectWithdrawMethod(method) {
   const numberWrapper = numberField ? numberField.parentElement : null;
   if (numberWrapper) numberWrapper.classList.toggle('hidden', method === 'VISA');
   if (bankFields) bankFields.classList.toggle('hidden', method !== 'VISA');
-  const minAmount = method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20);
-  const maxAmount = (['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500;
+  const minAmount = method === 'Upay' ? 60 : (method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20));
+  const maxAmount = method === 'Upay' ? 600 : ((['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500);
   const amountInput = document.getElementById('withdrawAmount');
   const amountLabel = document.getElementById('withdrawAmountLabel');
   if (amountInput) {
@@ -3620,7 +3626,7 @@ function selectWithdrawMethod(method) {
     amountInput.max = String(maxAmount);
     amountInput.placeholder = minAmount + '–' + maxAmount;
   }
-  if (amountLabel) amountLabel.textContent = 'Amount (Min ৳' + minAmount + ')';
+  if (amountLabel) amountLabel.textContent = 'Amount (Min ৳' + minAmount + ' · Max ৳' + maxAmount + ')';
 }
 
 function getWithdrawFormData() {
@@ -3645,8 +3651,8 @@ function getWithdrawFormData() {
       return null;
     }
   }
-  const minimum = method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20);
-  const maximum = (['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500;
+  const minimum = method === 'Upay' ? 60 : (method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20));
+  const maximum = method === 'Upay' ? 600 : ((['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500);
   if (!Number.isFinite(amount) || amount < minimum) {
     showToast('সর্বনিম্ন ' + method + ' withdraw ৳' + minimum + '।', true);
     return null;
