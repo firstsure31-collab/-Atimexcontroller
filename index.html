@@ -1547,10 +1547,11 @@ html, body {
                   <div><h4 class="text-sm font-black text-white">Ban / Unban any user</h4><p class="mt-1 text-[10px] text-slate-500">Registered user-এর email খুঁজে account access Ban বা Unban করুন।</p></div>
                   <button type="button" onclick="loadBanUserList()" class="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-200"><i class="fa-solid fa-rotate mr-1"></i> Refresh users</button>
                 </div>
-                <div id="banUserStats" class="grid grid-cols-3 gap-2">
+                <div id="banUserStats" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div class="rounded-xl border border-white/10 bg-slate-900/70 p-2 text-center"><div class="text-[9px] text-slate-500">TOTAL USERS</div><b id="banTotalUsers" class="mt-1 block text-lg font-black text-white">—</b></div>
                   <div class="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-2 text-center"><div class="text-[9px] text-emerald-300/70">ACTIVE USERS</div><b id="banActiveUsers" class="mt-1 block text-lg font-black text-emerald-300">—</b></div>
                   <div class="rounded-xl border border-amber-400/20 bg-amber-400/5 p-2 text-center"><div class="text-[9px] text-amber-300/70">INACTIVE USERS</div><b id="banInactiveUsers" class="mt-1 block text-lg font-black text-amber-300">—</b></div>
+                  <div class="rounded-xl border border-rose-400/25 bg-rose-400/10 p-2 text-center shadow-[0_0_12px_rgba(244,63,94,.08)]"><div class="text-[9px] font-bold text-rose-300/80">TOTAL BANNED</div><b id="banBannedUsers" class="mt-1 block text-lg font-black text-rose-300">—</b></div>
                 </div>
                 <label class="relative block"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input id="banUserSearch" type="search" oninput="renderBanUserList()" placeholder="Search user email..." class="w-full rounded-xl border border-white/10 bg-slate-950 py-3 pl-9 pr-3 text-xs text-white outline-none placeholder:text-slate-600 focus:border-rose-400/50"></label>
                 <div id="banUserListStatus" class="text-[10px] text-slate-500">User list এখনো load হয়নি।</div>
@@ -2615,12 +2616,20 @@ function renderBanUserStats() {
     const total = banUserRows.length;
     const active = banUserRows.filter(user => user.is_active === true).length;
     const inactive = total - active;
+    const banned = banUserRows.filter(user =>
+        !!user.banned_until && Number.isFinite(Date.parse(user.banned_until)) &&
+        Date.parse(user.banned_until) > Date.now()
+    ).length;
+
     const totalEl = document.getElementById('banTotalUsers');
     const activeEl = document.getElementById('banActiveUsers');
     const inactiveEl = document.getElementById('banInactiveUsers');
+    const bannedEl = document.getElementById('banBannedUsers');
+
     if (totalEl) totalEl.textContent = total.toLocaleString('en-BD');
     if (activeEl) activeEl.textContent = active.toLocaleString('en-BD');
     if (inactiveEl) inactiveEl.textContent = inactive.toLocaleString('en-BD');
+    if (bannedEl) bannedEl.textContent = banned.toLocaleString('en-BD');
 }
 
 async function loadBanUserList() {
