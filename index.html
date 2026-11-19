@@ -974,7 +974,7 @@ html, body {
                         <span>পরবর্তী Withdraw-এর জন্য ১ জন Active Referral প্রয়োজন</span>
                     </div>
                     <p id="withdrawReferralRequirementText" class="mt-1 text-[10px] leading-relaxed text-amber-100/80">
-                        প্রথম ৩টি Withdraw সম্পন্ন হয়েছে। অন্তত ১ জন referred member ৳১০০ দিয়ে account active করলে এই notice চলে যাবে।
+                        প্রথম ২টি Withdraw সম্পন্ন হয়েছে। ৩য় Withdraw-এর আগে অন্তত ১ জন referred member ৳১০০ দিয়ে account active করলে এই notice চলে যাবে।
                     </p>
                 </div>
 
@@ -3748,10 +3748,10 @@ async function syncWithdrawCooldown() {
   }
   const referralNotice = document.getElementById('withdrawReferralRequirementNotice');
   const referralNoticeText = document.getElementById('withdrawReferralRequirementText');
-  const referralRequired = withdrawAttemptCount >= 3 && activeReferralCount < 1;
+  const referralRequired = withdrawAttemptCount >= 2 && activeReferralCount < 1;
   referralNotice?.classList.toggle('hidden', !referralRequired);
   if (referralNoticeText && referralRequired) {
-    referralNoticeText.textContent = 'আপনার ' + withdrawAttemptCount + 'টি Withdraw request হয়েছে। পরবর্তী Withdraw-এর আগে অন্তত ১ জন Active Referral প্রয়োজন। Referred member ৳১০০ দিয়ে account active করলেই notice সরে যাবে।';
+    referralNoticeText.textContent = 'আপনার ' + withdrawAttemptCount + 'টি Withdraw request হয়েছে। ৩য় Withdraw থেকে আগে অন্তত ১ জন Active Referral প্রয়োজন। Referred member ৳১০০ দিয়ে account active করলেই notice সরে যাবে।';
   }
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
@@ -3785,10 +3785,10 @@ async function checkFourthWithdrawalReferralGate(userId) {
     .eq('user_id', userId);
   if (countError) throw countError;
 
-  // First three submitted withdrawal requests remain unrestricted.
-  if (Number(count || 0) < 3) return true;
+  // First two submitted withdrawal requests remain unrestricted.
+  if (Number(count || 0) < 2) return true;
 
-  // From the fourth request onward, use the database's verified active-referral count.
+  // From the third request onward, require one database-verified active referral.
   const { data, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
   if (referralError) throw referralError;
   const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
@@ -3798,7 +3798,7 @@ async function checkFourthWithdrawalReferralGate(userId) {
     throw new Error('Database থেকে Active Referral count যাচাই করা যায়নি।');
   }
   if (activeReferrals < 1) {
-    showToast('প্রথম ৩ বার Withdraw সম্পন্ন। ৪র্থ Withdraw-এর জন্য অন্তত ১ জন Active Referral করুন।', true);
+    showToast('প্রথম ২টি Withdraw-এর পর ৩য় Withdraw-এর জন্য অন্তত ১ জন Active Referral করুন।', true);
     return false;
   }
   return true;
@@ -3811,7 +3811,7 @@ async function openWithdrawVerification() {
       openDailyWithdrawLimitModal();
       return;
     }
-    if (Number(withdrawAttemptCount || 0) >= 3) {
+    if (Number(withdrawAttemptCount || 0) >= 2) {
       const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
       if (referralError) throw referralError;
       const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
