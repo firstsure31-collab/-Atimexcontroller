@@ -3388,9 +3388,9 @@ function closePaymentModal() {
 }
 
 function selectPaymentProvider(method, num) {
-    if (!['bKash', 'Nagad', 'Upay'].includes(method)) return;
+    if (!['bKash', 'Nagad', 'Upay', 'Rocket'].includes(method)) return;
     activeGateway.method = method;
-    activeGateway.number = method === 'bKash' ? '01731567454' : (method === 'Nagad' ? '01940779877' : '01411169877');
+    activeGateway.number = method === 'bKash' ? '01731567454' : (method === 'Nagad' ? '01940779877' : (method === 'Rocket' ? '01731567454' : '01411169877'));
     const label = document.getElementById('selectedProviderLabel');
     const numbers = document.getElementById('selectedProviderNumbers');
     if (label) label.innerText = method + ' Account / Details';
