@@ -2640,9 +2640,34 @@ async function loadBanUserList() {
         renderBanUserList();
         if (status) status.textContent = banUserRows.length.toLocaleString('en-BD') + ' registered users';
     } catch (error) {
-        console.error('Ban user list load failed:', error);
-        if (status) status.textContent = 'Load failed: ' + (error.message || 'Unknown error');
-        if (list) list.innerHTML = '<div class="rounded-xl border border-rose-400/20 bg-rose-400/5 p-3 text-xs text-rose-200">User list load হয়নি। Edge Function-এ list action support যোগ করতে হবে।</div>';
+        let detail = error?.message || 'Unknown error';
+
+        // Supabase FunctionsHttpError keeps the Edge Function response in error.context.
+        // Read its JSON body so the admin sees the real server-side reason instead of
+        // the old generic "list action support" message.
+        const response = error?.context;
+        if (response && typeof response.clone === 'function') {
+            try {
+                const payload = await response.clone().json();
+                if (payload?.error) detail = String(payload.error);
+                else if (payload?.message) detail = String(payload.message);
+                else detail = JSON.stringify(payload);
+            } catch (_) {
+                try {
+                    const raw = await response.clone().text();
+                    if (raw) detail = raw.slice(0, 600);
+                } catch (_) {}
+            }
+        }
+
+        console.error('Ban user list load failed:', error, 'Details:', detail);
+        if (status) status.textContent = 'Load failed: ' + detail;
+        if (list) {
+            const errorBox = document.createElement('div');
+            errorBox.className = 'rounded-xl border border-rose-400/20 bg-rose-400/5 p-3 text-xs text-rose-200 break-words';
+            errorBox.textContent = 'User list load failed: ' + detail;
+            list.replaceChildren(errorBox);
+        }
     }
 }
 
