@@ -1566,11 +1566,12 @@ html, body {
                 <div><p class="text-[10px] font-bold text-amber-100">Withdrawal review queue</p><p class="mt-1 text-[9px] text-slate-400">প্রতিটি request-এর amount, method এবং account number এখানে দেখানো হবে।</p></div>
                 <span id="adminWithdrawalPendingCount" class="shrink-0 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[9px] font-black text-amber-200">0 PENDING</span>
               </div>
-              <div class="mb-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div class="mb-3 grid grid-cols-2 sm:grid-cols-5 gap-2">
                 <button type="button" data-withdraw-method-tab="bKash" onclick="switchAdminWithdrawalMethod('bKash')" class="rounded-xl border border-pink-400/40 bg-pink-400/10 px-2 py-3 text-center text-[11px] font-black text-pink-200">bKash <span id="adminWithdrawCountBkash" class="mt-1 block text-[9px] text-pink-300">0 PENDING</span></button>
                 <button type="button" data-withdraw-method-tab="Nagad" onclick="switchAdminWithdrawalMethod('Nagad')" class="rounded-xl border border-orange-400/30 bg-orange-400/5 px-2 py-3 text-center text-[11px] font-black text-orange-200">Nagad <span id="adminWithdrawCountNagad" class="mt-1 block text-[9px] text-orange-300">0 PENDING</span></button>
                 <button type="button" data-withdraw-method-tab="Rocket" onclick="switchAdminWithdrawalMethod('Rocket')" class="rounded-xl border border-purple-400/30 bg-purple-400/5 px-2 py-3 text-center text-[11px] font-black text-purple-200">Rocket <span id="adminWithdrawCountRocket" class="mt-1 block text-[9px] text-purple-300">0 PENDING</span></button>
                 <button type="button" data-withdraw-method-tab="Upay" onclick="switchAdminWithdrawalMethod('Upay')" class="rounded-xl border border-amber-400/30 bg-amber-400/5 px-2 py-3 text-center text-[11px] font-black text-amber-200">Upay <span id="adminWithdrawCountUpay" class="mt-1 block text-[9px] text-amber-300">0 PENDING</span></button>
+                <button type="button" data-withdraw-method-tab="VISA" onclick="switchAdminWithdrawalMethod('VISA')" class="rounded-xl border border-blue-400/30 bg-blue-400/5 px-2 py-3 text-center text-[11px] font-black text-blue-200">VISA <span id="adminWithdrawCountVISA" class="mt-1 block text-[9px] text-blue-300">0 PENDING</span></button>
               </div>
               <div id="adminWithdrawalRequestList" class="space-y-3">
                 <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center text-xs text-slate-400">Withdrawal request লোড হচ্ছে...</div>
@@ -2213,7 +2214,7 @@ function formatWithdrawalOrdinal(value) {
 let adminWithdrawalMethod = 'bKash';
 
 function switchAdminWithdrawalMethod(method) {
-    adminWithdrawalMethod = ['bKash','Nagad','Rocket','Upay'].includes(method) ? method : 'bKash';
+    adminWithdrawalMethod = ['bKash','Nagad','Rocket','Upay','VISA'].includes(method) ? method : 'bKash';
     const requests = document.getElementById('adminWithdrawalRequestList');
     document.querySelectorAll('[data-withdraw-method-tab]').forEach(button => {
         const active = button.getAttribute('data-withdraw-method-tab') === adminWithdrawalMethod;
@@ -2249,9 +2250,10 @@ async function loadAdminWithdrawalRequests() {
             if (method === 'nagad') return 'Nagad';
             if (method === 'rocket') return 'Rocket';
             if (method === 'upay' || method === 'উপায়' || method === 'উপায়') return 'Upay';
+            if (method === 'visa') return 'VISA';
             return 'Other';
         };
-        const pendingByMethod = { bKash: 0, Nagad: 0, Rocket: 0, Upay: 0 };
+        const pendingByMethod = { bKash: 0, Nagad: 0, Rocket: 0, Upay: 0, VISA: 0 };
         requests.forEach(row => {
             const key = methodKey(row.method);
             if (row.status === 'pending' && pendingByMethod[key] !== undefined) pendingByMethod[key]++;
@@ -2262,7 +2264,8 @@ async function loadAdminWithdrawalRequests() {
             bKash: document.getElementById('adminWithdrawCountBkash'),
             Nagad: document.getElementById('adminWithdrawCountNagad'),
             Rocket: document.getElementById('adminWithdrawCountRocket'),
-            Upay: document.getElementById('adminWithdrawCountUpay')
+            Upay: document.getElementById('adminWithdrawCountUpay'),
+            VISA: document.getElementById('adminWithdrawCountVISA')
         };
         Object.entries(countNodes).forEach(([key,node]) => { if (node) node.textContent = pendingByMethod[key] + ' PENDING'; });
         if (!requests.length) {
