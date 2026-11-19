@@ -1547,6 +1547,11 @@ html, body {
                   <div><h4 class="text-sm font-black text-white">Ban / Unban any user</h4><p class="mt-1 text-[10px] text-slate-500">Registered user-এর email খুঁজে account access Ban বা Unban করুন।</p></div>
                   <button type="button" onclick="loadBanUserList()" class="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-200"><i class="fa-solid fa-rotate mr-1"></i> Refresh users</button>
                 </div>
+                <div id="banUserStats" class="grid grid-cols-3 gap-2">
+                  <div class="rounded-xl border border-white/10 bg-slate-900/70 p-2 text-center"><div class="text-[9px] text-slate-500">TOTAL USERS</div><b id="banTotalUsers" class="mt-1 block text-lg font-black text-white">—</b></div>
+                  <div class="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-2 text-center"><div class="text-[9px] text-emerald-300/70">ACTIVE USERS</div><b id="banActiveUsers" class="mt-1 block text-lg font-black text-emerald-300">—</b></div>
+                  <div class="rounded-xl border border-amber-400/20 bg-amber-400/5 p-2 text-center"><div class="text-[9px] text-amber-300/70">INACTIVE USERS</div><b id="banInactiveUsers" class="mt-1 block text-lg font-black text-amber-300">—</b></div>
+                </div>
                 <label class="relative block"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input id="banUserSearch" type="search" oninput="renderBanUserList()" placeholder="Search user email..." class="w-full rounded-xl border border-white/10 bg-slate-950 py-3 pl-9 pr-3 text-xs text-white outline-none placeholder:text-slate-600 focus:border-rose-400/50"></label>
                 <div id="banUserListStatus" class="text-[10px] text-slate-500">User list এখনো load হয়নি।</div>
                 <div id="banUserList" class="space-y-2 pb-3"></div>
@@ -2604,6 +2609,19 @@ async function reviewAdminPaymentRequest(requestId, action) {
 
 let banUserRows = [];
 let banUserListLoaded = false;
+let banUserLiveRefreshTimer = null;
+
+function renderBanUserStats() {
+    const total = banUserRows.length;
+    const active = banUserRows.filter(user => user.is_active === true).length;
+    const inactive = total - active;
+    const totalEl = document.getElementById('banTotalUsers');
+    const activeEl = document.getElementById('banActiveUsers');
+    const inactiveEl = document.getElementById('banInactiveUsers');
+    if (totalEl) totalEl.textContent = total.toLocaleString('en-BD');
+    if (activeEl) activeEl.textContent = active.toLocaleString('en-BD');
+    if (inactiveEl) inactiveEl.textContent = inactive.toLocaleString('en-BD');
+}
 
 async function loadBanUserList() {
     const status = document.getElementById('banUserListStatus');
@@ -2618,6 +2636,7 @@ async function loadBanUserList() {
         if (!Array.isArray(data?.users)) throw new Error(data?.error || 'User list response পাওয়া যায়নি। Edge Function update প্রয়োজন।');
         banUserRows = data.users;
         banUserListLoaded = true;
+        renderBanUserStats();
         renderBanUserList();
         if (status) status.textContent = banUserRows.length.toLocaleString('en-BD') + ' registered users';
     } catch (error) {
@@ -2640,9 +2659,10 @@ function renderBanUserList() {
         const email = escapeAdminText(user.email || 'Email unavailable');
         const id = escapeAdminText(user.id || '');
         const isBanned = !!user.banned_until && new Date(user.banned_until).getTime() > Date.now();
+        const isAccountActive = user.is_active === true;
         const isSelf = user.id === ATIMEX_ADMIN_UID;
         return '<article class="flex flex-col gap-3 rounded-xl border border-white/10 bg-slate-900/70 p-3 sm:flex-row sm:items-center sm:justify-between">' +
-          '<div class="min-w-0"><b class="block break-all text-xs text-white">' + email + '</b><span class="mt-1 block break-all text-[9px] text-slate-500">' + id + '</span><span class="mt-1 inline-flex rounded-full px-2 py-1 text-[9px] font-bold ' + (isBanned ? 'bg-rose-400/10 text-rose-300' : 'bg-emerald-400/10 text-emerald-300') + '">' + (isBanned ? 'BANNED' : 'ACTIVE LOGIN') + '</span></div>' +
+          '<div class="min-w-0"><b class="block break-all text-xs text-white">' + email + '</b><span class="mt-1 block break-all text-[9px] text-slate-500">' + id + '</span><div class="mt-2 flex flex-wrap gap-1.5"><span class="inline-flex rounded-full px-2 py-1 text-[9px] font-bold ' + (isAccountActive ? 'bg-emerald-400/10 text-emerald-300' : 'bg-amber-400/10 text-amber-300') + '">' + (isAccountActive ? 'ACCOUNT ACTIVE' : 'ACCOUNT INACTIVE') + '</span><span class="inline-flex rounded-full px-2 py-1 text-[9px] font-bold ' + (isBanned ? 'bg-rose-400/10 text-rose-300' : 'bg-sky-400/10 text-sky-300') + '">' + (isBanned ? 'LOGIN BANNED' : 'LOGIN ALLOWED') + '</span></div></div>' +
           '<button type="button" ' + (isSelf ? 'disabled' : '') + ' onclick="performBanUserAction(\'' + id + '\',\'' + (isBanned ? 'unban' : 'ban') + '\',\'' + email + '\')" class="shrink-0 rounded-xl px-4 py-2.5 text-[10px] font-black ' + (isSelf ? 'cursor-not-allowed bg-slate-800 text-slate-500' : isBanned ? 'border border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border border-rose-400/30 bg-rose-400/10 text-rose-200') + '">' + (isSelf ? 'YOUR ADMIN ACCOUNT' : isBanned ? 'UNBAN USER' : 'BAN USER') + '</button>' +
           '</article>';
     }).join('');
@@ -2684,8 +2704,22 @@ function switchAdminTab(tabName) {
     if (pendingBtn) pendingBtn.className = selected === 'pending' ? activeClass : inactiveClass;
     if (historyBtn) historyBtn.className = selected === 'history' ? activeClass : inactiveClass;
     if (banUsersBtn) banUsersBtn.className = selected === 'banusers' ? 'inline-flex items-center gap-2 rounded-xl border border-rose-400/50 bg-rose-400/20 px-4 py-2.5 text-[10px] font-black text-rose-100 transition' : 'inline-flex items-center gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-2.5 text-[10px] font-black text-rose-200 transition hover:bg-rose-400/20';
-    if (selected === 'banusers') loadBanUserList();
-    else loadAdminPaymentRequests(selected);
+    if (selected === 'banusers') {
+        loadBanUserList();
+        if (!banUserLiveRefreshTimer) {
+            banUserLiveRefreshTimer = setInterval(() => {
+                if (document.getElementById('adminTabBanUsers') && !document.getElementById('adminTabBanUsers').classList.contains('hidden')) {
+                    loadBanUserList();
+                }
+            }, 30000);
+        }
+    } else {
+        if (banUserLiveRefreshTimer) {
+            clearInterval(banUserLiveRefreshTimer);
+            banUserLiveRefreshTimer = null;
+        }
+        loadAdminPaymentRequests(selected);
+    }
 }
 
 let isReferShared = false;
