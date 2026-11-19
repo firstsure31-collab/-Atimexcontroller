@@ -35,9 +35,9 @@ function openTransactionHistory(){const key='atimex_transactions_'+(window.appSt
 function closeTransactionHistory(){document.getElementById('transactionModal')?.classList.add('hidden');}
 function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
 function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
-function handleWithdraw(){const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}const minimum=method==='bKash'?100:(method==='Nagad'?30:20);if(!Number.isFinite(amount)||amount<minimum){showToast('সর্বনিম্ন '+method+' withdraw ৳'+minimum+'।',true);return;}const maximum=['bKash','Nagad','Rocket'].includes(method)?300:500;if(amount>maximum){showToast('সর্বোচ্চ '+method+' withdraw ৳'+maximum+'।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
+function handleWithdraw(){if((window.appState.selectedMethod||'bKash')==='VISA'){showToast('VISA Coming Soon',true);return;}const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}const minimum=method==='bKash'?100:(method==='Nagad'?30:20);if(!Number.isFinite(amount)||amount<minimum){showToast('সর্বনিম্ন '+method+' withdraw ৳'+minimum+'।',true);return;}const maximum=['bKash','Nagad','Rocket'].includes(method)?300:500;if(amount>maximum){showToast('সর্বোচ্চ '+method+' withdraw ৳'+maximum+'।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
 function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
-function selectWithdrawMethod(method){window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
+function selectWithdrawMethod(method){if(method==='VISA'){showToast('VISA Coming Soon',true);return;}window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
 
 function openDepositForCustom(){openPaymentModal(null,'deposit');const a=document.getElementById('paymentAmount');if(a)a.value='';}
@@ -1040,13 +1040,13 @@ html, body {
                               </div>
                             </button>
 
-                            <!-- VISA Withdraw Card -->
-                            <button type="button" onclick="selectWithdrawMethod('VISA')" id="btnWVISA" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-blue-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                            <!-- VISA Withdraw Card: temporarily unavailable -->
+                            <button type="button" id="btnWVISA" disabled aria-disabled="true" title="Coming Soon" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 rounded-xl overflow-hidden text-left relative shadow-md opacity-60 cursor-not-allowed">
                               <div class="bg-white h-12 flex items-center justify-center p-2">
                                 <span class="text-blue-700 font-black text-xl italic tracking-wider">VISA</span>
                               </div>
                               <div class="bg-slate-900 py-1 text-center border-t border-slate-800">
-                                <span class="text-[10px] font-bold text-slate-200">VISA Card</span>
+                                <span class="text-[10px] font-bold text-amber-300">Coming Soon</span>
                               </div>
                             </button>
                             <button type="button" onclick="selectWithdrawMethod('Upay')" id="btnWUpay" class="withdraw-provider-btn bg-slate-800/80 border-2 border-slate-700 hover:border-amber-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
@@ -3805,6 +3805,7 @@ async function checkFourthWithdrawalReferralGate(userId) {
 }
 
 async function openWithdrawVerification() {
+  if ((window.appState?.selectedMethod || 'bKash') === 'VISA') { showToast('VISA Coming Soon', true); return; }
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
