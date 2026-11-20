@@ -724,7 +724,7 @@ html, body {
     <div style="font-size:34px;margin-bottom:12px">🔒</div>
     <h1 id="atimexMaintenanceTitle" style="font-size:24px;font-weight:900;letter-spacing:2px;color:#6ee7b7">ATIMEX</h1>
     <p style="margin-top:8px;font-size:17px;font-weight:800">Temporary Maintenance</p>
-    <p style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">আপনার account locked করা হয়েছে। ATIMEX ব্যবহার করতে Support-এর সঙ্গে যোগাযোগ করুন।</p>
+    <p id="atimexMaintenanceMessage" style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</p>
     <p style="margin-top:18px;font-size:10px;letter-spacing:1.5px;color:#64748b">PLEASE CHECK BACK LATER</p>
   </div>
 </div>
@@ -1543,9 +1543,24 @@ html, body {
               </section>
 
               <section id="adminTabBanUsers" class="hidden space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div><h4 class="text-sm font-black text-white">Ban / Unban any user</h4><p class="mt-1 text-[10px] text-slate-500">Registered user-এর email খুঁজে account access Ban বা Unban করুন।</p></div>
-                  <button type="button" onclick="loadBanUserList()" class="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-200"><i class="fa-solid fa-rotate mr-1"></i> Refresh users</button>
+                <div class="space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div><h4 class="text-sm font-black text-white">Ban / Unban members</h4><p class="mt-1 text-[10px] text-slate-500">Bulk action-এ আপনার Admin account বাদ থাকবে।</p></div>
+                    <button type="button" onclick="loadBanUserList()" class="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-200"><i class="fa-solid fa-rotate mr-1"></i> Refresh users</button>
+                  </div>
+                  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <button type="button" onclick="performBulkBanAction('ban_all')" class="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-[10px] font-black text-rose-200"><i class="fa-solid fa-ban mr-2"></i>BAN ALL MEMBERS</button>
+                    <button type="button" onclick="performBulkBanAction('unban_all')" class="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-[10px] font-black text-emerald-200"><i class="fa-solid fa-unlock mr-2"></i>UNBAN ALL MEMBERS</button>
+                  </div>
+                  <div class="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3">
+                    <div class="text-[10px] font-black tracking-wider text-amber-200">APP UPDATE / MAINTENANCE</div>
+                    <p class="mt-1 text-[10px] text-slate-400">Update announce চালু করলে member-রা login screen-এর বদলে maintenance message দেখবে। Admin account access থাকবে।</p>
+                    <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <button type="button" onclick="setAtimexMaintenance(true)" class="rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2.5 text-[10px] font-black text-amber-200"><i class="fa-solid fa-wrench mr-1"></i>UPDATE ANNOUNCE</button>
+                      <button type="button" onclick="setAtimexMaintenance(false)" class="rounded-xl border border-sky-400/30 bg-sky-400/10 px-3 py-2.5 text-[10px] font-black text-sky-200"><i class="fa-solid fa-check mr-1"></i>END UPDATE</button>
+                    </div>
+                    <div id="atimexMaintenanceAdminStatus" class="mt-2 text-[10px] text-slate-500">Maintenance status load হয়নি।</div>
+                  </div>
                 </div>
                 <div id="banUserStats" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div class="rounded-xl border border-white/10 bg-slate-900/70 p-2 text-center"><div class="text-[9px] text-slate-500">TOTAL USERS</div><b id="banTotalUsers" class="mt-1 block text-lg font-black text-white">—</b></div>
@@ -2700,6 +2715,54 @@ function renderBanUserList() {
           '<button type="button" ' + (isSelf ? 'disabled' : '') + ' onclick="performBanUserAction(\'' + id + '\',\'' + (isBanned ? 'unban' : 'ban') + '\',\'' + email + '\')" class="shrink-0 rounded-xl px-4 py-2.5 text-[10px] font-black ' + (isSelf ? 'cursor-not-allowed bg-slate-800 text-slate-500' : isBanned ? 'border border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border border-rose-400/30 bg-rose-400/10 text-rose-200') + '">' + (isSelf ? 'YOUR ADMIN ACCOUNT' : isBanned ? 'UNBAN USER' : 'BAN USER') + '</button>' +
           '</article>';
     }).join('');
+}
+
+async function performBulkBanAction(action) {
+    if (!['ban_all','unban_all'].includes(action)) return;
+    const label = action === 'ban_all' ? 'সব member-এর login BAN' : 'সব member-এর login UNBAN';
+    if (!window.confirm('সতর্কতা: ' + label + ' করবেন? আপনার Admin account বাদ থাকবে।')) return;
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) throw new Error('Admin permission required');
+        const { data, error } = await supabaseClient.functions.invoke('ban-user', { body: { action } });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Bulk action failed');
+        showToast((action === 'ban_all' ? 'Bulk ban complete: ' : 'Bulk unban complete: ') + Number(data.updated || 0) + ' accounts');
+        await loadBanUserList();
+    } catch (error) {
+        console.error('Bulk ban/unban failed:', error);
+        showToast('Bulk action করা যায়নি: ' + (error?.message || 'Function error'), true);
+    }
+}
+
+async function setAtimexMaintenance(enabled) {
+    const action = enabled ? 'maintenance_on' : 'maintenance_off';
+    const prompt = enabled
+      ? 'Update announce চালু করবেন? সব member app-এর বদলে update message দেখবে; Admin access থাকবে।'
+      : 'Update শেষ করে maintenance mode বন্ধ করবেন?';
+    if (!window.confirm(prompt)) return;
+    try {
+        const admin = await getCurrentAdminUser();
+        if (!admin) throw new Error('Admin permission required');
+        const { data, error } = await supabaseClient.functions.invoke('ban-user', { body: { action } });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Maintenance update failed');
+        const status = document.getElementById('atimexMaintenanceAdminStatus');
+        if (status) status.textContent = enabled ? 'STATUS: UPDATE ANNOUNCE ON' : 'STATUS: MAINTENANCE OFF';
+        showToast(enabled ? 'Update announce চালু হয়েছে।' : 'Maintenance বন্ধ হয়েছে।');
+        if (enabled) {
+            const overlay = document.getElementById('atimexMaintenanceLock');
+            const msg = document.getElementById('atimexMaintenanceMessage');
+            if (msg) msg.textContent = data.message || 'ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+            if (overlay) overlay.style.display = 'flex';
+        } else {
+            const overlay = document.getElementById('atimexMaintenanceLock');
+            if (overlay) overlay.style.setProperty('display','none','important');
+        }
+    } catch (error) {
+        console.error('Maintenance toggle failed:', error);
+        showToast('Maintenance update করা যায়নি: ' + (error?.message || 'Function error'), true);
+    }
 }
 
 async function performBanUserAction(userId, action, email) {
@@ -4630,23 +4693,44 @@ async function updateReferralUi() {
 <script>
 (function () {
   'use strict';
-
-  // Temporary maintenance restriction is disabled for everyone.
-  function unlockSite() {
+  async function applyMaintenanceState() {
     const overlay = document.getElementById('atimexMaintenanceLock');
-    if (overlay) {
-      overlay.style.setProperty('display', 'none', 'important');
-      overlay.setAttribute('aria-hidden', 'true');
+    const message = document.getElementById('atimexMaintenanceMessage');
+    try {
+      const client = window.supabase?.createClient
+        ? window.supabase.createClient('https://hddswjhehlwbpytsgndm.supabase.co', 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ')
+        : null;
+      if (!client) throw new Error('Supabase client unavailable');
+      const [{ data: setting, error }, { data: sessionData }] = await Promise.all([
+        client.rpc('get_atimex_site_control'),
+        client.auth.getSession()
+      ]);
+      if (error) throw error;
+      const row = Array.isArray(setting) ? setting[0] : setting;
+      const maintenanceOn = row?.maintenance_enabled === true;
+      const adminUser = sessionData?.session?.user?.id === '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+      if (message && row?.maintenance_message) message.textContent = row.maintenance_message;
+      if (overlay && maintenanceOn && !adminUser) {
+        overlay.style.display = 'flex';
+        document.documentElement.classList.add('atimex-maintenance-active');
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+      } else if (overlay) {
+        overlay.style.setProperty('display', 'none', 'important');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('atimex-maintenance-active');
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      }
+    } catch (error) {
+      console.error('ATIMEX maintenance status check failed:', error);
+      // Fail open if the public status endpoint is unavailable, so a config outage
+      // cannot lock every member out of the application.
+      if (overlay) overlay.style.setProperty('display', 'none', 'important');
     }
-    document.documentElement.classList.remove('atimex-maintenance-active');
-    document.documentElement.style.overflow = '';
-    if (document.body) document.body.style.overflow = '';
   }
-
-  unlockSite();
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', unlockSite, { once: true });
-  }
+  applyMaintenanceState();
+  window.addEventListener('pageshow', applyMaintenanceState);
 })();
 </script>
 
