@@ -4735,6 +4735,9 @@ async function updateReferralUi() {
   }
   applyMaintenanceState();
   window.addEventListener('pageshow', applyMaintenanceState);
+  // Re-check periodically so an already-open member session is locked promptly
+  // when the admin enables maintenance mode, and unlocked after it ends.
+  window.setInterval(applyMaintenanceState, 15000);
 })();
 </script>
 
