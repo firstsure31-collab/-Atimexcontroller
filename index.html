@@ -3221,6 +3221,10 @@ async function handleAuthSubmit(){
    if(login.error){
     const loginErrText=String(login.error.message||'');
     const loginErrCode=String(login.error.code||'').toLowerCase();
+    if(/banned|user is banned|user_banned/i.test(loginErrText) || loginErrCode==='user_banned') {
+     showToast('আপনার ID ban করা হয়েছে। Admin-এর সঙ্গে যোগাযোগ করুন।',true);
+     return;
+    }
     if(loginErrCode==='invalid_credentials'||/invalid login credentials|invalid_credentials|email or password is incorrect|invalid email or password/i.test(loginErrText)) {
      showAuthPasswordError();
      return;
