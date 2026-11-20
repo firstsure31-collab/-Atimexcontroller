@@ -3895,10 +3895,11 @@ async function syncWithdrawCooldown() {
   }
   const referralNotice = document.getElementById('withdrawReferralRequirementNotice');
   const referralNoticeText = document.getElementById('withdrawReferralRequirementText');
-  const referralRequired = withdrawAttemptCount >= 2 && activeReferralCount < 1;
+  const requiredActiveReferrals = withdrawAttemptCount + 1;
+  const referralRequired = activeReferralCount < requiredActiveReferrals;
   referralNotice?.classList.toggle('hidden', !referralRequired);
   if (referralNoticeText && referralRequired) {
-    referralNoticeText.textContent = 'আপনার ' + withdrawAttemptCount + 'টি Withdraw request হয়েছে। ৩য় Withdraw থেকে আগে অন্তত ১ জন Active Referral প্রয়োজন। Referred member ৳১০০ দিয়ে account active করলেই notice সরে যাবে।';
+    referralNoticeText.textContent = 'আপনার পরবর্তী Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে Active Referral: ' + activeReferralCount + ' জন। Referred member ৳১০০ দিয়ে account active করলেই গণনা হবে।';
   }
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
@@ -3932,10 +3933,8 @@ async function checkFourthWithdrawalReferralGate(userId) {
     .eq('user_id', userId);
   if (countError) throw countError;
 
-  // First two submitted withdrawal requests remain unrestricted.
-  if (Number(count || 0) < 2) return true;
-
-  // From the third request onward, require one database-verified active referral.
+  // Each withdrawal requires one additional database-verified active referral.
+  const requiredActiveReferrals = Number(count || 0) + 1;
   const { data, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
   if (referralError) throw referralError;
   const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
@@ -3944,8 +3943,8 @@ async function checkFourthWithdrawalReferralGate(userId) {
   if (!Number.isFinite(activeReferrals)) {
     throw new Error('Database থেকে Active Referral count যাচাই করা যায়নি।');
   }
-  if (activeReferrals < 1) {
-    showToast('প্রথম ২টি Withdraw-এর পর ৩য় Withdraw-এর জন্য অন্তত ১ জন Active Referral করুন।', true);
+  if (activeReferrals < requiredActiveReferrals) {
+    showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferrals + ' জন Active Referral আছে।', true);
     return false;
   }
   return true;
@@ -3958,14 +3957,15 @@ async function openWithdrawVerification() {
       openDailyWithdrawLimitModal();
       return;
     }
-    if (Number(withdrawAttemptCount || 0) >= 2) {
-      const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
-      if (referralError) throw referralError;
-      const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
-      if (Number(referralStats.active_referrals || 0) < 1) {
-        showToast('পরবর্তী Withdraw-এর জন্য অন্তত ১ জন Active Referral প্রয়োজন।', true);
-        return;
-      }
+    const requiredActiveReferrals = Number(withdrawAttemptCount || 0) + 1;
+    const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
+    if (referralError) throw referralError;
+    const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
+    const activeReferralCount = Number(referralStats.active_referrals || 0);
+    if (!Number.isFinite(activeReferralCount)) throw new Error('Active Referral count যাচাই করা যায়নি।');
+    if (activeReferralCount < requiredActiveReferrals) {
+      showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferralCount + ' জন আছে।', true);
+      return;
     }
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
