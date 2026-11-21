@@ -2745,7 +2745,23 @@ async function setAtimexMaintenance(enabled) {
         const admin = await getCurrentAdminUser();
         if (!admin) throw new Error('Admin permission required');
         const { data, error } = await supabaseClient.functions.invoke('ban-user', { body: { action } });
-        if (error) throw error;
+        if (error) {
+            let detail = error.message || 'Edge Function request failed';
+            const response = error.context;
+            if (response && typeof response.clone === 'function') {
+                try {
+                    const payload = await response.clone().json();
+                    detail = payload?.error || payload?.message || JSON.stringify(payload);
+                    if (payload?.stage) detail = payload.stage + ': ' + detail;
+                } catch (_) {
+                    try {
+                        const raw = await response.clone().text();
+                        if (raw) detail = raw.slice(0, 500);
+                    } catch (_) {}
+                }
+            }
+            throw new Error(detail);
+        }
         if (!data?.success) throw new Error(data?.error || 'Maintenance update failed');
         const status = document.getElementById('atimexMaintenanceAdminStatus');
         if (status) status.textContent = enabled ? 'STATUS: UPDATE ANNOUNCE ON' : 'STATUS: MAINTENANCE OFF';
@@ -4701,15 +4717,19 @@ async function updateReferralUi() {
     const overlay = document.getElementById('atimexMaintenanceLock');
     const message = document.getElementById('atimexMaintenanceMessage');
     try {
-      const client = window.supabase?.createClient
-        ? window.supabase.createClient('https://hddswjhehlwbpytsgndm.supabase.co', 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ')
-        : null;
-      if (!client) throw new Error('Supabase client unavailable');
-      const [{ data: setting, error }, { data: sessionData }] = await Promise.all([
+      // Reuse the single app-wide Supabase client. Creating another client
+      // every 15 seconds caused duplicate GoTrueClient instances and auth conflicts.
+      const client = typeof supabaseClient !== 'undefined' ? supabaseClient : null;
+      if (!client) throw new Error('Main Supabase client unavailable');
+      const [
+        { data: setting, error },
+        { data: sessionData, error: sessionError }
+      ] = await Promise.all([
         client.rpc('get_atimex_site_control'),
         client.auth.getSession()
       ]);
       if (error) throw error;
+      if (sessionError) throw sessionError;
       const row = Array.isArray(setting) ? setting[0] : setting;
       const maintenanceOn = row?.maintenance_enabled === true;
       const adminUser = sessionData?.session?.user?.id === '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
