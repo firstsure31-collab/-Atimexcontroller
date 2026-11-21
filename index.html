@@ -36,12 +36,47 @@ function closeTransactionHistory(){document.getElementById('transactionModal')?.
 function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
 function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
 function handleWithdraw(){if((window.appState.selectedMethod||'bKash')==='VISA'){showToast('VISA Coming Soon',true);return;}const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}const minimum=method==='bKash'?100:(method==='Nagad'?30:20);if(!Number.isFinite(amount)||amount<minimum){showToast('সর্বনিম্ন '+method+' withdraw ৳'+minimum+'।',true);return;}const maximum=['bKash','Nagad','Rocket'].includes(method)?300:500;if(amount>maximum){showToast('সর্বোচ্চ '+method+' withdraw ৳'+maximum+'।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
-function handleActivationSubmit(){const num=(document.getElementById('depositNum')?.value||'').trim();const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();const amount=Number(document.getElementById('paymentAmount')?.value||100);if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');}
+async function handleActivationSubmit(){
+ const num=(document.getElementById('depositNum')?.value||'').trim();
+ const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();
+ const amount=Number(document.getElementById('paymentAmount')?.value||100);
+ if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}
+ if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}
+ if(paymentRequestType==='update_fee'){
+   if(amount!==150){showToast('Update Fee নির্ধারিত ৳150।',true);return;}
+   if(!['bKash','Nagad','Rocket'].includes(activeGateway.method)){showToast('Update Fee-এর জন্য bKash, Nagad অথবা Rocket নির্বাচন করুন।',true);return;}
+   try{
+     const {data,error}=await supabaseClient.rpc('submit_atimex_update_fee_request',{p_sender_number:num,p_trx_id:trx,p_payment_method:activeGateway.method});
+     if(error)throw error;
+     closePaymentModal();
+     showAppNotice('Update Fee Request জমা হয়েছে','আপনার ৳150 Update Fee Request Admin Panel-এ জমা হয়েছে। Admin যাচাই করে Approve করলে Home, Tasks ও Server access খুলবে।');
+     await refreshAtimexUpdateFeeGate();
+   }catch(error){console.error('Update fee request failed:',error);showToast('Request জমা হয়নি: '+(error?.message||'Supabase SQL check করুন।'),true);}
+   return;
+ }
+ if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}
+ saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});
+ closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');
+}
 function selectWithdrawMethod(method){if(method==='VISA'){showToast('VISA Coming Soon',true);return;}window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
 
 function openDepositForCustom(){openPaymentModal(null,'deposit');const a=document.getElementById('paymentAmount');if(a)a.value='';}
-function openPaymentModal(){const a=document.getElementById('paymentAmount');if(a)a.value='100';document.getElementById('paymentModal')?.classList.remove('hidden');}
+function openPaymentModal(requestType='activation'){
+ paymentRequestType=requestType==='update_fee'?'update_fee':'activation';
+ const a=document.getElementById('paymentAmount');
+ if(a){a.value=paymentRequestType==='update_fee'?'150':'100';a.readOnly=paymentRequestType==='update_fee';a.min=paymentRequestType==='update_fee'?'150':'100';}
+ const title=document.querySelector('#paymentModal h3');if(title)title.textContent=paymentRequestType==='update_fee'?'ATIMEX Update Fee':'Account deposits';
+ const label=document.querySelector('label[for="paymentAmount"]');if(label)label.textContent=paymentRequestType==='update_fee'?'Update Fee Amount (৳)':'Deposit Amount (৳)';
+ const help=a?.parentElement?.querySelector('p');if(help)help.textContent=paymentRequestType==='update_fee'?'একবারের নির্ধারিত Update Fee — ৳150।':'Account active করতে ৳100। কোনো extra activation charge নেই।';
+ const referral=document.getElementById('activationReferralCodeSection');if(referral)referral.classList.toggle('hidden',paymentRequestType==='update_fee');
+ ['btnUpay','btnVISA'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=paymentRequestType==='update_fee'?'none':'';});
+ if(paymentRequestType==='update_fee')selectPaymentProvider('bKash','01731567454');
+ document.getElementById('paymentModal')?.classList.remove('hidden');
+}
+function openAtimexUpdateFeePayment(){openPaymentModal('update_fee');}
+function continueAtimexWallet(){document.getElementById('atimexUpdateFeeGate')?.classList.add('hidden');switchTab('tabWallet');}
+function continueAtimexProfile(){document.getElementById('atimexUpdateFeeGate')?.classList.add('hidden');switchTab('tabProfile');}
 function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
 
 
@@ -1357,7 +1392,22 @@ html, body {
         </div>
 
         <!-- 3. ACCOUNT DEPOSITS GATEWAY MODAL -->
-        <div id="paymentModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+        <div id="atimexUpdateFeeGate" class="hidden fixed inset-0 z-[180] flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="atimexUpdateFeeTitle">
+  <div class="w-full max-w-sm rounded-3xl border border-emerald-400/30 bg-slate-900 p-5 text-center shadow-2xl shadow-emerald-950/40">
+    <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-300"><i class="fa-solid fa-arrows-rotate text-2xl"></i></div>
+    <p class="mt-4 text-[9px] font-black tracking-[.25em] text-emerald-300">ATIMEX SERVICE UPDATE</p>
+    <h2 id="atimexUpdateFeeTitle" class="mt-2 text-xl font-black text-white">Update Fee Required</h2>
+    <p class="mt-2 text-xs leading-6 text-slate-300">সার্ভিস আপডেট সম্পন্ন করতে একবারের ৳150 Update Fee জমা দিন। Admin যাচাই করে Approve করলে Home, Tasks ও Server access চালু হবে।</p>
+    <div class="mt-4 rounded-2xl border border-emerald-400/20 bg-slate-950 p-4"><p class="text-[10px] text-slate-400">ONE-TIME UPDATE FEE</p><p class="mt-1 text-3xl font-black text-emerald-300">৳150</p><p id="atimexUpdateFeeGateStatus" class="mt-2 text-[10px] text-amber-300">Payment approval pending</p></div>
+    <button type="button" onclick="openAtimexUpdateFeePayment()" class="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-3 text-xs font-black text-slate-950">PAY UPDATE FEE · ৳150</button>
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <button type="button" onclick="continueAtimexWallet()" class="rounded-xl border border-white/15 bg-white/5 py-2.5 text-[10px] font-bold text-white">WALLET / WITHDRAW</button>
+      <button type="button" onclick="continueAtimexProfile()" class="rounded-xl border border-white/15 bg-white/5 py-2.5 text-[10px] font-bold text-white">PROFILE</button>
+    </div>
+    <p class="mt-3 text-[9px] leading-5 text-slate-500">আপনার বিদ্যমান Balance ও Withdrawal সুবিধা বন্ধ হবে না।</p>
+  </div>
+</div>
+<div id="paymentModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
           <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl relative max-h-[92vh] overflow-y-auto">
             
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -2591,7 +2641,8 @@ function renderAdminPaymentRequests() {
         const validId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
         const isPackage = row.request_type === 'vip_package';
         const isActivation = row.request_type === 'activation' || row.request_type === 'account_activation';
-        const typeLabel = isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
+        const isUpdateFee = row.request_type === 'update_fee';
+        const typeLabel = isUpdateFee ? 'ATIMEX UPDATE FEE' : isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
         const profile = adminProfileLookup[row.user_id] || {};
         const status = String(row.status || 'pending').toLowerCase();
         const statusLabel = status === 'approved' ? 'APPROVED' : status === 'rejected' ? 'REJECTED' : 'PENDING';
@@ -2638,7 +2689,8 @@ async function reviewAdminPaymentRequest(requestId, action) {
     try {
         const admin = await getCurrentAdminUser();
         if (!admin) throw new Error('Admin session expired। আবার login করুন।');
-        const { data, error } = await supabaseClient.rpc('admin_review_payment_request', {
+        const reviewRpc = row.request_type === 'update_fee' ? 'admin_review_atimex_update_fee_request' : 'admin_review_payment_request';
+        const { data, error } = await supabaseClient.rpc(reviewRpc, {
             p_request_id: requestId, p_action: action === 'approve' ? 'approved' : 'rejected'
         });
         if (error) throw error;
@@ -3162,6 +3214,25 @@ async function loadCloudUser(user, phone){
    await persistCloudUser(user.id,safePhone,saved,email);
  }
 }
+async function refreshAtimexUpdateFeeGate(){
+ const gate=document.getElementById('atimexUpdateFeeGate');if(!gate)return;
+ try{
+  const {data:{user},error:authError}=await supabaseClient.auth.getUser();if(authError)throw authError;
+  const adminId='0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+  if(user?.id===adminId){window.atimexUpdateFeeLocked=false;gate.classList.add('hidden');return;}
+  if(!user){window.atimexUpdateFeeLocked=false;gate.classList.add('hidden');return;}
+  const {data,error}=await supabaseClient.rpc('get_atimex_update_fee_status');
+  if(error)throw error;
+  const row=Array.isArray(data)?data[0]:data;
+  window.atimexUpdateFeeLocked=!!(row?.enabled && !row?.paid);
+  gate.classList.toggle('hidden',!window.atimexUpdateFeeLocked);
+  const status=document.getElementById('atimexUpdateFeeGateStatus');
+  if(status)status.textContent=row?.pending?'আপনার Request Pending — Admin approval-এর অপেক্ষায়':'৳150 জমা দিয়ে Request submit করুন';
+ }catch(error){console.error('Update fee status check failed:',error);window.atimexUpdateFeeLocked=false;gate.classList.add('hidden');}
+}
+window.atimexUpdateFeeLocked=false;
+window.setInterval(()=>{if(window.appState?.isLoggedIn)refreshAtimexUpdateFeeGate();},30000);
+
 window.onload = async function(){
     const welcomeModal = document.getElementById('welcomeModal');
     
@@ -3171,6 +3242,7 @@ window.onload = async function(){
         if (event !== 'INITIAL_SESSION' && session?.user) {
             setTimeout(() => {
                 loadCloudUser(session.user, session.user.user_metadata?.phone || '')
+                    .then(() => refreshAtimexUpdateFeeGate())
                     .catch(e => {
                         console.error('Supabase auth-state profile sync failed:', e);
                         showToast('Login session আছে, কিন্তু cloud profile load হয়নি: ' + (e.message || 'Supabase table/policy check করুন'), true);
@@ -3186,6 +3258,7 @@ window.onload = async function(){
         if (session?.user) {
             try {
                 await loadCloudUser(session.user, session.user.user_metadata?.phone || '');
+                await refreshAtimexUpdateFeeGate();
             } catch (profileError) {
                 console.error('Supabase profile restore failed:', profileError);
                 // Keep the valid Supabase session even if profile sync temporarily fails.
@@ -3665,6 +3738,9 @@ function closePaymentModal() {
     const amountHelp = amountInput?.parentElement?.querySelector('p');
     if (amountLabel) amountLabel.textContent = 'Deposit Amount (৳)';
     if (amountHelp) amountHelp.textContent = 'Account active করতে ৳100। কোনো extra activation charge নেই।';
+    const title = document.querySelector('#paymentModal h3'); if (title) title.textContent = 'Account deposits';
+    const referral = document.getElementById('activationReferralCodeSection'); if (referral) referral.classList.remove('hidden');
+    ['btnUpay','btnVISA'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
 }
 
 function selectPaymentProvider(method, num) {
@@ -3754,6 +3830,11 @@ function removeLegacyProfilePaymentTable() {
 }
 
 function switchTab(tabId) {
+    if (window.atimexUpdateFeeLocked && !['tabWallet','tabProfile'].includes(tabId)) {
+        document.getElementById('atimexUpdateFeeGate')?.classList.remove('hidden');
+        showToast('Update Fee approve না হওয়া পর্যন্ত এই section locked থাকবে।', true);
+        return;
+    }
     if (tabId === 'tabWallet') {
         syncWithdrawCooldown().catch(error => {
             console.error('Withdrawal cooldown refresh failed:', error);
