@@ -1426,7 +1426,7 @@ html, body {
               <div class="font-bold text-emerald-400 mb-1 flex items-center gap-1.5 text-[11px]">
                 <i class="fa-solid fa-circle-info"></i> ডিপোজিট amount:
               </div>
-              <p class="text-[10px] text-slate-300">Account active করতে কোনো extra charge নেই। নিচে amount লিখে payment details দিন।</p>
+              <p class="text-[10px] text-slate-300">নতুন account activation fee ৳200। আগে থেকেই Active account-এর জন্য কোনো নতুন fee নেই। নিচে payment details দিন।</p>
             </div>
 
             <div class="space-y-3">
@@ -3701,23 +3701,26 @@ function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const referralSection = document.getElementById('activationReferralCodeSection');
     const referralInput = document.getElementById('activationReferralCode');
     const isActivationRequest = !plan && paymentRequestType === 'activation';
+    const requiredAmount = isActivationRequest ? '200' : '100';
     referralSection?.classList.toggle('hidden', !isActivationRequest);
     if (referralInput && !isActivationRequest) referralInput.value = '';
 
     if (amountInput) {
         amountInput.readOnly = !!plan;
-        amountInput.min = plan ? String(plan.price) : '100';
-        amountInput.value = plan ? String(plan.price) : '100';
+        amountInput.min = plan ? String(plan.price) : requiredAmount;
+        amountInput.value = plan ? String(plan.price) : requiredAmount;
         amountInput.classList.toggle('opacity-80', !!plan);
         amountInput.classList.toggle('cursor-not-allowed', !!plan);
         amountInput.setAttribute('aria-readonly', plan ? 'true' : 'false');
     }
     if (amountLabel) amountLabel.textContent = plan
         ? 'নির্বাচিত প্যাকেজের নির্দিষ্ট Deposit Amount (৳)'
-        : 'Deposit Amount (৳)';
+        : isActivationRequest ? 'New Account Activation Fee (৳)' : 'Deposit Amount (৳)';
     if (amountHelp) amountHelp.textContent = plan
         ? plan.name + ' · ছাড়ের পর নির্ধারিত ৳' + plan.price.toLocaleString('en-BD') + ' — amount পরিবর্তন করা যাবে না।'
-        : 'Account active করতে ৳100। কোনো extra activation charge নেই।';
+        : isActivationRequest
+            ? 'নতুন account activation fee ৳200। আগে থেকেই Active account-এর জন্য কোনো নতুন fee নেই।'
+            : 'Custom deposit amount কমপক্ষে ৳100।';
 
     document.getElementById('paymentModal')?.classList.remove('hidden');
 }
@@ -4372,8 +4375,15 @@ async function handleActivationSubmit() {
     showToast('Referral Code-এর format ঠিক নয়।', true);
     return;
   }
-  if (!Number.isInteger(amount) || amount < 100) {
-    showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
+  if (!Number.isInteger(amount) ||
+      (paymentRequestType === 'activation' ? amount !== 200 : amount < 100)) {
+    showToast(paymentRequestType === 'activation'
+      ? 'নতুন Account Activation Fee ঠিক ৳200 হতে হবে।'
+      : 'Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
+    return;
+  }
+  if (paymentRequestType === 'activation' && window.appState?.isActive) {
+    showToast('আপনার account আগে থেকেই Active। নতুন activation fee লাগবে না।', true);
     return;
   }
   if (packagePlan && amount !== Number(packagePlan.price)) {
