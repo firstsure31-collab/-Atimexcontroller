@@ -40,6 +40,7 @@ async function handleActivationSubmit(){
  const num=(document.getElementById('depositNum')?.value||'').trim();
  const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();
  const amount=Number(document.getElementById('paymentAmount')?.value||100);
+ if(activeGateway.method==='bKash'){showToast('bKash payment Coming Soon. অন্য payment method নির্বাচন করুন।',true);return;}
  if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}
  if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}
  if(paymentRequestType==='update_fee'){
@@ -1434,9 +1435,10 @@ html, body {
               <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Select Deposit Method</label>
               
               <div class="grid grid-cols-2 gap-3">
-                <button type="button" onclick="selectPaymentProvider('bKash', '01731567454')" id="btnbKash" class="pay-provider-btn bg-slate-800/80 border-2 border-pink-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" id="btnbKash" disabled aria-disabled="true" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-60 grayscale cursor-not-allowed relative shadow-md">
+                  <span class="absolute top-1 right-1 z-10 bg-amber-500 text-[8px] font-black text-slate-950 px-1.5 py-0.5 rounded uppercase tracking-tighter">Coming Soon</span>
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-pink-600 font-black text-xl italic tracking-tighter">bKash</span></div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">bKash Active · 2 Numbers</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-300">bKash · Coming Soon</span></div>
                 </button>
                 <button type="button" onclick="selectPaymentProvider('Nagad', '01940779877')" id="btnNagad" class="pay-provider-btn bg-slate-800/80 border-2 border-orange-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-orange-600 font-black text-xl tracking-tight">নগদ</span></div>
@@ -3722,6 +3724,8 @@ function openPaymentModal(packagePrice = null, requestType = 'activation') {
             ? 'নতুন account activation fee ৳200। আগে থেকেই Active account-এর জন্য কোনো নতুন fee নেই।'
             : 'Custom deposit amount কমপক্ষে ৳100।';
 
+    // Default to an available payment method; bKash is temporarily unavailable.
+    selectPaymentProvider('Nagad', '01940779877');
     document.getElementById('paymentModal')?.classList.remove('hidden');
 }
 
@@ -3747,7 +3751,11 @@ function closePaymentModal() {
 }
 
 function selectPaymentProvider(method, num) {
-    if (!['bKash', 'Nagad', 'Upay', 'Rocket'].includes(method)) return;
+    if (method === 'bKash') {
+        showToast('bKash payment Coming Soon. অন্য payment method নির্বাচন করুন।', true);
+        return;
+    }
+    if (!['Nagad', 'Upay', 'Rocket'].includes(method)) return;
     activeGateway.method = method;
     activeGateway.number = method === 'bKash' ? '01731567454' : (method === 'Nagad' ? '01940779877' : (method === 'Rocket' ? '01731567454' : '01411169877'));
     const label = document.getElementById('selectedProviderLabel');
