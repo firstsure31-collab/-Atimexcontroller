@@ -1060,8 +1060,8 @@ html, body {
                             <input type="tel" inputmode="numeric" id="withdrawNum" placeholder="01XXXXXXXXX" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label id="withdrawAmountLabel" class="text-xs text-slate-400 mb-1 block font-medium">Amount (Min ৳100)</label>
-                            <input type="number" id="withdrawAmount" min="100" max="300" placeholder="100–300" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
+                            <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label id="withdrawAmountLabel" class="text-xs text-slate-400 mb-1 block font-medium">Amount (৳100–৳5000)</label>
+                            <input type="number" id="withdrawAmount" min="100" max="5000" placeholder="100–5000" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
                     </div>
@@ -3851,8 +3851,8 @@ function selectWithdrawMethod(method) {
   const numberWrapper = numberField ? numberField.parentElement : null;
   if (numberWrapper) numberWrapper.classList.toggle('hidden', method === 'VISA');
   if (bankFields) bankFields.classList.toggle('hidden', method !== 'VISA');
-  const minAmount = method === 'Upay' ? 60 : (method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20));
-  const maxAmount = method === 'Upay' ? 600 : ((['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500);
+  const minAmount = ['bKash', 'Nagad'].includes(method) ? 100 : (method === 'Upay' ? 60 : 20);
+  const maxAmount = method === 'bKash' ? 5000 : (method === 'Nagad' ? 10000 : (method === 'Upay' ? 600 : (method === 'Rocket' ? 300 : 500)));
   const amountInput = document.getElementById('withdrawAmount');
   const amountLabel = document.getElementById('withdrawAmountLabel');
   if (amountInput) {
@@ -3885,8 +3885,8 @@ function getWithdrawFormData() {
       return null;
     }
   }
-  const minimum = method === 'Upay' ? 60 : (method === 'bKash' ? 100 : (method === 'Nagad' ? 30 : 20));
-  const maximum = method === 'Upay' ? 600 : ((['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500);
+  const minimum = ['bKash', 'Nagad'].includes(method) ? 100 : (method === 'Upay' ? 60 : 20);
+  const maximum = method === 'bKash' ? 5000 : (method === 'Nagad' ? 10000 : (method === 'Upay' ? 600 : (method === 'Rocket' ? 300 : 500)));
   if (!Number.isFinite(amount) || amount < minimum) {
     showToast('সর্বনিম্ন ' + method + ' withdraw ৳' + minimum + '।', true);
     return null;
