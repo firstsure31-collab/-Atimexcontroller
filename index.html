@@ -3632,6 +3632,7 @@ function closePaymentModal() {
     const amountHelp = amountInput?.parentElement?.querySelector('p');
     if (amountLabel) amountLabel.textContent = 'Deposit Amount (৳)';
     if (amountHelp) amountHelp.textContent = 'Account active করতে ৳100। কোনো extra activation charge নেই।';
+    if (window.applyAtimexUpdateFeeState) window.applyAtimexUpdateFeeState();
 }
 
 function selectPaymentProvider(method, num) {
