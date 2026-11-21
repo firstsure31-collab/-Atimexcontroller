@@ -715,7 +715,7 @@ html, body {
 <body class="flex justify-center items-center min-h-screen bg-slate-950 p-0 sm:p-4">
 <!-- ATIMEX TEMPORARY MAINTENANCE LOCK -->
 <style>
-  #atimexMaintenanceLock { position:fixed; inset:0; z-index:2147483000; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at top,#12352d 0%,#020617 62%); color:#f8fafc; text-align:center; }
+  #atimexMaintenanceLock { position:fixed; inset:0; z-index:2147483000; display:none; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at top,#12352d 0%,#020617 62%); color:#f8fafc; text-align:center; }
   html.atimex-maintenance-active body > *:not(#atimexMaintenanceLock),
   html.atimex-update-fee-active body > *:not(#atimexMaintenanceLock) { visibility:hidden !important; pointer-events:none !important; }
   #atimexMaintenanceLock .maintenance-card { width:min(100%,420px); border:1px solid rgba(52,211,153,.35); border-radius:24px; padding:30px 24px; background:rgba(15,23,42,.96); box-shadow:0 20px 80px rgba(0,0,0,.55),0 0 35px rgba(16,185,129,.12); }
@@ -4759,9 +4759,26 @@ async function updateReferralUi() {
     const message = document.getElementById('atimexMaintenanceMessage');
     const footer = document.getElementById('atimexMaintenanceFooter');
     if (!overlay) return;
+    // Admin must never see either maintenance or update-fee lock.
+    // Hide the overlay immediately, before any RPC/network request can fail.
+    const ADMIN_UID = '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+    const client = typeof supabaseClient !== 'undefined' ? supabaseClient : null;
+    if (!client) {
+      overlay.style.display = 'none';
+      return;
+    }
     try {
-      const client = typeof supabaseClient !== 'undefined' ? supabaseClient : null;
-      if (!client) return;
+      const { data: earlySession, error: earlySessionError } = await client.auth.getSession();
+      if (earlySessionError) throw earlySessionError;
+      if (earlySession?.session?.user?.id === ADMIN_UID) {
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('atimex-maintenance-active', 'atimex-update-fee-active');
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        if (panel) panel.style.display = 'none';
+        return;
+      }
       const [{ data: feeSetting, error: feeError }, { data: sessionData, error: sessionError }] = await Promise.all([
         client.rpc('get_atimex_update_fee_status'),
         client.auth.getSession()
@@ -4808,6 +4825,9 @@ async function updateReferralUi() {
       document.body.style.overflow = shouldLock ? 'hidden' : '';
     } catch (error) {
       console.error('ATIMEX maintenance/update fee status check failed:', error);
+      // Do not trap the site behind a client-side overlay if a status RPC fails.
+      // Admin identity is checked before the RPCs above and always bypasses the lock.
+      if (overlay) overlay.style.display = 'none';
     }
   }
   window.applyAtimexUpdateFeeState = applyAtimexUpdateFeeState;
