@@ -1096,7 +1096,12 @@ html, body {
 
 <!-- 4. SERVER / VIP PACKAGES TAB -->
 <div id="tabServer" class="tab-content hidden space-y-3"><div class="space-y-3 pt-2">
-<div class="rounded-2xl border border-amber-500/30 bg-slate-900 p-4 text-center shadow-lg shadow-amber-950/20"><h2 class="text-lg font-black text-amber-300">👑 VIP INVESTMENT PACKAGES</h2><p class="mt-1 text-xs text-slate-300">Choose Your Premium Plan</p><p class="mt-2 text-[10px] text-slate-500">প্যাকেজের শর্ত ও পেমেন্টের বিবরণ ভালোভাবে দেখে নিন।</p></div>
+<div class="rounded-2xl border border-emerald-500/30 bg-slate-900 p-4 text-center shadow-lg shadow-emerald-950/20"><h2 class="text-lg font-black text-emerald-300">SERVER PASSES</h2><p class="mt-1 text-xs text-slate-300">Choose a pass that suits you</p><p class="mt-2 text-[10px] text-slate-500">প্যাকেজের মূল্য, দৈনিক রিওয়ার্ড ও মেয়াদ দেখে নিন। Admin approval-এর পরই Pass active হবে।</p></div>
+<div class="grid grid-cols-2 gap-2">
+<button id="normalPassTab" type="button" onclick="switchServerPass('normal')" class="rounded-xl border border-emerald-400 bg-emerald-500/15 py-3 text-xs font-extrabold text-emerald-300">NORMAL PASS</button>
+<button id="premiumPassTab" type="button" onclick="switchServerPass('premium')" class="rounded-xl border border-slate-700 bg-slate-900 py-3 text-xs font-extrabold text-slate-400">PREMIUM PASS</button>
+</div>
+<div id="normalPassSection" class="space-y-3">
 <article class="rounded-2xl border border-blue-500/30 bg-slate-900 p-3 shadow-lg shadow-blue-950/20">
 <div class="flex items-start justify-between gap-3"><div><p class="text-[10px] font-bold tracking-wider text-blue-300">01 · VIP PACKAGE</p><h3 class="mt-1 text-sm font-extrabold text-white">STARTER VIP PLAN</h3><p class="mt-2 text-2xl font-black text-amber-300">৳500</p></div><button onclick="handlePackageBuy(500)" class="atimex-package-buy shrink-0 rounded-xl bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 shadow-md shadow-amber-500/20">Buy Now</button></div>
 <div class="mt-3 space-y-2 border-t border-slate-700 pt-3 text-xs"><div class="flex justify-between"><span class="text-slate-400">বিনিয়োগ</span><b>৳500</b></div><div class="flex justify-between"><span class="text-slate-400">মেয়াদ</span><b>20 দিন</b></div><div class="flex justify-between"><span class="text-slate-400">দৈনিক পেমেন্ট</span><b>৳50</b></div><div class="flex justify-between"><span class="text-slate-400">মোট পেমেন্ট</span><b class="text-emerald-300">৳1,000</b></div><div class="flex justify-between"><span class="text-slate-400">আসল টাকা</span><b>৳500</b></div><div class="flex justify-between"><span class="text-slate-400">মোট লাভ</span><b class="text-amber-300">৳500</b></div></div></article>
@@ -1118,6 +1123,31 @@ html, body {
 <article class="rounded-2xl border border-emerald-500/30 bg-slate-900 p-3 shadow-lg shadow-emerald-950/20">
 <div class="flex items-start justify-between gap-3"><div><p class="text-[10px] font-bold tracking-wider text-emerald-300">07 · VIP PACKAGE</p><h3 class="mt-1 text-sm font-extrabold text-white">MOST PREMIUM VIP PLAN</h3><p class="mt-2 text-2xl font-black text-amber-300"><span class="mr-2 text-sm text-slate-500 line-through">৳15,000</span>৳10,000</p></div><button onclick="handlePackageBuy(15000)" class="atimex-package-buy shrink-0 rounded-xl bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 shadow-md shadow-amber-500/20">Buy Now</button></div>
 <div class="mt-3 space-y-2 border-t border-slate-700 pt-3 text-xs"><div class="flex justify-between"><span class="text-slate-400">বিনিয়োগ</span><b>৳10,000</b></div><div class="flex justify-between"><span class="text-slate-400">মেয়াদ</span><b>20 দিন</b></div><div class="flex justify-between"><span class="text-slate-400">দৈনিক পেমেন্ট</span><b>৳1,800</b></div><div class="flex justify-between"><span class="text-slate-400">মোট পেমেন্ট</span><b class="text-emerald-300">৳36,000</b></div><div class="flex justify-between"><span class="text-slate-400">আসল টাকা</span><b>৳10,000</b></div><div class="flex justify-between"><span class="text-slate-400">মোট লাভ</span><b class="text-amber-300">৳26,000</b></div></div></article>
+</div>
+<div id="premiumPassSection" class="hidden space-y-3">
+  <div class="rounded-2xl border border-emerald-400/25 bg-slate-900 p-3 text-center">
+    <p class="text-[9px] font-black tracking-[.28em] text-emerald-300">ATIMEX PREMIUM</p>
+    <h3 class="mt-1 text-base font-black text-white">AMD PREMIUM PASS</h3>
+    <p class="mt-1 text-[10px] text-slate-400">৭ দিনের Pass · Admin approval-এর পর Daily Claim Calendar-এ যুক্ত হবে</p>
+  </div>
+  <article class="overflow-hidden rounded-3xl border border-emerald-300/30 bg-gradient-to-b from-slate-800 to-slate-950 p-4 shadow-xl shadow-emerald-950/30">
+    <div class="text-center"><p class="text-xs font-black tracking-[.22em] text-emerald-300">AMD</p><p class="mt-2 text-3xl font-black text-emerald-300">৳10,000</p><span class="mt-1 inline-block rounded-full bg-slate-700 px-3 py-1 text-[9px] font-bold text-slate-300">এককালীন মূল্য</span></div>
+    <div class="mt-4 rounded-2xl border border-slate-700 bg-slate-900/80 p-4 text-center"><p class="text-[10px] font-bold text-slate-400">দৈনিক রিওয়ার্ড</p><p class="mt-1 text-2xl font-black text-emerald-300">৳4,500</p></div>
+    <div class="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-300"><i class="fa-solid fa-calendar-days"></i> প্যাকেজের মেয়াদ: ৭ দিন</div>
+    <button type="button" onclick="handlePackageBuy(11000)" class="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-3 text-xs font-black text-slate-950 shadow-lg shadow-emerald-950/30">অ্যাক্টিভ করুন <i class="fa-solid fa-arrow-right ml-1"></i></button>
+  </article>
+  <article class="overflow-hidden rounded-3xl border border-emerald-300/30 bg-gradient-to-b from-slate-800 to-slate-950 p-4 shadow-xl shadow-emerald-950/30">
+    <div class="text-center"><p class="text-xs font-black tracking-[.22em] text-emerald-300">AMD</p><p class="mt-2 text-3xl font-black text-emerald-300">৳7,000</p><span class="mt-1 inline-block rounded-full bg-slate-700 px-3 py-1 text-[9px] font-bold text-slate-300">এককালীন মূল্য</span></div>
+    <div class="mt-4 rounded-2xl border border-slate-700 bg-slate-900/80 p-4 text-center"><p class="text-[10px] font-bold text-slate-400">দৈনিক রিওয়ার্ড</p><p class="mt-1 text-2xl font-black text-emerald-300">৳2,000</p></div>
+    <div class="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-300"><i class="fa-solid fa-calendar-days"></i> প্যাকেজের মেয়াদ: ৭ দিন</div>
+    <button type="button" onclick="handlePackageBuy(12000)" class="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-3 text-xs font-black text-slate-950 shadow-lg shadow-emerald-950/30">অ্যাক্টিভ করুন <i class="fa-solid fa-arrow-right ml-1"></i></button>
+  </article>
+  <article class="overflow-hidden rounded-3xl border border-emerald-300/30 bg-gradient-to-b from-slate-800 to-slate-950 p-4 shadow-xl shadow-emerald-950/30">
+    <div class="text-center"><p class="text-xs font-black tracking-[.22em] text-emerald-300">AMD</p><p class="mt-2 text-3xl font-black text-emerald-300">৳2,500</p><span class="mt-1 inline-block rounded-full bg-slate-700 px-3 py-1 text-[9px] font-bold text-slate-300">এককালীন মূল্য</span></div>
+    <div class="mt-4 rounded-2xl border border-slate-700 bg-slate-900/80 p-4 text-center"><p class="text-[10px] font-bold text-slate-400">দৈনিক রিওয়ার্ড</p><p class="mt-1 text-2xl font-black text-emerald-300">৳700</p></div>
+    <div class="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-400/10 px-3 py-2 text-[10px] font-bold text-emerald-300"><i class="fa-solid fa-calendar-days"></i> প্যাকেজের মেয়াদ: ৭ দিন</div>
+    <button type="button" onclick="handlePackageBuy(13000)" class="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-3 text-xs font-black text-slate-950 shadow-lg shadow-emerald-950/30">অ্যাক্টিভ করুন <i class="fa-solid fa-arrow-right ml-1"></i></button>
+  </article>
 </div></div>
 <!-- 5. PROFILE TAB -->
             <div id="tabProfile" class="tab-content relative hidden space-y-4">
@@ -3369,11 +3399,31 @@ const VIP_PACKAGE_DETAILS = {
     3000: { id:'gold-vip', name:'GOLD VIP PLAN', price:2800, originalPrice:3000, durationDays:26, dailyAmount:250, statedTotal:6500 },
     5000: { id:'platinum-vip', name:'PLATINUM VIP PLAN', price:4000, originalPrice:5000, durationDays:30, dailyAmount:380, statedTotal:11400 },
     10000: { id:'premium-vip', name:'PREMIUM VIP PLAN', price:7000, originalPrice:10000, durationDays:20, dailyAmount:1200, statedTotal:24000 },
-    15000: { id:'most-premium-vip', name:'MOST PREMIUM VIP PLAN', price:10000, originalPrice:15000, durationDays:20, dailyAmount:1800, statedTotal:36000 }
+    15000: { id:'most-premium-vip', name:'MOST PREMIUM VIP PLAN', price:10000, originalPrice:15000, durationDays:20, dailyAmount:1800, statedTotal:36000 },
+    11000: { id:'amd-premium-10000', name:'AMD PREMIUM PASS 10000', price:10000, durationDays:7, dailyAmount:4500, statedTotal:31500 },
+    12000: { id:'amd-premium-7000', name:'AMD PREMIUM PASS 7000', price:7000, durationDays:7, dailyAmount:2000, statedTotal:14000 },
+    13000: { id:'amd-premium-2500', name:'AMD PREMIUM PASS 2500', price:2500, durationDays:7, dailyAmount:700, statedTotal:4900 }
 };
 let selectedVipPackage = null;
 let paymentRequestType = 'activation';
 
+function switchServerPass(type) {
+    const premium = type === 'premium';
+    document.getElementById('normalPassSection')?.classList.toggle('hidden', premium);
+    document.getElementById('premiumPassSection')?.classList.toggle('hidden', !premium);
+    const normalButton = document.getElementById('normalPassTab');
+    const premiumButton = document.getElementById('premiumPassTab');
+    normalButton?.classList.toggle('border-emerald-400', !premium);
+    normalButton?.classList.toggle('bg-emerald-500/15', !premium);
+    normalButton?.classList.toggle('text-emerald-300', !premium);
+    normalButton?.classList.toggle('border-slate-700', premium);
+    normalButton?.classList.toggle('text-slate-400', premium);
+    premiumButton?.classList.toggle('border-emerald-400', premium);
+    premiumButton?.classList.toggle('bg-emerald-500/15', premium);
+    premiumButton?.classList.toggle('text-emerald-300', premium);
+    premiumButton?.classList.toggle('border-slate-700', !premium);
+    premiumButton?.classList.toggle('text-slate-400', !premium);
+}
 function handlePackageBuy(price) {
     const plan = VIP_PACKAGE_DETAILS[Number(price)];
     if (!plan) {
