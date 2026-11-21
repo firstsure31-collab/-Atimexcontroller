@@ -716,7 +716,8 @@ html, body {
 <!-- ATIMEX TEMPORARY MAINTENANCE LOCK -->
 <style>
   #atimexMaintenanceLock { position:fixed; inset:0; z-index:2147483000; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at top,#12352d 0%,#020617 62%); color:#f8fafc; text-align:center; }
-  html.atimex-maintenance-active body > *:not(#atimexMaintenanceLock) { visibility:hidden !important; pointer-events:none !important; }
+  html.atimex-maintenance-active body > *:not(#atimexMaintenanceLock),
+  html.atimex-update-fee-active body > *:not(#atimexMaintenanceLock) { visibility:hidden !important; pointer-events:none !important; }
   #atimexMaintenanceLock .maintenance-card { width:min(100%,420px); border:1px solid rgba(52,211,153,.35); border-radius:24px; padding:30px 24px; background:rgba(15,23,42,.96); box-shadow:0 20px 80px rgba(0,0,0,.55),0 0 35px rgba(16,185,129,.12); }
 </style>
 <div id="atimexMaintenanceLock" role="dialog" aria-modal="true" aria-labelledby="atimexMaintenanceTitle">
@@ -725,7 +726,16 @@ html, body {
     <h1 id="atimexMaintenanceTitle" style="font-size:24px;font-weight:900;letter-spacing:2px;color:#6ee7b7">ATIMEX</h1>
     <p style="margin-top:8px;font-size:17px;font-weight:800">Temporary Maintenance</p>
     <p id="atimexMaintenanceMessage" style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</p>
-    <p style="margin-top:18px;font-size:10px;letter-spacing:1.5px;color:#64748b">PLEASE CHECK BACK LATER</p>
+    <div id="atimexUpdateFeePanel" style="display:none;margin-top:18px">
+      <div style="border:1px solid rgba(52,211,153,.25);border-radius:16px;padding:16px;background:rgba(16,185,129,.07)">
+        <p style="font-size:10px;letter-spacing:2px;color:#6ee7b7;font-weight:900">ONE-TIME UPDATE FEE</p>
+        <p style="font-size:34px;font-weight:900;color:#fff;margin-top:4px">৳150</p>
+        <p style="font-size:11px;line-height:1.7;color:#cbd5e1;margin-top:6px">bKash, Nagad অথবা Rocket দিয়ে ১৫০ টাকা পাঠিয়ে Sender Number ও TrxID জমা দিন। Admin যাচাই করে Approve করলে সাইট Unlock হবে।</p>
+        <button id="atimexUpdateFeePayButton" type="button" onclick="startAtimexUpdateFeePayment()" style="width:100%;margin-top:14px;padding:13px;border-radius:12px;background:linear-gradient(90deg,#10b981,#14b8a6);color:#022c22;font-weight:900;font-size:12px">PAY UPDATE FEE · ৳150</button>
+        <p id="atimexUpdateFeeStatus" style="font-size:10px;color:#fbbf24;margin-top:10px">Payment approval না হওয়া পর্যন্ত সব feature locked থাকবে।</p>
+      </div>
+    </div>
+    <p id="atimexMaintenanceFooter" style="margin-top:18px;font-size:10px;letter-spacing:1.5px;color:#64748b">PLEASE CHECK BACK LATER</p>
   </div>
 </div>
 
@@ -2559,7 +2569,8 @@ function renderAdminPaymentRequests() {
         const validId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
         const isPackage = row.request_type === 'vip_package';
         const isActivation = row.request_type === 'activation' || row.request_type === 'account_activation';
-        const typeLabel = isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
+        const isUpdateFee = row.request_type === 'update_fee';
+        const typeLabel = isUpdateFee ? 'ATIMEX UPDATE FEE' : isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
         const profile = adminProfileLookup[row.user_id] || {};
         const status = String(row.status || 'pending').toLowerCase();
         const statusLabel = status === 'approved' ? 'APPROVED' : status === 'rejected' ? 'REJECTED' : 'PENDING';
@@ -3576,22 +3587,28 @@ function openPaymentModal(packagePrice = null, requestType = 'activation') {
     const referralSection = document.getElementById('activationReferralCodeSection');
     const referralInput = document.getElementById('activationReferralCode');
     const isActivationRequest = !plan && paymentRequestType === 'activation';
+    const isUpdateFeeRequest = !plan && paymentRequestType === 'update_fee';
     referralSection?.classList.toggle('hidden', !isActivationRequest);
+    const upayButton = document.getElementById('btnUpay');
+    if (upayButton) upayButton.style.display = isUpdateFeeRequest ? 'none' : '';
+    if (isUpdateFeeRequest && !['bKash','Nagad','Rocket'].includes(activeGateway?.method)) selectPaymentProvider('bKash', '01731567454');
     if (referralInput && !isActivationRequest) referralInput.value = '';
 
     if (amountInput) {
         amountInput.readOnly = !!plan;
-        amountInput.min = plan ? String(plan.price) : '100';
-        amountInput.value = plan ? String(plan.price) : '100';
+        amountInput.min = plan ? String(plan.price) : (isUpdateFeeRequest ? '150' : '100');
+        amountInput.value = plan ? String(plan.price) : (isUpdateFeeRequest ? '150' : '100');
+        amountInput.readOnly = !!plan || isUpdateFeeRequest;
         amountInput.classList.toggle('opacity-80', !!plan);
         amountInput.classList.toggle('cursor-not-allowed', !!plan);
         amountInput.setAttribute('aria-readonly', plan ? 'true' : 'false');
     }
     if (amountLabel) amountLabel.textContent = plan
         ? 'নির্বাচিত প্যাকেজের নির্দিষ্ট Deposit Amount (৳)'
-        : 'Deposit Amount (৳)';
+        : isUpdateFeeRequest ? 'One-time Update Fee (৳)' : 'Deposit Amount (৳)';
     if (amountHelp) amountHelp.textContent = plan
         ? plan.name + ' · ছাড়ের পর নির্ধারিত ৳' + plan.price.toLocaleString('en-BD') + ' — amount পরিবর্তন করা যাবে না।'
+        : isUpdateFeeRequest ? 'সবার জন্য একবারের Update Fee। নির্ধারিত Amount ৳150 — পরিবর্তন করা যাবে না।'
         : 'Account active করতে ৳100। কোনো extra activation charge নেই।';
 
     document.getElementById('paymentModal')?.classList.remove('hidden');
@@ -3601,6 +3618,8 @@ function closePaymentModal() {
     document.getElementById('paymentModal')?.classList.add('hidden');
     selectedVipPackage = null;
     paymentRequestType = 'activation';
+    const upayButton = document.getElementById('btnUpay');
+    if (upayButton) upayButton.style.display = '';
     const amountInput = document.getElementById('paymentAmount');
     if (amountInput) {
         amountInput.readOnly = false;
@@ -4239,8 +4258,8 @@ async function handleActivationSubmit() {
     showToast('Referral Code-এর format ঠিক নয়।', true);
     return;
   }
-  if (!Number.isInteger(amount) || amount < 100) {
-    showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
+  if (!Number.isInteger(amount) || (paymentRequestType === 'update_fee' ? amount !== 150 : amount < 100)) {
+    showToast(paymentRequestType === 'update_fee' ? 'Update Fee নির্ধারিত ৳150 হতে হবে।' : 'Deposit amount কমপক্ষে ৳100 হতে হবে।', true);
     return;
   }
   if (packagePlan && amount !== Number(packagePlan.price)) {
@@ -4265,6 +4284,19 @@ async function handleActivationSubmit() {
       return;
     }
 
+    if (paymentRequestType === 'update_fee') {
+      const { data: pendingRows, error: pendingError } = await supabaseClient
+        .from('payment_requests').select('id').eq('user_id', user.id)
+        .eq('request_type', 'update_fee').eq('status', 'pending').limit(1);
+      if (pendingError) throw pendingError;
+      if (Array.isArray(pendingRows) && pendingRows.length) {
+        closePaymentModal();
+        const statusEl = document.getElementById('atimexUpdateFeeStatus');
+        if (statusEl) statusEl.textContent = 'আপনার Update Fee Request ইতিমধ্যে Pending আছে। Admin Approval-এর জন্য অপেক্ষা করুন।';
+        showToast('আপনার একটি Update Fee Request ইতিমধ্যে Pending আছে।');
+        return;
+      }
+    }
     const row = {
       user_id: user.id,
       request_type: packagePlan ? 'vip_package' : paymentRequestType,
@@ -4289,13 +4321,15 @@ async function handleActivationSubmit() {
     if (insertError) throw insertError;
     if (!inserted?.id) throw new Error('Request ID পাওয়া যায়নি। আবার চেষ্টা করুন।');
 
-    // Count each successfully submitted deposit/package payment once in Total Spent.
-    window.appState.totalSpent = Number(window.appState.totalSpent || 0) + amount;
-    updateBalanceDisplays();
-    await saveAllProgress();
-
+    if (paymentRequestType !== 'update_fee') {
+      // Count each successfully submitted deposit/package payment once in Total Spent.
+      window.appState.totalSpent = Number(window.appState.totalSpent || 0) + amount;
+      updateBalanceDisplays();
+      await saveAllProgress();
+    }
     saveLocalTransaction({
-      type: packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + row.payment_method,
+      type: paymentRequestType === 'update_fee' ? 'ATIMEX one-time update fee · ' + row.payment_method
+        : packagePlan ? 'VIP package deposit · ' + packagePlan.name : 'Deposit request · ' + row.payment_method,
       amount,
       status: 'Pending admin verification',
       requestId: inserted.id,
@@ -4306,7 +4340,12 @@ async function handleActivationSubmit() {
     });
 
     closePaymentModal();
-    if (packagePlan) {
+    if (paymentRequestType === 'update_fee') {
+      const statusEl = document.getElementById('atimexUpdateFeeStatus');
+      if (statusEl) statusEl.textContent = 'আপনার ৳150 Update Fee Request জমা হয়েছে। Admin যাচাই করে Approve করলে Unlock হবে।';
+      showAppNotice('Update Fee Request জমা হয়েছে', 'আপনার ৳150 payment request Admin Panel-এ পাঠানো হয়েছে। Admin যাচাই করে Approve না করা পর্যন্ত ATIMEX locked থাকবে। Request ID: ' + inserted.id);
+      await applyAtimexUpdateFeeState();
+    } else if (packagePlan) {
       showAppNotice(
         'VIP package request জমা হয়েছে',
         packagePlan.name + ' · ৳' + packagePlan.price.toLocaleString('en-BD') +
@@ -4713,51 +4752,76 @@ async function updateReferralUi() {
 <script>
 (function () {
   'use strict';
-  async function applyMaintenanceState() {
+  async function applyAtimexUpdateFeeState() {
     const overlay = document.getElementById('atimexMaintenanceLock');
+    const panel = document.getElementById('atimexUpdateFeePanel');
     const message = document.getElementById('atimexMaintenanceMessage');
+    const footer = document.getElementById('atimexMaintenanceFooter');
+    if (!overlay) return;
     try {
-      // Reuse the single app-wide Supabase client. Creating another client
-      // every 15 seconds caused duplicate GoTrueClient instances and auth conflicts.
       const client = typeof supabaseClient !== 'undefined' ? supabaseClient : null;
-      if (!client) throw new Error('Main Supabase client unavailable');
-      const [
-        { data: setting, error },
-        { data: sessionData, error: sessionError }
-      ] = await Promise.all([
-        client.rpc('get_atimex_site_control'),
+      if (!client) return;
+      const [{ data: feeSetting, error: feeError }, { data: sessionData, error: sessionError }] = await Promise.all([
+        client.rpc('get_atimex_update_fee_status'),
         client.auth.getSession()
       ]);
-      if (error) throw error;
+      if (feeError) throw feeError;
       if (sessionError) throw sessionError;
-      const row = Array.isArray(setting) ? setting[0] : setting;
-      const maintenanceOn = row?.maintenance_enabled === true;
-      const adminUser = sessionData?.session?.user?.id === '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-      if (message && row?.maintenance_message) message.textContent = row.maintenance_message;
-      if (overlay && maintenanceOn && !adminUser) {
-        overlay.style.display = 'flex';
-        document.documentElement.classList.add('atimex-maintenance-active');
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-      } else if (overlay) {
-        overlay.style.setProperty('display', 'none', 'important');
-        overlay.setAttribute('aria-hidden', 'true');
-        document.documentElement.classList.remove('atimex-maintenance-active');
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
+      const user = sessionData?.session?.user;
+      const adminUser = user?.id === '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
+      const feeRow = Array.isArray(feeSetting) ? feeSetting[0] : feeSetting;
+      const feeEnabled = feeRow?.enabled === true;
+      let feePaid = false, hasPending = false;
+      if (user && feeEnabled && !adminUser) {
+        const [{ data: profile, error: profileError }, { data: pending, error: pendingError }] = await Promise.all([
+          client.from('profiles').select('app_data').eq('id', user.id).maybeSingle(),
+          client.from('payment_requests').select('id').eq('user_id', user.id)
+            .eq('request_type', 'update_fee').eq('status', 'pending').limit(1)
+        ]);
+        if (profileError) throw profileError;
+        if (pendingError) throw pendingError;
+        feePaid = profile?.app_data?.update_fee_paid === true;
+        hasPending = Array.isArray(pending) && pending.length > 0;
       }
+      const maintenanceResult = await client.rpc('get_atimex_site_control');
+      if (maintenanceResult.error) throw maintenanceResult.error;
+      const maintenanceRow = Array.isArray(maintenanceResult.data) ? maintenanceResult.data[0] : maintenanceResult.data;
+      const maintenanceOn = maintenanceRow?.maintenance_enabled === true && !adminUser;
+      const feeLocked = feeEnabled && !!user && !adminUser && !feePaid;
+      const shouldLock = maintenanceOn || feeLocked;
+      if (panel) panel.style.display = feeLocked ? 'block' : 'none';
+      if (message) message.textContent = maintenanceOn
+        ? (maintenanceRow?.maintenance_message || 'ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।')
+        : feeLocked ? 'সার্ভার Update সম্পন্ন হয়েছে। ওয়েবসাইট ব্যবহার করতে একবারের Update Fee ৳150 পরিশোধ করে Admin Approval নিন।'
+        : 'ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+      if (footer) footer.style.display = feeLocked ? 'none' : '';
+      const statusEl = document.getElementById('atimexUpdateFeeStatus');
+      if (statusEl && feeLocked) statusEl.textContent = hasPending
+        ? 'আপনার Update Fee Request Pending আছে। Admin Approval-এর জন্য অপেক্ষা করুন।'
+        : 'Payment approval না হওয়া পর্যন্ত সব feature locked থাকবে।';
+      overlay.style.display = shouldLock ? 'flex' : 'none';
+      overlay.setAttribute('aria-hidden', shouldLock ? 'false' : 'true');
+      document.documentElement.classList.toggle('atimex-maintenance-active', maintenanceOn);
+      document.documentElement.classList.toggle('atimex-update-fee-active', feeLocked);
+      document.documentElement.style.overflow = shouldLock ? 'hidden' : '';
+      document.body.style.overflow = shouldLock ? 'hidden' : '';
     } catch (error) {
-      console.error('ATIMEX maintenance status check failed:', error);
-      // Fail open if the public status endpoint is unavailable, so a config outage
-      // cannot lock every member out of the application.
-      if (overlay) overlay.style.setProperty('display', 'none', 'important');
+      console.error('ATIMEX maintenance/update fee status check failed:', error);
     }
   }
-  applyMaintenanceState();
-  window.addEventListener('pageshow', applyMaintenanceState);
-  // Re-check periodically so an already-open member session is locked promptly
-  // when the admin enables maintenance mode, and unlocked after it ends.
-  window.setInterval(applyMaintenanceState, 15000);
+  window.applyAtimexUpdateFeeState = applyAtimexUpdateFeeState;
+  window.applyMaintenanceState = applyAtimexUpdateFeeState;
+  window.startAtimexUpdateFeePayment = function () {
+    const overlay = document.getElementById('atimexMaintenanceLock');
+    overlay?.style.setProperty('display', 'none', 'important');
+    document.documentElement.classList.remove('atimex-maintenance-active', 'atimex-update-fee-active');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    if (typeof openPaymentModal === 'function') openPaymentModal(null, 'update_fee');
+  };
+  applyAtimexUpdateFeeState();
+  window.addEventListener('pageshow', applyAtimexUpdateFeeState);
+  window.setInterval(applyAtimexUpdateFeeState, 15000);
 })();
 </script>
 
