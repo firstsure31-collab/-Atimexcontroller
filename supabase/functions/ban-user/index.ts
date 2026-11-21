@@ -35,7 +35,9 @@ Deno.serve(async (req) => {
 
   try {
     const url = Deno.env.get("SUPABASE_URL");
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const anonKey =
+      Deno.env.get("SUPABASE_ANON_KEY") ||
+      Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !anonKey || !serviceKey) {
       return reply({ success: false, error: "Missing Supabase environment variables" }, 500);
@@ -50,7 +52,9 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { data: authData, error: authError } = await userClient.auth.getUser();
+    // This client has no persisted session; validate the Bearer JWT explicitly.
+    const accessToken = authHeader.slice("Bearer ".length).trim();
+    const { data: authData, error: authError } = await userClient.auth.getUser(accessToken);
     if (authError || !authData?.user) {
       return reply({ success: false, error: authError?.message || "Invalid login session" }, 401);
     }
