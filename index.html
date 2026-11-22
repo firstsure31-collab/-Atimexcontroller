@@ -1100,6 +1100,7 @@ html, body {
                             <input type="number" id="withdrawAmount" min="100" max="5000" placeholder="100–5000" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
+                        <div id="withdrawalPauseNotice" class="hidden rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2.5 text-center text-[11px] leading-5 text-amber-200">Withdrawal সাময়িকভাবে বন্ধ আছে। কাজ চলছে—পরে আবার চালু করা হবে।</div>
                     </div>
                 </div>
             </div>
@@ -4057,19 +4058,41 @@ function getWithdrawAttemptLabel() {
   return 'WITHDRAW ' + next + suffix + ' TIME · VERIFY & CONTINUE';
 }
 
+let atimexWithdrawalsEnabled = false;
+
+async function refreshAtimexWithdrawalAvailability() {
+  const notice = document.getElementById('withdrawalPauseNotice');
+  try {
+    const { data, error } = await supabaseClient.rpc('get_atimex_withdrawal_status');
+    if (error) throw error;
+    atimexWithdrawalsEnabled = data === true;
+  } catch (error) {
+    // Fail closed: if the status cannot be verified, do not accept a withdrawal.
+    atimexWithdrawalsEnabled = false;
+    console.error('Withdrawal availability check failed:', error);
+  }
+  if (notice) notice.classList.toggle('hidden', atimexWithdrawalsEnabled);
+  updateWithdrawCooldownUi();
+  return atimexWithdrawalsEnabled;
+}
+
 function updateWithdrawCooldownUi() {
   const button = document.getElementById('withdrawSubmitButton');
   const timerBox = document.getElementById('withdrawTimerBox');
   const display = document.getElementById('countdownDisplay');
   const remaining = Math.max(0, withdrawCooldownUntil - Date.now());
   const locked = remaining > 0;
+  const paused = !atimexWithdrawalsEnabled;
 
   if (button) {
-    button.disabled = locked;
-    button.className = locked
+    button.disabled = locked || paused;
+    button.className = (locked || paused)
       ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
       : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
-    if (locked) {
+
+    if (paused) {
+      button.textContent = 'WITHDRAWAL TEMPORARILY PAUSED';
+    } else if (locked) {
       const total = Math.ceil(remaining / 1000);
       const hours = Math.floor(total / 3600);
       const minutes = Math.floor((total % 3600) / 60);
@@ -4080,8 +4103,8 @@ function updateWithdrawCooldownUi() {
       button.textContent = getWithdrawAttemptLabel();
     }
   }
-  if (timerBox) timerBox.classList.toggle('hidden', !locked);
-  if (display && locked) {
+  if (timerBox) timerBox.classList.toggle('hidden', !locked || paused);
+  if (display && locked && !paused) {
     const total = Math.ceil(remaining / 1000);
     const hours = Math.floor(total / 3600);
     const minutes = Math.floor((total % 3600) / 60);
@@ -4093,6 +4116,11 @@ function updateWithdrawCooldownUi() {
     withdrawCooldownTimer = null;
   }
 }
+
+// Recheck after page load and periodically; SQL remains the final enforcement.
+refreshAtimexWithdrawalAvailability();
+window.addEventListener('pageshow', refreshAtimexWithdrawalAvailability);
+window.setInterval(refreshAtimexWithdrawalAvailability, 20000);
 
 async function syncWithdrawCooldown() {
   const { data: authData, error: authError } = await supabaseClient.auth.getUser();
@@ -4179,6 +4207,10 @@ async function checkFourthWithdrawalReferralGate(userId) {
 
 async function openWithdrawVerification() {
   if ((window.appState?.selectedMethod || 'bKash') === 'VISA') { showToast('VISA Coming Soon', true); return; }
+  if (!(await refreshAtimexWithdrawalAvailability())) {
+    showToast('Withdrawal আপাতত বন্ধ আছে। কাজ চলছে—পরে আবার চালু হবে।', true);
+    return;
+  }
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
@@ -4324,6 +4356,11 @@ async function submitWithdrawRequest() {
     if (holdButton) holdButton.disabled = false;
     if (hint) hint.textContent = 'আবার চেপে ধরে চেষ্টা করুন';
     const errorMessage = String(error?.message || '');
+    if (errorMessage.toLowerCase().includes('withdrawals are temporarily paused')) {
+      closeWithdrawVerification();
+      showToast('Withdrawal আপাতত বন্ধ আছে। কাজ চলছে—পরে আবার চালু হবে।', true);
+      return;
+    }
     if (errorMessage.toLowerCase().includes('daily withdrawal limit')) {
       document.getElementById('withdrawReviewPage')?.classList.add('hidden');
       document.body.classList.remove('overflow-hidden');
