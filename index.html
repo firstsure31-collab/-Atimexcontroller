@@ -977,17 +977,6 @@ html, body {
                     </div>
                 </div>
 
-                <!-- Active referral requirement notice: shown live after 3 withdrawal requests -->
-                <div id="withdrawReferralRequirementNotice" class="hidden mb-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-3 text-center shadow-lg shadow-amber-950/20">
-                    <div class="flex items-center justify-center gap-2 text-[11px] font-extrabold text-amber-300">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>পরবর্তী Withdraw-এর জন্য ১ জন Active Referral প্রয়োজন</span>
-                    </div>
-                    <p id="withdrawReferralRequirementText" class="mt-1 text-[10px] leading-relaxed text-amber-100/80">
-                        প্রথম ২টি Withdraw সম্পন্ন হয়েছে। ৩য় Withdraw-এর আগে অন্তত ১ জন referred member ৳১০০ দিয়ে account active করলে এই notice চলে যাবে।
-                    </p>
-                </div>
-
                 <!-- Withdrawal Charge List Info Box -->
                 <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
                   <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
@@ -4404,32 +4393,17 @@ async function syncWithdrawCooldown() {
 
   const [
     { data: rows, error },
-    { count: requestCount, error: countError },
-    { data: referralData, error: referralError }
+    { count: requestCount, error: countError }
   ] = await Promise.all([
     supabaseClient.from('withdrawal_requests').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-    supabaseClient.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-    supabaseClient.rpc('get_my_referral_stats')
+    supabaseClient.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
   ]);
   if (error) throw error;
   if (countError) throw countError;
-  if (referralError) throw referralError;
 
-  // Count this user's actual database rows directly; do not rely on the legacy count RPC.
+  // Keep the request count only for the button's 1st/2nd/3rd withdrawal label.
+  // Active referral count is not part of withdrawal eligibility.
   withdrawAttemptCount = Number(requestCount ?? 0);
-  const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
-  const activeReferralCount = Number(referralStats.active_referrals);
-  if (!Number.isFinite(activeReferralCount)) {
-    throw new Error('Active Referral count যাচাই করা যায়নি।');
-  }
-  const referralNotice = document.getElementById('withdrawReferralRequirementNotice');
-  const referralNoticeText = document.getElementById('withdrawReferralRequirementText');
-  const requiredActiveReferrals = withdrawAttemptCount + 1;
-  const referralRequired = activeReferralCount < requiredActiveReferrals;
-  referralNotice?.classList.toggle('hidden', !referralRequired);
-  if (referralNoticeText && referralRequired) {
-    referralNoticeText.textContent = 'আপনার পরবর্তী Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে Active Referral: ' + activeReferralCount + ' জন। Referred member ৳১০০ দিয়ে account active করলেই গণনা হবে।';
-  }
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
   updateWithdrawCooldownUi();
@@ -4453,32 +4427,6 @@ function closeDailyWithdrawLimitModal() {
   }
 }
 
-async function checkFourthWithdrawalReferralGate(userId) {
-  if (!userId) throw new Error('Withdrawal করতে আগে Login করুন।');
-
-  const { count, error: countError } = await supabaseClient
-    .from('withdrawal_requests')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId);
-  if (countError) throw countError;
-
-  // Each withdrawal requires one additional database-verified active referral.
-  const requiredActiveReferrals = Number(count || 0) + 1;
-  const { data, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
-  if (referralError) throw referralError;
-  const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
-  const activeReferrals = Number(stats.active_referrals);
-
-  if (!Number.isFinite(activeReferrals)) {
-    throw new Error('Database থেকে Active Referral count যাচাই করা যায়নি।');
-  }
-  if (activeReferrals < requiredActiveReferrals) {
-    showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferrals + ' জন Active Referral আছে।', true);
-    return false;
-  }
-  return true;
-}
-
 async function openWithdrawVerification() {
   if (!isWithdrawPackActive()) { showWithdrawPackRequiredNotice(); return; }
   if ((window.appState?.selectedMethod || 'bKash') === 'VISA') { showToast('VISA Coming Soon', true); return; }
@@ -4489,16 +4437,6 @@ async function openWithdrawVerification() {
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
-      return;
-    }
-    const requiredActiveReferrals = Number(withdrawAttemptCount || 0) + 1;
-    const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
-    if (referralError) throw referralError;
-    const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
-    const activeReferralCount = Number(referralStats.active_referrals || 0);
-    if (!Number.isFinite(activeReferralCount)) throw new Error('Active Referral count যাচাই করা যায়নি।');
-    if (activeReferralCount < requiredActiveReferrals) {
-      showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferralCount + ' জন আছে।', true);
       return;
     }
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
@@ -4588,7 +4526,7 @@ async function submitWithdrawRequest() {
     if (String(request.status || '').toLowerCase() === 'rejected') {
       closeWithdrawVerification();
       await syncWithdrawCooldown();
-      showToast('আপনার Withdraw Request Auto-Reject হয়েছে। পরবর্তী Withdraw unlock করতে নতুন Active Referral প্রয়োজন।', true);
+      showToast('আপনার Withdraw Request Auto-Reject হয়েছে। Admin-এর সঙ্গে যোগাযোগ করুন।', true);
       return;
     }
 
