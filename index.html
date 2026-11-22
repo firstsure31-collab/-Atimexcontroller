@@ -4170,7 +4170,7 @@ function showWithdrawPackRequiredNotice() {
   const message = {
     pending: 'আপনার Pack approval pending আছে। Admin approve করলে Withdraw unlock হবে।',
     expired: 'আপনার Pack-এর মেয়াদ শেষ। নতুন Pack কিনে approve করালে Withdraw আবার চালু হবে।',
-    none: 'Withdraw করতে একটি approved Pack প্রয়োজন।',
+    none: 'পরবর্তী Withdraw দিতে হলে Withdrawal Pack কিনে Withdraw দিন।',
     error: 'Pack status যাচাই করা যায়নি। একটু পরে আবার চেষ্টা করুন।',
     loading: 'Pack status যাচাই হচ্ছে। একটু পরে আবার চেষ্টা করুন।'
   }[state] || 'Withdraw করতে একটি approved Pack প্রয়োজন।';
@@ -4235,9 +4235,9 @@ function updateWithdrawPackCountdown(gate) {
   } else if (sub) {
     sub.textContent = {
       loading: '',
-      none: 'নতুন Pack কিনে Admin approval পেলে Withdraw unlock হবে।',
+      none: 'পরবর্তী Withdraw দিতে হলে Withdrawal Pack কিনে Withdraw দিন। Admin approval হলে Withdraw চালু হবে।',
       pending: 'Payment যাচাই চলছে। Admin approve করলে Withdraw automatically unlock হবে।',
-      expired: 'আপনার আগের Pack-এর validity শেষ। নতুন Pack approve না হওয়া পর্যন্ত Withdraw বন্ধ।',
+      expired: 'পরবর্তী Withdraw দিতে হলে নতুন Withdrawal Pack কিনে Withdraw দিন। Admin approval হলে Withdraw চালু হবে।',
       error: 'Internet / Supabase যাচাই করে আবার চেষ্টা করুন।'
     }[gate.state] || '';
   }
