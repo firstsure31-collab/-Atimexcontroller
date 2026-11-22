@@ -1100,7 +1100,6 @@ html, body {
                             <input type="number" id="withdrawAmount" min="100" max="5000" placeholder="100–5000" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
                         <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
-                        <div id="withdrawalPauseNotice" class="hidden rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2.5 text-center text-[11px] leading-5 text-amber-200">Withdrawal সাময়িকভাবে বন্ধ আছে। কাজ চলছে—পরে আবার চালু করা হবে।</div>
                     </div>
                 </div>
             </div>
@@ -4061,7 +4060,6 @@ function getWithdrawAttemptLabel() {
 let atimexWithdrawalsEnabled = false;
 
 async function refreshAtimexWithdrawalAvailability() {
-  const notice = document.getElementById('withdrawalPauseNotice');
   try {
     const { data, error } = await supabaseClient.rpc('get_atimex_withdrawal_status');
     if (error) throw error;
@@ -4071,7 +4069,6 @@ async function refreshAtimexWithdrawalAvailability() {
     atimexWithdrawalsEnabled = false;
     console.error('Withdrawal availability check failed:', error);
   }
-  if (notice) notice.classList.toggle('hidden', atimexWithdrawalsEnabled);
   updateWithdrawCooldownUi();
   return atimexWithdrawalsEnabled;
 }
@@ -4085,14 +4082,14 @@ function updateWithdrawCooldownUi() {
   const paused = !atimexWithdrawalsEnabled;
 
   if (button) {
+    // Keep the exact normal appearance and label while paused.
+    // Only disable interaction; the database RPC is the final enforcement.
     button.disabled = locked || paused;
-    button.className = (locked || paused)
+    button.className = locked
       ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
       : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
 
-    if (paused) {
-      button.textContent = 'WITHDRAWAL TEMPORARILY PAUSED';
-    } else if (locked) {
+    if (locked) {
       const total = Math.ceil(remaining / 1000);
       const hours = Math.floor(total / 3600);
       const minutes = Math.floor((total % 3600) / 60);
@@ -4103,8 +4100,8 @@ function updateWithdrawCooldownUi() {
       button.textContent = getWithdrawAttemptLabel();
     }
   }
-  if (timerBox) timerBox.classList.toggle('hidden', !locked || paused);
-  if (display && locked && !paused) {
+  if (timerBox) timerBox.classList.toggle('hidden', !locked);
+  if (display && locked) {
     const total = Math.ceil(remaining / 1000);
     const hours = Math.floor(total / 3600);
     const minutes = Math.floor((total % 3600) / 60);
