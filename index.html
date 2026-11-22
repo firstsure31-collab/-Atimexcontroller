@@ -1126,23 +1126,73 @@ html, body {
                 <div class="min-h-0 space-y-3 overflow-y-auto p-4">
                   <div class="relative overflow-hidden rounded-2xl border border-emerald-400/25 bg-gradient-to-r from-slate-900 to-emerald-950/40 p-4">
                     <div class="flex items-center justify-between"><span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">03 Days Validity</span><i class="fa-solid fa-bolt text-emerald-300"></i></div>
-                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳350</div><p class="mt-1 text-[10px] text-slate-400">৩ দিনের Pack</p></div><button type="button" onclick="showToast('Pack purchase setup পরবর্তী ধাপে চালু হবে।',true)" class="rounded-xl bg-emerald-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-emerald-950/30">BUY NOW</button></div>
+                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳350</div><p class="mt-1 text-[10px] text-slate-400">৩ দিনের Pack</p></div><button type="button" onclick="openPackPaymentModal('pack-3d')" class="rounded-xl bg-emerald-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-emerald-950/30">BUY NOW</button></div>
                   </div>
                   <div class="relative overflow-hidden rounded-2xl border border-sky-400/25 bg-gradient-to-r from-slate-900 to-sky-950/40 p-4">
                     <div class="flex items-center justify-between"><span class="text-[10px] font-extrabold uppercase tracking-wider text-sky-300">05 Days Validity</span><i class="fa-solid fa-calendar-check text-sky-300"></i></div>
-                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳500</div><p class="mt-1 text-[10px] text-slate-400">৫ দিনের Pack</p></div><button type="button" onclick="showToast('Pack purchase setup পরবর্তী ধাপে চালু হবে।',true)" class="rounded-xl bg-sky-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-sky-950/30">BUY NOW</button></div>
+                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳500</div><p class="mt-1 text-[10px] text-slate-400">৫ দিনের Pack</p></div><button type="button" onclick="openPackPaymentModal('pack-5d')" class="rounded-xl bg-sky-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-sky-950/30">BUY NOW</button></div>
                   </div>
                   <div class="relative overflow-hidden rounded-2xl border border-violet-400/25 bg-gradient-to-r from-slate-900 to-violet-950/40 p-4">
                     <div class="flex items-center justify-between"><span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-300">10 Days Validity</span><i class="fa-solid fa-gem text-violet-300"></i></div>
-                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳1000</div><p class="mt-1 text-[10px] text-slate-400">১০ দিনের Pack</p></div><button type="button" onclick="showToast('Pack purchase setup পরবর্তী ধাপে চালু হবে।',true)" class="rounded-xl bg-violet-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-violet-950/30">BUY NOW</button></div>
+                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳1000</div><p class="mt-1 text-[10px] text-slate-400">১০ দিনের Pack</p></div><button type="button" onclick="openPackPaymentModal('pack-10d')" class="rounded-xl bg-violet-500 px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-violet-950/30">BUY NOW</button></div>
                   </div>
                   <div class="relative overflow-hidden rounded-2xl border border-amber-300/50 bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/60 p-4 shadow-lg shadow-amber-950/20">
                     <span class="absolute right-0 top-0 rounded-bl-xl bg-rose-500 px-3 py-1 text-[9px] font-black tracking-widest text-white shadow-lg">HOT</span>
                     <div class="flex items-center justify-between pr-12"><span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">30 Days Validity</span><i class="fa-solid fa-crown text-amber-300"></i></div>
-                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳1800</div><p class="mt-1 text-[10px] text-amber-100/70">৩০ দিনের Pack · Best Value</p></div><button type="button" onclick="showToast('Pack purchase setup পরবর্তী ধাপে চালু হবে।',true)" class="rounded-xl bg-amber-400 px-5 py-2.5 text-[11px] font-black text-slate-950 shadow-lg shadow-amber-950/30">BUY NOW</button></div>
+                    <div class="mt-2 flex items-end justify-between gap-3"><div><div class="text-2xl font-black text-white">৳1800</div><p class="mt-1 text-[10px] text-amber-100/70">৩০ দিনের Pack · Best Value</p></div><button type="button" onclick="openPackPaymentModal('pack-30d')" class="rounded-xl bg-amber-400 px-5 py-2.5 text-[11px] font-black text-slate-950 shadow-lg shadow-amber-950/30">BUY NOW</button></div>
                   </div>
                 </div>
-                <div class="shrink-0 border-t border-slate-800 bg-slate-900/80 p-3 text-center"><p class="text-[9px] text-slate-500">Pack purchase confirmation flow পরবর্তী ধাপে যুক্ত হবে</p></div>
+                <div class="shrink-0 border-t border-slate-800 bg-slate-900/80 p-3 text-center"><p class="text-[9px] text-slate-500">Payment যাচাই হওয়ার পর Admin আপনার Pack approve করবে</p></div>
+              </div>
+            </div>
+
+            <!-- Pack Payment Confirmation Modal (opened from "BUY NOW" in walletPackModal) -->
+            <div id="packPaymentModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-3" onclick="if(event.target===this)closePackPaymentModal(true)">
+              <div class="relative flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-emerald-400/30 bg-slate-950 shadow-2xl shadow-emerald-950/40">
+                <div class="flex shrink-0 items-center justify-between border-b border-slate-800 bg-gradient-to-r from-slate-900 to-emerald-950/40 p-4">
+                  <div class="flex items-center gap-3">
+                    <button type="button" onclick="closePackPaymentModal(true)" aria-label="Back" class="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 hover:text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div><p class="text-[9px] font-black uppercase tracking-[.22em] text-emerald-300">ATIMEX · PAYMENT</p><h3 class="mt-1 text-base font-black text-white">Confirm Pack Payment</h3></div>
+                  </div>
+                  <button type="button" onclick="closePackPaymentModal(false)" aria-label="Close" class="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="min-h-0 space-y-4 overflow-y-auto p-4">
+                  <div class="rounded-2xl border border-emerald-400/25 bg-gradient-to-r from-slate-900 to-emerald-950/40 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Selected Pack</p><p id="packPayName" class="mt-1 truncate text-sm font-black text-white">—</p></div>
+                      <div class="text-right"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Validity</p><p id="packPayDays" class="mt-1 text-sm font-black text-emerald-300">—</p></div>
+                    </div>
+                    <div class="mt-3 flex items-end justify-between border-t border-white/10 pt-3"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Amount to Pay</span><span id="packPayAmount" class="text-3xl font-black tabular-nums text-amber-300">৳0</span></div>
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-400">Payment Method</label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button type="button" disabled aria-disabled="true" class="relative cursor-not-allowed rounded-xl border-2 border-slate-600 bg-slate-800/80 py-2.5 text-[11px] font-black text-slate-400 opacity-60 grayscale">bKash<span class="absolute -top-1.5 right-1 rounded bg-amber-500 px-1.5 py-0.5 text-[7px] font-black uppercase text-slate-950">Soon</span></button>
+                      <button type="button" id="packMethodNagad" onclick="selectPackPayMethod('Nagad')" class="pack-method-btn rounded-xl border-2 border-slate-700 bg-slate-900 py-2.5 text-[11px] font-black text-orange-300 transition">Nagad</button>
+                      <button type="button" id="packMethodRocket" onclick="selectPackPayMethod('Rocket')" class="pack-method-btn rounded-xl border-2 border-slate-700 bg-slate-900 py-2.5 text-[11px] font-black text-purple-300 transition">Rocket</button>
+                      <button type="button" id="packMethodUpay" onclick="selectPackPayMethod('Upay')" class="pack-method-btn rounded-xl border-2 border-slate-700 bg-slate-900 py-2.5 text-[11px] font-black text-amber-300 transition">Upay</button>
+                    </div>
+                  </div>
+
+                  <div class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3">
+                    <p class="text-[10px] text-slate-300">নিচের নম্বরে <b id="packPayMethodLabel" class="text-white">Nagad</b>-এ <b id="packPayAmountInline" class="text-amber-300">৳0</b> <b>Send Money</b> করুন, তারপর নিচের তথ্য দিন।</p>
+                    <div class="mt-2 flex items-center justify-between gap-2 rounded-lg bg-slate-950/80 px-3 py-2"><span id="packPayNumber" class="text-sm font-black tracking-wider text-white">—</span><button type="button" onclick="copyPackPayNumber()" class="rounded-lg bg-emerald-500 px-3 py-1.5 text-[10px] font-black text-white"><i class="fa-regular fa-copy mr-1"></i>Copy</button></div>
+                  </div>
+
+                  <div>
+                    <label for="packSenderNumber" class="mb-1.5 block text-[11px] font-bold text-slate-300">Sender Number</label>
+                    <input id="packSenderNumber" type="tel" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="01XXXXXXXXX" class="w-full rounded-xl border border-slate-700 bg-slate-900 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                  </div>
+                  <div>
+                    <label for="packTrxId" class="mb-1.5 block text-[11px] font-bold text-slate-300">Transaction ID (TrxID)</label>
+                    <input id="packTrxId" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" placeholder="e.g. 9H7A5B2C3D" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" class="w-full rounded-xl border border-slate-700 bg-slate-900 p-3 text-sm uppercase tracking-wider text-white focus:border-emerald-400 focus:outline-none">
+                  </div>
+
+                  <button type="button" id="packSubmitBtn" onclick="submitPackPaymentRequest()" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-3.5 text-xs font-black tracking-wide text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-400 disabled:cursor-wait disabled:opacity-60"><i class="fa-solid fa-paper-plane"></i><span>SUBMIT PAYMENT REQUEST</span></button>
+                  <p class="text-center text-[9px] leading-4 text-slate-500">Admin payment যাচাই করে approve না করা পর্যন্ত Pack active হবে না।</p>
+                </div>
               </div>
             </div>
 
@@ -2684,16 +2734,19 @@ function renderAdminPaymentRequests() {
         const id = String(row.id || '');
         const validId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
         const isPackage = row.request_type === 'vip_package';
+        const isWalletPack = row.request_type === 'pack';
         const isActivation = row.request_type === 'activation' || row.request_type === 'account_activation';
         const isUpdateFee = row.request_type === 'update_fee';
-        const typeLabel = isUpdateFee ? 'ATIMEX UPDATE FEE' : isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
+        const typeLabel = isUpdateFee ? 'ATIMEX UPDATE FEE' : isWalletPack ? 'WALLET PACK' : isPackage ? 'VIP PACKAGE' : isActivation ? 'ACCOUNT ACTIVATION' : 'CUSTOM DEPOSIT';
         const profile = adminProfileLookup[row.user_id] || {};
         const status = String(row.status || 'pending').toLowerCase();
         const statusLabel = status === 'approved' ? 'APPROVED' : status === 'rejected' ? 'REJECTED' : 'PENDING';
         const statusClass = status === 'approved' ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
             : status === 'rejected' ? 'border-rose-400/20 bg-rose-400/10 text-rose-200'
             : 'border-amber-400/20 bg-amber-400/10 text-amber-200';
-        const packageLine = isPackage
+        const packageLine = isWalletPack
+            ? '<div class="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-cyan-400/10 bg-cyan-400/5 p-3 text-[10px]"><div><span class="block text-slate-500">Pack</span><b class="mt-1 block text-cyan-200">' + escapeAdminText(row.package_name || row.package_id || 'Wallet Pack') + '</b></div><div><span class="block text-slate-500">Validity</span><b class="mt-1 block text-white">' + escapeAdminText(row.package_duration_days || '—') + ' days</b></div></div>'
+            : isPackage
             ? '<div class="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-3 text-[10px]"><div><span class="block text-slate-500">Package</span><b class="mt-1 block text-emerald-200">' + escapeAdminText(row.package_name || row.package_id || 'VIP') + '</b></div><div><span class="block text-slate-500">Duration</span><b class="mt-1 block text-white">' + escapeAdminText(row.package_duration_days || '—') + ' days</b></div><div><span class="block text-slate-500">Daily earning</span><b class="mt-1 block text-white">৳' + escapeAdminText(row.package_daily_amount || '—') + '</b></div></div>'
             : '';
         const userName = profile.nickname || 'ATIMEX User';
@@ -2703,7 +2756,7 @@ function renderAdminPaymentRequests() {
             : '<div class="mt-4 grid grid-cols-2 gap-2 border-t border-white/5 pt-3 text-[9px] text-slate-500"><span>Reviewed: ' + escapeAdminText(formatAdminDate(row.reviewed_at)) + '</span><span class="break-all text-right">Admin: ' + escapeAdminText(row.reviewed_by || '—') + '</span></div>';
 
         return '<article class="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg sm:p-5">' +
-            '<div class="flex flex-wrap items-start justify-between gap-3"><div class="flex min-w-0 items-center gap-2"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-800 text-emerald-300"><i class="fa-solid ' + (isPackage ? 'fa-box-open' : isActivation ? 'fa-bolt' : 'fa-wallet') + '"></i></span><div class="min-w-0"><div class="text-[9px] font-black tracking-[.16em] text-emerald-300">' + typeLabel + '</div><div class="mt-1 truncate text-xs font-bold text-white">' + escapeAdminText(userName) + '</div><div class="mt-0.5 break-all text-[9px] text-slate-500">' + escapeAdminText(userContact) + '</div></div></div><span class="rounded-full border px-3 py-1 text-[9px] font-black tracking-wider ' + statusClass + '">' + statusLabel + '</span></div>' +
+            '<div class="flex flex-wrap items-start justify-between gap-3"><div class="flex min-w-0 items-center gap-2"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-800 text-emerald-300"><i class="fa-solid ' + (isPackage || isWalletPack ? 'fa-box-open' : isActivation ? 'fa-bolt' : 'fa-wallet') + '"></i></span><div class="min-w-0"><div class="text-[9px] font-black tracking-[.16em] text-emerald-300">' + typeLabel + '</div><div class="mt-1 truncate text-xs font-bold text-white">' + escapeAdminText(userName) + '</div><div class="mt-0.5 break-all text-[9px] text-slate-500">' + escapeAdminText(userContact) + '</div></div></div><span class="rounded-full border px-3 py-1 text-[9px] font-black tracking-wider ' + statusClass + '">' + statusLabel + '</span></div>' +
             '<div class="mt-4 flex flex-wrap items-end justify-between gap-3 border-y border-white/5 py-3"><div><div class="text-[9px] font-bold uppercase tracking-widest text-slate-500">Request amount</div><div class="mt-1 text-3xl font-black tabular-nums text-white">৳' + escapeAdminText(Number(row.amount || 0).toLocaleString('en-BD')) + '</div></div><div class="text-right"><div class="text-[9px] text-slate-500">Submitted</div><div class="mt-1 text-[10px] font-semibold text-slate-300">' + escapeAdminText(formatAdminDate(row.created_at)) + '</div></div></div>' +
             packageLine +
             '<div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"><div class="rounded-xl bg-slate-950/80 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Payment details</div><div class="mt-2 text-[10px] text-slate-400">Method: <b class="text-white">' + escapeAdminText(row.payment_method || '—') + '</b></div><div class="mt-1 text-[10px] text-slate-400">Sender: <b class="text-white">' + escapeAdminText(row.sender_number || '—') + '</b></div><div class="mt-1 break-all text-[10px] text-slate-400">TrxID: <b class="text-emerald-200">' + escapeAdminText(row.trx_id || '—') + '</b></div></div><div class="rounded-xl bg-slate-950/80 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Request references</div><div class="mt-2 break-all text-[9px] text-slate-400">Request ID: <b class="text-slate-200">' + escapeAdminText(id) + '</b></div><div class="mt-1 break-all text-[9px] text-slate-400">User ID: <b class="text-slate-200">' + escapeAdminText(row.user_id || '—') + '</b></div></div></div>' +
@@ -4986,6 +5039,160 @@ async function updateReferralUi() {
   // when the admin enables maintenance mode, and unlocked after it ends.
   window.setInterval(applyMaintenanceState, 15000);
 })();
+</script>
+
+<script>
+/* =====================================================================
+   WALLET PACK PURCHASE FLOW
+   "Choose Your Pack" -> BUY NOW -> #packPaymentModal -> payment_requests
+   Amounts/durations come from WALLET_PACKS below (never from the DOM),
+   so the inserted row cannot be tampered with via the page inputs.
+   ===================================================================== */
+const WALLET_PACK_REQUEST_TYPE = 'pack';   // payment_requests.request_type for these rows
+const WALLET_PACKS = {
+  'pack-3d':  { id:'pack-3d',  name:'3 Days Pack',  durationDays:3,  price:350  },
+  'pack-5d':  { id:'pack-5d',  name:'5 Days Pack',  durationDays:5,  price:500  },
+  'pack-10d': { id:'pack-10d', name:'10 Days Pack', durationDays:10, price:1000 },
+  'pack-30d': { id:'pack-30d', name:'30 Days Pack', durationDays:30, price:1800 }
+};
+// Same receiving numbers as the existing deposit modal. bKash stays "Coming Soon" like there.
+const PACK_PAY_METHODS = {
+  Nagad:  { number:'01940779877', active:'border-orange-500 bg-orange-500/10' },
+  Rocket: { number:'01731567454', active:'border-purple-500 bg-purple-500/10' },
+  Upay:   { number:'01411169877', active:'border-amber-500 bg-amber-500/10' }
+};
+let selectedWalletPack = null;
+let selectedPackPayMethod = 'Nagad';
+let packSubmitting = false;
+
+function formatPackTaka(n){ return '৳' + Number(n || 0).toLocaleString('en-BD'); }
+
+function selectPackPayMethod(method){
+  if (!PACK_PAY_METHODS[method]) return;
+  selectedPackPayMethod = method;
+  Object.keys(PACK_PAY_METHODS).forEach(function(m){
+    const btn = document.getElementById('packMethod' + m);
+    if (!btn) return;
+    const on = m === method;
+    PACK_PAY_METHODS[m].active.split(' ').forEach(function(c){ btn.classList.toggle(c, on); });
+    btn.classList.toggle('border-slate-700', !on);
+    btn.classList.toggle('bg-slate-900', !on);
+  });
+  const label = document.getElementById('packPayMethodLabel'); if (label) label.textContent = method;
+  const num = document.getElementById('packPayNumber'); if (num) num.textContent = PACK_PAY_METHODS[method].number;
+}
+
+function copyPackPayNumber(){
+  const number = PACK_PAY_METHODS[selectedPackPayMethod]?.number || '';
+  if (!number) return;
+  const done = function(){ showToast(selectedPackPayMethod + ' নম্বর কপি করা হয়েছে!'); };
+  const fail = function(){ showToast('নম্বর কপি করা যায়নি।', true); };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(number).then(done).catch(fail); else fail();
+}
+
+function openPackPaymentModal(packId){
+  const pack = WALLET_PACKS[packId];
+  if (!pack) { showToast('Pack যাচাই করা যায়নি। আবার চেষ্টা করুন।', true); return; }
+  selectedWalletPack = { ...pack };
+  document.getElementById('packPayName').textContent = pack.name;
+  document.getElementById('packPayDays').textContent = pack.durationDays + ' Days';
+  document.getElementById('packPayAmount').textContent = formatPackTaka(pack.price);
+  document.getElementById('packPayAmountInline').textContent = formatPackTaka(pack.price);
+  const sender = document.getElementById('packSenderNumber'); if (sender) sender.value = '';
+  const trx = document.getElementById('packTrxId'); if (trx) trx.value = '';
+  selectPackPayMethod(selectedPackPayMethod in PACK_PAY_METHODS ? selectedPackPayMethod : 'Nagad');
+  // Swap modals (keeps the page scroll-lock from the pack modal).
+  document.getElementById('walletPackModal')?.classList.add('hidden');
+  document.getElementById('packPaymentModal')?.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+}
+
+function closePackPaymentModal(backToPacks){
+  document.getElementById('packPaymentModal')?.classList.add('hidden');
+  selectedWalletPack = null;
+  if (backToPacks) {
+    document.getElementById('walletPackModal')?.classList.remove('hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
+  }
+}
+
+async function submitPackPaymentRequest(){
+  if (packSubmitting) return;
+  const pack = selectedWalletPack ? WALLET_PACKS[selectedWalletPack.id] : null;
+  if (!pack) { showToast('Pack যাচাই করা যায়নি। আবার BUY NOW চাপুন।', true); return; }
+
+  const method = selectedPackPayMethod;
+  const sender = (document.getElementById('packSenderNumber')?.value || '').replace(/\s+/g, '');
+  const trxId  = (document.getElementById('packTrxId')?.value || '').trim().toUpperCase();
+
+  if (!PACK_PAY_METHODS[method]) { showToast('Payment method নির্বাচন করুন।', true); return; }
+  if (!/^01[3-9][0-9]{8}$/.test(sender)) { showToast('সঠিক ১১ ডিজিটের sender number দিন!', true); return; }
+  if (!/^[A-Z0-9]{8,20}$/.test(trxId)) { showToast('সঠিক TrxID / reference দিন।', true); return; }
+
+  const btn = document.getElementById('packSubmitBtn');
+  const btnHtml = btn ? btn.innerHTML : '';
+  packSubmitting = true;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>SUBMITTING…</span>'; }
+
+  try {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    const user = authData?.user;
+    if (!user) { showToast('Payment request জমা দিতে আগে Login করুন।', true); return; }
+
+    // Same column set the admin panel's loadAdminPaymentRequests() selects.
+    const row = {
+      user_id: user.id,
+      request_type: WALLET_PACK_REQUEST_TYPE,
+      amount: pack.price,
+      trx_id: trxId,
+      sender_number: sender,
+      payment_method: method,
+      package_id: pack.id,
+      package_name: pack.name,
+      package_duration_days: pack.durationDays,
+      status: 'pending'
+    };
+
+    const { data: inserted, error: insertError } = await supabaseClient
+      .from('payment_requests').insert(row).select('id,status,created_at').single();
+    if (insertError) throw insertError;
+    if (!inserted?.id) throw new Error('Request ID পাওয়া যায়নি। আবার চেষ্টা করুন।');
+
+    try {
+      saveLocalTransaction({
+        type: 'Pack request · ' + pack.name, amount: pack.price, status: 'Pending admin verification',
+        requestId: inserted.id, packageId: pack.id, packageName: pack.name, trxId: trxId, sender: sender
+      });
+    } catch (e) { console.warn('Local transaction log skipped:', e); }
+
+    // Close both modals and release the scroll lock, then confirm.
+    document.getElementById('packPaymentModal')?.classList.add('hidden');
+    selectedWalletPack = null;
+    closeWalletPackModal();
+    showToast('✅ ' + pack.name + ' request জমা হয়েছে!');
+    showAppNotice(
+      'Pack request জমা হয়েছে',
+      pack.name + ' (' + pack.durationDays + ' দিন) · ' + formatPackTaka(pack.price) +
+      '। Request ID: ' + inserted.id +
+      '। Admin payment যাচাই করে approve না করা পর্যন্ত Pack active হবে না। Status: Pending।'
+    );
+  } catch (error) {
+    console.error('Pack payment request insert failed:', error);
+    const message = String(error?.message || '');
+    if (/duplicate key|unique constraint/i.test(message)) {
+      showToast('এই TrxID আগে জমা হয়েছে। সঠিক নতুন TrxID দিন।', true);
+    } else if (/request_type/i.test(message) && /check|constraint|enum/i.test(message)) {
+      showToast('Database-এ request_type "' + WALLET_PACK_REQUEST_TYPE + '" allow করা নেই। Supabase constraint আপডেট করুন।', true);
+    } else {
+      showToast('Payment request জমা হয়নি: ' + (message || 'Supabase table/policy check করুন।'), true);
+    }
+  } finally {
+    packSubmitting = false;
+    if (btn) { btn.disabled = false; btn.innerHTML = btnHtml; }
+  }
+}
 </script>
 
 </body>
