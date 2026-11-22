@@ -4361,7 +4361,6 @@ function updateWithdrawCooldownUi() {
   const display = document.getElementById('countdownDisplay');
   const remaining = Math.max(0, withdrawCooldownUntil - Date.now());
   const locked = remaining > 0;
-  const paused = !atimexWithdrawalsEnabled;
 
   if (button) {
     // Priority: 1) Pack gate (locked unless an approved, unexpired pack exists)
@@ -4370,7 +4369,7 @@ function updateWithdrawCooldownUi() {
     const packActive = packGate.state === 'active';
     const GREY = 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70';
     const setHtml = (sig, html) => { if (button.dataset.sig !== sig) { button.innerHTML = html; button.dataset.sig = sig; } };
-    button.disabled = !packActive || locked || paused;
+    button.disabled = !packActive || locked;
     button.setAttribute('aria-disabled', button.disabled ? 'true' : 'false');
 
     if (!packActive) {
@@ -4458,10 +4457,6 @@ function closeDailyWithdrawLimitModal() {
 async function openWithdrawVerification() {
   if (!isWithdrawPackActive()) { showWithdrawPackRequiredNotice(); return; }
   if ((window.appState?.selectedMethod || 'bKash') === 'VISA') { showToast('VISA Coming Soon', true); return; }
-  if (!(await refreshAtimexWithdrawalAvailability())) {
-    showToast('Withdrawal আপাতত বন্ধ আছে। কাজ চলছে—পরে আবার চালু হবে।', true);
-    return;
-  }
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
