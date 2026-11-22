@@ -35,52 +35,14 @@ function openTransactionHistory(){const key='atimex_transactions_'+(window.appSt
 function closeTransactionHistory(){document.getElementById('transactionModal')?.classList.add('hidden');}
 function openSocialModal(){document.getElementById('socialModal')?.classList.remove('hidden');}
 function closeSocialModal(){document.getElementById('socialModal')?.classList.add('hidden');}
-function handleWithdraw(){if((window.appState.selectedMethod||'bKash')==='VISA'){showToast('VISA Coming Soon',true);return;}const amount=Number(document.getElementById('withdrawAmount')?.value);const account=(document.getElementById('withdrawNum')?.value||'').trim();const method=window.appState.selectedMethod||'bKash';if(!/^[0-9]{8,20}$/.test(account)){showToast('সঠিক payout account number দিন।',true);return;}const minimum=method==='bKash'?100:(method==='Nagad'?30:20);if(!Number.isFinite(amount)||amount<minimum){showToast('সর্বনিম্ন '+method+' withdraw ৳'+minimum+'।',true);return;}const maximum=['bKash','Nagad','Rocket'].includes(method)?300:500;if(amount>maximum){showToast('সর্বোচ্চ '+method+' withdraw ৳'+maximum+'।',true);return;}if(amount>Number(window.appState.balance||0)){showToast('পর্যাপ্ত balance নেই।',true);return;}window.appState.balance-=amount;updateBalanceDisplays();saveAllProgress();saveLocalTransaction({type:'Withdraw request · '+method,amount,status:'Submitted'});showAppNotice('Withdraw request গ্রহণ করা হয়েছে','আপনার request জমা হয়েছে। নির্ধারিত প্রসেসিং সময় প্রতিদিন রাত ১২টা থেকে সকাল ৬টার মধ্যে। payout pending থাকতে পারে।');}
-async function handleActivationSubmit(){
- const num=(document.getElementById('depositNum')?.value||'').trim();
- const trx=(document.getElementById('depositTrx')?.value||'').trim().toUpperCase();
- const amount=Number(document.getElementById('paymentAmount')?.value||100);
- if(activeGateway.method==='bKash'){showToast('bKash payment Coming Soon. অন্য payment method নির্বাচন করুন।',true);return;}
- if(!/^01[3-9][0-9]{8}$/.test(num)){showToast('সঠিক ১১ ডিজিট sender number দিন!',true);return;}
- if(!/^[A-Z0-9]{8,20}$/.test(trx)){showToast('সঠিক TrxID / reference দিন।',true);return;}
- if(paymentRequestType==='update_fee'){
-   if(amount!==150){showToast('Update Fee নির্ধারিত ৳150।',true);return;}
-   if(!['bKash','Nagad','Rocket'].includes(activeGateway.method)){showToast('Update Fee-এর জন্য bKash, Nagad অথবা Rocket নির্বাচন করুন।',true);return;}
-   try{
-     const {data,error}=await supabaseClient.rpc('submit_atimex_update_fee_request',{p_sender_number:num,p_trx_id:trx,p_payment_method:activeGateway.method});
-     if(error)throw error;
-     closePaymentModal();
-     showAppNotice('Update Fee Request জমা হয়েছে','আপনার ৳150 Update Fee Request Admin Panel-এ জমা হয়েছে। Admin যাচাই করে Approve করলে Home, Tasks ও Server access খুলবে।');
-     await refreshAtimexUpdateFeeGate();
-   }catch(error){console.error('Update fee request failed:',error);showToast('Request জমা হয়নি: '+(error?.message||'Supabase SQL check করুন।'),true);}
-   return;
- }
- if(!Number.isFinite(amount)||amount<100){showToast('Deposit amount কমপক্ষে ৳100 হতে হবে।',true);return;}
- saveLocalTransaction({type:'Deposit request · '+activeGateway.method,amount,status:'Pending verification',trxId:trx,sender:num});
- closePaymentModal();showAppNotice('Deposit request জমা হয়েছে','আপনার payment reference জমা হয়েছে। যাচাই সম্পন্ন হলে balance update হবে। সম্ভাব্য সময় ৩০ মিনিট থেকে ২ ঘণ্টা; এটি আনুমানিক সময়।');
-}
-function selectWithdrawMethod(method){if(method==='VISA'){showToast('VISA Coming Soon',true);return;}window.appState.selectedMethod=method;document.querySelectorAll('.withdraw-provider-btn').forEach(b=>b.classList.remove('active'));const target=document.getElementById('btnW'+method);if(target)target.classList.add('active');const label=document.querySelector('#withdrawNum')?.previousElementSibling;if(label)label.textContent=method==='VISA'?'Mobile Number':'Account Number';const inp=document.getElementById('withdrawNum');if(inp)inp.placeholder='01XXXXXXXXX';document.getElementById('withdrawBankFields')?.classList.toggle('hidden',method!=='VISA');document.getElementById('withdrawNum')?.closest('div')?.classList.toggle('hidden',method==='VISA');}
 
 
 function openDepositForCustom(){openPaymentModal(null,'deposit');const a=document.getElementById('paymentAmount');if(a)a.value='';}
-function openPaymentModal(requestType='activation'){
- paymentRequestType=requestType==='update_fee'?'update_fee':'activation';
- const a=document.getElementById('paymentAmount');
- if(a){a.value=paymentRequestType==='update_fee'?'150':'100';a.readOnly=paymentRequestType==='update_fee';a.min=paymentRequestType==='update_fee'?'150':'100';}
- const title=document.querySelector('#paymentModal h3');if(title)title.textContent=paymentRequestType==='update_fee'?'ATIMEX Update Fee':'Account deposits';
- const label=document.querySelector('label[for="paymentAmount"]');if(label)label.textContent=paymentRequestType==='update_fee'?'Update Fee Amount (৳)':'Deposit Amount (৳)';
- const help=a?.parentElement?.querySelector('p');if(help)help.textContent=paymentRequestType==='update_fee'?'একবারের নির্ধারিত Update Fee — ৳150।':'নতুন account activation fee ৳200। আগে থেকেই Active account-এর জন্য নতুন fee লাগবে না।';
- const referral=document.getElementById('activationReferralCodeSection');if(referral)referral.classList.toggle('hidden',paymentRequestType==='update_fee');
- ['btnUpay','btnVISA'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=paymentRequestType==='update_fee'?'none':'';});
- if(paymentRequestType==='update_fee')selectPaymentProvider('bKash','01731567454');
- document.getElementById('paymentModal')?.classList.remove('hidden');
-}
 function openAtimexUpdateFeePayment(){openPaymentModal('update_fee');}
 function continueAtimexWallet(){document.getElementById('atimexUpdateFeeGate')?.classList.add('hidden');switchTab('tabWallet');}
 function continueAtimexProfile(){document.getElementById('atimexUpdateFeeGate')?.classList.add('hidden');switchTab('tabProfile');}
 function openWalletPackModal(){document.getElementById('walletPackModal')?.classList.remove('hidden');document.body.classList.add('overflow-hidden');}
 function closeWalletPackModal(){document.getElementById('walletPackModal')?.classList.add('hidden');document.body.classList.remove('overflow-hidden');}
-function handlePackageBuy(price){if(!window.appState?.isActive){alert('আগে account active করুন।');return;}const a=document.getElementById('paymentAmount');if(a)a.value=String(price);openPaymentModal();showToast('Deposit amount ৳'+price+' auto select হয়েছে।');}
 
 
 </script>
@@ -1015,6 +977,17 @@ html, body {
                     </div>
                 </div>
 
+                <!-- Active referral requirement notice: shown live after 3 withdrawal requests -->
+                <div id="withdrawReferralRequirementNotice" class="hidden mb-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-3 text-center shadow-lg shadow-amber-950/20">
+                    <div class="flex items-center justify-center gap-2 text-[11px] font-extrabold text-amber-300">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>পরবর্তী Withdraw-এর জন্য ১ জন Active Referral প্রয়োজন</span>
+                    </div>
+                    <p id="withdrawReferralRequirementText" class="mt-1 text-[10px] leading-relaxed text-amber-100/80">
+                        প্রথম ২টি Withdraw সম্পন্ন হয়েছে। ৩য় Withdraw-এর আগে অন্তত ১ জন referred member ৳১০০ দিয়ে account active করলে এই notice চলে যাবে।
+                    </p>
+                </div>
+
                 <!-- Withdrawal Charge List Info Box -->
                 <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 space-y-1 text-xs text-slate-200">
                   <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5 text-[11px]">
@@ -1100,7 +1073,20 @@ html, body {
                             <div id="withdrawBankFields" class="hidden space-y-2 mb-3"><label class="text-xs text-slate-400 block">Bank Name</label><input id="withdrawBankName" placeholder="Bank name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Account Holder Name</label><input id="withdrawBankHolder" placeholder="Account holder name" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Bank Account Number</label><input id="withdrawBankAccount" inputmode="numeric" placeholder="Bank account number" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"><label class="text-xs text-slate-400 block">Branch (optional)</label><input id="withdrawBankBranch" placeholder="Branch" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3"></div><label id="withdrawAmountLabel" class="text-xs text-slate-400 mb-1 block font-medium">Amount (৳100–৳5000)</label>
                             <input type="number" id="withdrawAmount" min="100" max="5000" placeholder="100–5000" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-emerald-500">
                         </div>
-                        <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer">VERIFY &amp; CONTINUE</button>
+                        <!-- Pack gate status: Withdraw stays locked until an approved, unexpired pack exists -->
+                        <div id="withdrawPackStatus" class="rounded-xl border border-slate-700 bg-slate-900/70 p-3" role="status" aria-live="polite">
+                            <div class="flex items-center gap-3">
+                                <span id="withdrawPackIcon" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-800 text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                <div class="min-w-0 flex-1">
+                                    <p id="withdrawPackTitle" class="truncate text-[11px] font-extrabold text-slate-200">Pack status যাচাই হচ্ছে…</p>
+                                    <p id="withdrawPackSub" class="mt-0.5 text-[10px] leading-4 text-slate-400"></p>
+                                </div>
+                                <button type="button" id="withdrawPackBuyBtn" onclick="openWalletPackModal()" class="hidden shrink-0 rounded-lg bg-cyan-500 px-3 py-2 text-[10px] font-black text-white">BUY PACK</button>
+                                <button type="button" id="withdrawPackRetryBtn" onclick="refreshWithdrawPackGate()" class="hidden shrink-0 rounded-lg bg-slate-600 px-3 py-2 text-[10px] font-black text-white">RETRY</button>
+                            </div>
+                            <div id="withdrawPackBarWrap" class="mt-3 hidden"><div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800"><div id="withdrawPackBar" class="h-full rounded-full bg-emerald-400 transition-all" style="width:0%"></div></div></div>
+                        </div>
+                        <button id="withdrawSubmitButton" onclick="openWithdrawVerification()" disabled aria-disabled="true" class="w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70"><i class="fa-solid fa-spinner fa-spin mr-1"></i>CHECKING PACK…</button>
                     </div>
                 </div>
             </div>
@@ -3776,6 +3762,8 @@ function closeSpinLeaderboard() {
 }
 
 function openPaymentModal(packagePrice = null, requestType = 'activation') {
+    // Legacy call style: openPaymentModal('update_fee') / openPaymentModal('activation')
+    if (typeof packagePrice === 'string') { requestType = packagePrice; packagePrice = null; }
     const amountInput = document.getElementById('paymentAmount');
     const amountLabel = document.querySelector('label[for="paymentAmount"]');
     const amountHelp = amountInput?.parentElement?.querySelector('p');
@@ -3807,6 +3795,26 @@ function openPaymentModal(packagePrice = null, requestType = 'activation') {
         : isActivationRequest
             ? 'নতুন account activation fee ৳200। আগে থেকেই Active account-এর জন্য কোনো নতুন fee নেই।'
             : 'Custom deposit amount কমপক্ষে ৳100।';
+
+    // ATIMEX Update Fee variant (merged from the old duplicate openPaymentModal): fixed ৳150, no referral, no Upay/Bank.
+    const isUpdateFee = !plan && paymentRequestType === 'update_fee';
+    if (isUpdateFee) {
+        if (amountInput) {
+            amountInput.readOnly = true;
+            amountInput.min = '150';
+            amountInput.value = '150';
+            amountInput.classList.add('opacity-80', 'cursor-not-allowed');
+            amountInput.setAttribute('aria-readonly', 'true');
+        }
+        if (amountLabel) amountLabel.textContent = 'Update Fee Amount (৳)';
+        if (amountHelp) amountHelp.textContent = 'একবারের নির্ধারিত Update Fee — ৳150।';
+    }
+    const paymentTitle = document.querySelector('#paymentModal h3');
+    if (paymentTitle) paymentTitle.textContent = isUpdateFee ? 'ATIMEX Update Fee' : 'Account deposits';
+    ['btnUpay', 'btnVISA'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = isUpdateFee ? 'none' : '';
+    });
 
     // Default to an available payment method; bKash is temporarily unavailable.
     selectPaymentProvider('Nagad', '01940779877');
@@ -3864,23 +3872,6 @@ function copyDepositNumber(number = activeGateway.number) {
     );
 }
 
-function handleActivationSubmit() {
-    const num = document.getElementById('depositNum').value.trim();
-    const trx = document.getElementById('depositTrx').value.trim().toUpperCase();
-    const phoneRegex = /^01[3-9]\\d{8}$/;
-    // Common bKash TrxID shape is alphanumeric; this is only a format check, NOT payment verification.
-    const trxRegex = /^[A-Z0-9]{8,12}$/;
-    if (!phoneRegex.test(num)) {
-        showToast('সঠিক ১১ ডিজিটের sender number দিন!', true);
-        return;
-    }
-    if (!trxRegex.test(trx)) {
-        showToast('TrxID-এর format ঠিক নয়। সঠিক transaction ID দিন।', true);
-        return;
-    }
-    showToast('Request জমা দেওয়ার backend/API এখনো যুক্ত হয়নি। Payment যাচাই না হওয়া পর্যন্ত account active হবে না।', true);
-}
-
 function updateAccountStatusBadge(){
  const badge=document.getElementById('userBadge'),dot=badge?.querySelector('.status-dot'),label=document.getElementById('badgeText');
  const active=!!window.appState?.isActive;
@@ -3931,6 +3922,7 @@ function switchTab(tabId) {
         return;
     }
     if (tabId === 'tabWallet') {
+        if (typeof refreshWithdrawPackGate === 'function') refreshWithdrawPackGate();
         syncWithdrawCooldown().catch(error => {
             console.error('Withdrawal cooldown refresh failed:', error);
             showToast('Withdrawal cooldown যাচাই করা যায়নি।', true);
@@ -3989,35 +3981,6 @@ function updateBalanceDisplays() {
     updateReferralUi();
 }
 
-function handleWithdraw() {
-    const amount = parseFloat(document.getElementById('withdrawAmount').value);
-    if (isNaN(amount) || amount < 20) {
-        showToast('সর্বনিম্ন উইথড্র ২০ টাকা!', true);
-        return;
-    }
-    const maximum = (['bKash', 'Nagad', 'Rocket'].includes(method)) ? 300 : 500;
-   if (amount > maximum) {
-        showToast('সর্বোচ্চ ' + method + ' withdraw ৳' + maximum + '।', true);
-        return;
-    }
-    if (amount > window.appState.balance) {
-        showToast('পর্যাপ্ত ব্যালেন্স নেই!', true);
-        return;
-    }
-    window.appState.balance -= amount;
-    updateBalanceDisplays();
-    saveAllProgress();
-    showToast('উইথড্র রিকোয়েস্ট সফল হয়েছে!');
-}
-
-function selectWithdrawMethod(method) {
-    const btns = document.querySelectorAll('.withdraw-provider-btn');
-    btns.forEach(btn => btn.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-purple-500', 'border-blue-500'));
-    const target = document.getElementById('btnW' + method);
-    const borderClass = { bKash: 'border-pink-500', Nagad: 'border-orange-500', Rocket: 'border-purple-500', VISA: 'border-blue-500' }[method];
-    if (target && borderClass) target.classList.add('active', borderClass);
-}
-
 async function logout() {
     try { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; }
     catch(e) { showToast('লগআউট করা যায়নি: '+e.message,true); return; }
@@ -4043,16 +4006,6 @@ function showToast(msg, isError = false) {
     if(toastTimer)clearTimeout(toastTimer);
     toastTimer=setTimeout(() => toast.classList.add('hidden'), 5000);
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  setTimeout(function () {
-    const intro = document.getElementById("welcomeIntro");
-    if (intro) {
-      intro.classList.add("fade-out");
-      setTimeout(() => { intro.style.display = "none"; }, 800);
-    }
-  }, 2200);
-});
 
 /* ATIMEX deposit / withdrawal confirmation flow */
 let withdrawHoldTimer = null;
@@ -4130,6 +4083,234 @@ function getWithdrawFormData() {
   return { method, amount, balance, accountNumber, accountName, bankName, date: new Date() };
 }
 
+/* =====================================================================
+   WITHDRAW PACK GATE
+   Withdraw is allowed ONLY while the user has an APPROVED wallet pack
+   (payment_requests.request_type = 'pack', status = 'approved') whose own
+   validity has not run out:  expiry = (reviewed_at || created_at) + package_duration_days.
+
+   State machine (locked unless 'active'):
+     loading -> none | pending | active | expired | error
+   Persistence: minimal rows are cached in localStorage per user, the state is
+   recomputed from absolute timestamps on every tick (so reloads and offline
+   periods stay correct) and re-verified against Supabase on load / every 30s.
+   NOTE: this controls the UI. Real enforcement must live in the SQL RPC
+   (see pack_withdraw_gate.sql).
+   ===================================================================== */
+const WITHDRAW_PACK_REQUEST_TYPE = 'pack';
+const WITHDRAW_PACK_REFRESH_MS = 30000;
+let withdrawPackRows = [];
+let withdrawPackLoaded = false;
+let withdrawPackError = false;
+let withdrawPackFetching = false;
+let withdrawPackRefreshQueued = false;
+let withdrawPackUserId = null;
+let withdrawPackPrevState = 'loading';
+let withdrawPackWasLoggedIn = false;
+
+function withdrawPackCacheKey(uid) { return 'atimex_pack_gate_' + uid; }
+
+function readWithdrawPackCache(uid) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(withdrawPackCacheKey(uid)) || 'null');
+    return parsed && Array.isArray(parsed.rows) ? parsed.rows : null;
+  } catch (e) { return null; }
+}
+
+function writeWithdrawPackCache(uid, rows) {
+  try { localStorage.setItem(withdrawPackCacheKey(uid), JSON.stringify({ rows, savedAt: Date.now() })); }
+  catch (e) { console.warn('Pack gate cache not saved:', e); }
+}
+
+function computeWithdrawPackGate(rows, now) {
+  let best = null, hasPending = false, hasApproved = false;
+  for (const r of rows) {
+    const status = String(r.status || '').toLowerCase();
+    if (status === 'pending') { hasPending = true; continue; }
+    if (status !== 'approved') continue;
+    hasApproved = true;
+    const days = Number(r.days);
+    const startedAt = new Date(r.startedAt).getTime();
+    if (!Number.isFinite(days) || days <= 0 || !Number.isFinite(startedAt)) continue; // invalid data stays locked
+    const expiresAt = startedAt + days * 86400000;
+    if (now < expiresAt && (!best || expiresAt > best.expiresAt)) {
+      best = { packId: r.packId, packName: r.name || 'Pack', durationDays: days, startedAt, expiresAt };
+    }
+  }
+  if (best) return { state: 'active', ...best, totalMs: best.durationDays * 86400000, remainingMs: best.expiresAt - now };
+  if (hasPending) return { state: 'pending' };
+  if (hasApproved) return { state: 'expired' };
+  return { state: 'none' };
+}
+
+function getWithdrawPackGate() {
+  if (!withdrawPackLoaded) return { state: withdrawPackError ? 'error' : 'loading' };
+  return computeWithdrawPackGate(withdrawPackRows, Date.now());
+}
+function isWithdrawPackActive() { return getWithdrawPackGate().state === 'active'; }
+
+function formatPackRemaining(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const d = Math.floor(total / 86400), h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60), sec = total % 60;
+  const p = n => String(n).padStart(2, '0');
+  return d > 0 ? d + 'd ' + p(h) + 'h ' + p(m) + 'm ' + p(sec) + 's' : p(h) + 'h ' + p(m) + 'm ' + p(sec) + 's';
+}
+function formatPackRemainingShort(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const d = Math.floor(total / 86400), h = Math.floor((total % 86400) / 3600), m = Math.floor((total % 3600) / 60);
+  return d > 0 ? d + 'd ' + h + 'h' : h + 'h ' + m + 'm';
+}
+function packDaysLeftLabel(ms) {
+  const days = Math.max(1, Math.ceil(ms / 86400000));
+  return days + (days === 1 ? ' day left' : ' days left');
+}
+
+function withdrawPackLockLabel(state) {
+  switch (state) {
+    case 'pending': return '<i class="fa-solid fa-hourglass-half mr-1"></i>PENDING APPROVAL · LOCKED';
+    case 'expired': return '<i class="fa-solid fa-lock mr-1"></i>PACK EXPIRED · LOCKED';
+    case 'error':   return '<i class="fa-solid fa-triangle-exclamation mr-1"></i>PACK CHECK FAILED · LOCKED';
+    case 'loading': return '<i class="fa-solid fa-spinner fa-spin mr-1"></i>CHECKING PACK…';
+    default:        return '<i class="fa-solid fa-lock mr-1"></i>LOCKED · PACK REQUIRED';
+  }
+}
+
+function showWithdrawPackRequiredNotice() {
+  const state = getWithdrawPackGate().state;
+  const message = {
+    pending: 'আপনার Pack approval pending আছে। Admin approve করলে Withdraw unlock হবে।',
+    expired: 'আপনার Pack-এর মেয়াদ শেষ। নতুন Pack কিনে approve করালে Withdraw আবার চালু হবে।',
+    none: 'Withdraw করতে একটি approved Pack প্রয়োজন।',
+    error: 'Pack status যাচাই করা যায়নি। একটু পরে আবার চেষ্টা করুন।',
+    loading: 'Pack status যাচাই হচ্ছে। একটু পরে আবার চেষ্টা করুন।'
+  }[state] || 'Withdraw করতে একটি approved Pack প্রয়োজন।';
+  showToast(message, true);
+  if (state === 'error' || state === 'loading') refreshWithdrawPackGate();
+}
+
+function renderWithdrawPackGate() {
+  const gate = getWithdrawPackGate();
+  const prev = withdrawPackPrevState;
+  withdrawPackPrevState = gate.state;
+
+  if (prev === 'active' && gate.state !== 'active') {
+    // Pack ran out (or was removed): re-lock immediately, close any open review screen.
+    try { closeWithdrawVerification(); } catch (e) { /* review page not open */ }
+    showToast('আপনার Pack-এর মেয়াদ শেষ হয়েছে। নতুন Pack approve না হওয়া পর্যন্ত Withdraw locked।', true);
+  } else if (prev === 'pending' && gate.state === 'active') {
+    showToast('Pack approve হয়েছে! Withdraw এখন unlocked।');
+  }
+
+  if (window.appState) {
+    window.appState.packGate = gate.state === 'active'
+      ? { state: 'active', packId: gate.packId, packName: gate.packName, durationDays: gate.durationDays, startedAt: gate.startedAt, expiresAt: gate.expiresAt }
+      : { state: gate.state };
+  }
+
+  const box = document.getElementById('withdrawPackStatus');
+  if (box) {
+    const icon = document.getElementById('withdrawPackIcon');
+    const title = document.getElementById('withdrawPackTitle');
+    const barWrap = document.getElementById('withdrawPackBarWrap');
+    const buyBtn = document.getElementById('withdrawPackBuyBtn');
+    const retryBtn = document.getElementById('withdrawPackRetryBtn');
+    const cfg = {
+      loading: ['border-slate-700 bg-slate-900/70', 'bg-slate-800 text-slate-400', 'fa-spinner fa-spin', 'Pack status যাচাই হচ্ছে…', 'text-slate-200'],
+      none:    ['border-slate-700 bg-slate-900/70', 'bg-slate-800 text-slate-400', 'fa-lock', 'Withdraw locked · Pack প্রয়োজন', 'text-slate-200'],
+      pending: ['border-amber-400/30 bg-amber-500/10', 'bg-amber-500/15 text-amber-300', 'fa-hourglass-half', 'Pack Approval Pending · Locked', 'text-amber-200'],
+      active:  ['border-emerald-400/30 bg-emerald-500/10', 'bg-emerald-500/15 text-emerald-300', 'fa-circle-check', 'Pack Active · ' + (gate.state === 'active' ? packDaysLeftLabel(gate.remainingMs) : ''), 'text-emerald-200'],
+      expired: ['border-rose-400/30 bg-rose-500/10', 'bg-rose-500/15 text-rose-300', 'fa-hourglass-end', 'Pack Expired · Locked', 'text-rose-200'],
+      error:   ['border-rose-400/30 bg-rose-500/10', 'bg-rose-500/15 text-rose-300', 'fa-triangle-exclamation', 'Pack status যাচাই করা যায়নি', 'text-rose-200']
+    }[gate.state];
+    box.className = 'rounded-xl border p-3 ' + cfg[0];
+    if (icon) { icon.className = 'grid h-9 w-9 shrink-0 place-items-center rounded-lg ' + cfg[1]; icon.innerHTML = '<i class="fa-solid ' + cfg[2] + '"></i>'; }
+    if (title) { title.textContent = cfg[3]; title.className = 'truncate text-[11px] font-extrabold ' + cfg[4]; }
+    barWrap?.classList.toggle('hidden', gate.state !== 'active');
+    buyBtn?.classList.toggle('hidden', !['none', 'expired'].includes(gate.state));
+    retryBtn?.classList.toggle('hidden', gate.state !== 'error');
+    updateWithdrawPackCountdown(gate);
+  }
+  updateWithdrawCooldownUi();   // the button always follows the gate
+}
+
+function updateWithdrawPackCountdown(gate) {
+  gate = gate || getWithdrawPackGate();
+  const sub = document.getElementById('withdrawPackSub');
+  const bar = document.getElementById('withdrawPackBar');
+  const btnSub = document.getElementById('withdrawBtnPack');
+  if (gate.state === 'active') {
+    if (sub) sub.textContent = gate.packName + ' · ' + gate.durationDays + ' দিনের validity · ' + formatPackRemaining(gate.remainingMs) + ' বাকি';
+    if (bar) bar.style.width = Math.max(0, Math.min(100, (gate.remainingMs / gate.totalMs) * 100)).toFixed(2) + '%';
+    if (btnSub) btnSub.textContent = 'PACK · ' + formatPackRemainingShort(gate.remainingMs) + ' left';
+  } else if (sub) {
+    sub.textContent = {
+      loading: '',
+      none: 'নতুন Pack কিনে Admin approval পেলে Withdraw unlock হবে।',
+      pending: 'Payment যাচাই চলছে। Admin approve করলে Withdraw automatically unlock হবে।',
+      expired: 'আপনার আগের Pack-এর validity শেষ। নতুন Pack approve না হওয়া পর্যন্ত Withdraw বন্ধ।',
+      error: 'Internet / Supabase যাচাই করে আবার চেষ্টা করুন।'
+    }[gate.state] || '';
+  }
+}
+
+async function refreshWithdrawPackGate() {
+  // A request that arrives mid-fetch (e.g. right after a pack purchase) is queued, never dropped.
+  if (withdrawPackFetching) { withdrawPackRefreshQueued = true; return; }
+  withdrawPackFetching = true;
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const user = sessionData?.session?.user;
+    if (!user) {
+      withdrawPackUserId = null; withdrawPackRows = []; withdrawPackLoaded = false; withdrawPackError = false;
+      return;
+    }
+    if (withdrawPackUserId !== user.id) {
+      withdrawPackUserId = user.id;
+      const cached = readWithdrawPackCache(user.id);
+      withdrawPackRows = cached || [];
+      withdrawPackLoaded = !!cached;          // cache paints the last known state instantly
+      withdrawPackError = false;
+      renderWithdrawPackGate();
+    }
+    const { data, error } = await supabaseClient.from('payment_requests')
+      .select('id,status,package_id,package_name,package_duration_days,created_at,reviewed_at')
+      .eq('user_id', user.id).eq('request_type', WITHDRAW_PACK_REQUEST_TYPE)
+      .in('status', ['pending', 'approved'])
+      .order('created_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    withdrawPackRows = (Array.isArray(data) ? data : []).map(r => ({
+      id: r.id, status: String(r.status || '').toLowerCase(), packId: r.package_id, name: r.package_name,
+      days: Number(r.package_duration_days) || 0, startedAt: r.reviewed_at || r.created_at
+    }));
+    withdrawPackLoaded = true;
+    withdrawPackError = false;
+    writeWithdrawPackCache(user.id, withdrawPackRows);
+  } catch (error) {
+    console.warn('Withdraw pack status check failed:', error);
+    if (!withdrawPackLoaded) withdrawPackError = true;   // keep last known (cached) state otherwise
+  } finally {
+    withdrawPackFetching = false;
+    renderWithdrawPackGate();
+    if (withdrawPackRefreshQueued) { withdrawPackRefreshQueued = false; refreshWithdrawPackGate(); }
+  }
+}
+
+function tickWithdrawPackGate() {
+  const loggedIn = !!window.appState?.isLoggedIn;
+  if (loggedIn && !withdrawPackWasLoggedIn) refreshWithdrawPackGate();   // just logged in / session restored
+  withdrawPackWasLoggedIn = loggedIn;
+  const gate = getWithdrawPackGate();
+  if (gate.state !== withdrawPackPrevState) renderWithdrawPackGate();     // e.g. active -> expired at 0
+  else if (gate.state === 'active') updateWithdrawPackCountdown(gate);
+}
+
+refreshWithdrawPackGate();
+window.setInterval(tickWithdrawPackGate, 1000);
+window.setInterval(refreshWithdrawPackGate, WITHDRAW_PACK_REFRESH_MS);
+window.addEventListener('pageshow', refreshWithdrawPackGate);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshWithdrawPackGate(); });
+
 let withdrawCooldownUntil = 0;
 let withdrawCooldownTimer = null;
 let withdrawAttemptCount = null;
@@ -4141,28 +4322,59 @@ function getWithdrawAttemptLabel() {
   return 'WITHDRAW ' + next + suffix + ' TIME · VERIFY & CONTINUE';
 }
 
+let atimexWithdrawalsEnabled = false;
+
+async function refreshAtimexWithdrawalAvailability() {
+  try {
+    const { data, error } = await supabaseClient.rpc('get_atimex_withdrawal_status');
+    if (error) throw error;
+    atimexWithdrawalsEnabled = data === true;
+  } catch (error) {
+    // Fail closed: if the status cannot be verified, do not accept a withdrawal.
+    atimexWithdrawalsEnabled = false;
+    console.error('Withdrawal availability check failed:', error);
+  }
+  updateWithdrawCooldownUi();
+  return atimexWithdrawalsEnabled;
+}
+
 function updateWithdrawCooldownUi() {
   const button = document.getElementById('withdrawSubmitButton');
   const timerBox = document.getElementById('withdrawTimerBox');
   const display = document.getElementById('countdownDisplay');
   const remaining = Math.max(0, withdrawCooldownUntil - Date.now());
   const locked = remaining > 0;
+  const paused = !atimexWithdrawalsEnabled;
 
   if (button) {
-    button.disabled = locked;
-    button.className = locked
-      ? 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70'
-      : 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
+    // Priority: 1) Pack gate (locked unless an approved, unexpired pack exists)
+    //           2) 24h withdraw cooldown   3) maintenance pause (DB RPC is the final enforcement).
+    const packGate = getWithdrawPackGate();
+    const packActive = packGate.state === 'active';
+    const GREY = 'w-full py-3 bg-slate-700 text-slate-400 font-bold text-xs rounded-xl transition shadow-lg cursor-not-allowed opacity-70';
+    const setHtml = (sig, html) => { if (button.dataset.sig !== sig) { button.innerHTML = html; button.dataset.sig = sig; } };
+    button.disabled = !packActive || locked || paused;
+    button.setAttribute('aria-disabled', button.disabled ? 'true' : 'false');
 
-    if (locked) {
+    if (!packActive) {
+      button.className = packGate.state === 'pending' ? GREY.replace('text-slate-400', 'text-amber-200/80') : GREY;
+      setHtml('pack-' + packGate.state, withdrawPackLockLabel(packGate.state));
+    } else if (locked) {
+      button.className = GREY;
       const total = Math.ceil(remaining / 1000);
       const hours = Math.floor(total / 3600);
       const minutes = Math.floor((total % 3600) / 60);
       const seconds = total % 60;
+      button.dataset.sig = 'cooldown';
       button.textContent = getWithdrawAttemptLabel().replace(' · VERIFY & CONTINUE', '') +
         ' · ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
     } else {
-      button.textContent = getWithdrawAttemptLabel();
+      // Keep the exact normal appearance while paused; only interaction is disabled.
+      button.className = 'w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow-lg cursor-pointer';
+      const label = getWithdrawAttemptLabel().replace(/&/g, '&amp;');
+      setHtml('ok|' + label,
+        '<span class="block">' + label + '</span><span id="withdrawBtnPack" class="mt-0.5 block text-[9px] font-semibold text-emerald-100/90"></span>');
+      updateWithdrawPackCountdown(packGate);
     }
   }
   if (timerBox) timerBox.classList.toggle('hidden', !locked);
@@ -4179,6 +4391,11 @@ function updateWithdrawCooldownUi() {
   }
 }
 
+// Recheck after page load and periodically; SQL remains the final enforcement.
+refreshAtimexWithdrawalAvailability();
+window.addEventListener('pageshow', refreshAtimexWithdrawalAvailability);
+window.setInterval(refreshAtimexWithdrawalAvailability, 20000);
+
 async function syncWithdrawCooldown() {
   const { data: authData, error: authError } = await supabaseClient.auth.getUser();
   if (authError) throw authError;
@@ -4187,16 +4404,32 @@ async function syncWithdrawCooldown() {
 
   const [
     { data: rows, error },
-    { count: requestCount, error: countError }
+    { count: requestCount, error: countError },
+    { data: referralData, error: referralError }
   ] = await Promise.all([
     supabaseClient.from('withdrawal_requests').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-    supabaseClient.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
+    supabaseClient.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    supabaseClient.rpc('get_my_referral_stats')
   ]);
   if (error) throw error;
   if (countError) throw countError;
+  if (referralError) throw referralError;
 
-  // Keep the existing request count for the button label; no referral requirement is applied.
+  // Count this user's actual database rows directly; do not rely on the legacy count RPC.
   withdrawAttemptCount = Number(requestCount ?? 0);
+  const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
+  const activeReferralCount = Number(referralStats.active_referrals);
+  if (!Number.isFinite(activeReferralCount)) {
+    throw new Error('Active Referral count যাচাই করা যায়নি।');
+  }
+  const referralNotice = document.getElementById('withdrawReferralRequirementNotice');
+  const referralNoticeText = document.getElementById('withdrawReferralRequirementText');
+  const requiredActiveReferrals = withdrawAttemptCount + 1;
+  const referralRequired = activeReferralCount < requiredActiveReferrals;
+  referralNotice?.classList.toggle('hidden', !referralRequired);
+  if (referralNoticeText && referralRequired) {
+    referralNoticeText.textContent = 'আপনার পরবর্তী Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে Active Referral: ' + activeReferralCount + ' জন। Referred member ৳১০০ দিয়ে account active করলেই গণনা হবে।';
+  }
   const lastRequestAt = rows?.[0]?.created_at ? new Date(rows[0].created_at).getTime() : 0;
   withdrawCooldownUntil = lastRequestAt ? lastRequestAt + 24 * 60 * 60 * 1000 : 0;
   updateWithdrawCooldownUi();
@@ -4220,11 +4453,52 @@ function closeDailyWithdrawLimitModal() {
   }
 }
 
+async function checkFourthWithdrawalReferralGate(userId) {
+  if (!userId) throw new Error('Withdrawal করতে আগে Login করুন।');
+
+  const { count, error: countError } = await supabaseClient
+    .from('withdrawal_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId);
+  if (countError) throw countError;
+
+  // Each withdrawal requires one additional database-verified active referral.
+  const requiredActiveReferrals = Number(count || 0) + 1;
+  const { data, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
+  if (referralError) throw referralError;
+  const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
+  const activeReferrals = Number(stats.active_referrals);
+
+  if (!Number.isFinite(activeReferrals)) {
+    throw new Error('Database থেকে Active Referral count যাচাই করা যায়নি।');
+  }
+  if (activeReferrals < requiredActiveReferrals) {
+    showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferrals + ' জন Active Referral আছে।', true);
+    return false;
+  }
+  return true;
+}
+
 async function openWithdrawVerification() {
+  if (!isWithdrawPackActive()) { showWithdrawPackRequiredNotice(); return; }
   if ((window.appState?.selectedMethod || 'bKash') === 'VISA') { showToast('VISA Coming Soon', true); return; }
+  if (!(await refreshAtimexWithdrawalAvailability())) {
+    showToast('Withdrawal আপাতত বন্ধ আছে। কাজ চলছে—পরে আবার চালু হবে।', true);
+    return;
+  }
   try {
     if (await syncWithdrawCooldown()) {
       openDailyWithdrawLimitModal();
+      return;
+    }
+    const requiredActiveReferrals = Number(withdrawAttemptCount || 0) + 1;
+    const { data: referralData, error: referralError } = await supabaseClient.rpc('get_my_referral_stats');
+    if (referralError) throw referralError;
+    const referralStats = Array.isArray(referralData) ? (referralData[0] || {}) : (referralData || {});
+    const activeReferralCount = Number(referralStats.active_referrals || 0);
+    if (!Number.isFinite(activeReferralCount)) throw new Error('Active Referral count যাচাই করা যায়নি।');
+    if (activeReferralCount < requiredActiveReferrals) {
+      showToast('এই Withdraw-এর জন্য মোট ' + requiredActiveReferrals + ' জন Active Referral প্রয়োজন। বর্তমানে ' + activeReferralCount + ' জন আছে।', true);
       return;
     }
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
@@ -4285,6 +4559,8 @@ function endWithdrawHold() {
 
 async function submitWithdrawRequest() {
   withdrawHoldTimer = null;
+  // The pack may have expired while the review screen was open.
+  if (!isWithdrawPackActive()) { closeWithdrawVerification(); showWithdrawPackRequiredNotice(); return; }
   if (!withdrawPreviewData || withdrawRequestCompleted) return;
   withdrawRequestCompleted = true;
   const details = withdrawPreviewData;
@@ -4357,6 +4633,12 @@ async function submitWithdrawRequest() {
     if (holdButton) holdButton.disabled = false;
     if (hint) hint.textContent = 'আবার চেপে ধরে চেষ্টা করুন';
     const errorMessage = String(error?.message || '');
+    if (/active pack|pack required/i.test(errorMessage)) {
+      closeWithdrawVerification();
+      refreshWithdrawPackGate();
+      showToast('Withdraw করতে একটি active (approved) Pack প্রয়োজন।', true);
+      return;
+    }
     if (errorMessage.toLowerCase().includes('withdrawals are temporarily paused')) {
       closeWithdrawVerification();
       showToast('Withdrawal আপাতত বন্ধ আছে। কাজ চলছে—পরে আবার চালু হবে।', true);
@@ -4451,6 +4733,23 @@ async function handleActivationSubmit() {
     const user = authData?.user;
     if (!user) {
       showToast('Payment request জমা দিতে আগে Login করুন।', true);
+      return;
+    }
+
+    // ATIMEX Update Fee (merged from the old duplicate handler): goes through its dedicated RPC.
+    if (paymentRequestType === 'update_fee') {
+      if (amount !== 150) { showToast('Update Fee নির্ধারিত ৳150।', true); return; }
+      if (!['bKash', 'Nagad', 'Rocket'].includes(activeGateway?.method)) {
+        showToast('Update Fee-এর জন্য bKash, Nagad অথবা Rocket নির্বাচন করুন।', true);
+        return;
+      }
+      const { error: feeError } = await supabaseClient.rpc('submit_atimex_update_fee_request', {
+        p_sender_number: number, p_trx_id: trxId, p_payment_method: activeGateway.method
+      });
+      if (feeError) throw feeError;
+      closePaymentModal();
+      showAppNotice('Update Fee Request জমা হয়েছে', 'আপনার ৳150 Update Fee Request Admin Panel-এ জমা হয়েছে। Admin যাচাই করে Approve করলে Home, Tasks ও Server access খুলবে।');
+      await refreshAtimexUpdateFeeGate();
       return;
     }
 
@@ -5075,6 +5374,8 @@ async function submitPackPaymentRequest(){
         requestId: inserted.id, packageId: pack.id, packageName: pack.name, trxId: trxId, sender: sender
       });
     } catch (e) { console.warn('Local transaction log skipped:', e); }
+
+    if (typeof refreshWithdrawPackGate === 'function') refreshWithdrawPackGate();   // gate -> "Pending Approval"
 
     // Close both modals and release the scroll lock, then confirm.
     document.getElementById('packPaymentModal')?.classList.add('hidden');
