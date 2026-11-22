@@ -4112,21 +4112,49 @@ function writeWithdrawPackCache(uid, rows) {
 }
 
 function computeWithdrawPackGate(rows, now) {
-  let best = null, hasPending = false, hasApproved = false;
+  let hasPending = false, hasApproved = false;
+  const approved = [];
   for (const r of rows) {
     const status = String(r.status || '').toLowerCase();
     if (status === 'pending') { hasPending = true; continue; }
     if (status !== 'approved') continue;
     hasApproved = true;
     const days = Number(r.days);
-    const startedAt = new Date(r.startedAt).getTime();
-    if (!Number.isFinite(days) || days <= 0 || !Number.isFinite(startedAt)) continue; // invalid data stays locked
-    const expiresAt = startedAt + days * 86400000;
-    if (now < expiresAt && (!best || expiresAt > best.expiresAt)) {
-      best = { packId: r.packId, packName: r.name || 'Pack', durationDays: days, startedAt, expiresAt };
+    const approvedAt = new Date(r.startedAt).getTime();
+    if (!Number.isFinite(days) || days <= 0 || !Number.isFinite(approvedAt)) continue; // invalid data stays locked
+    approved.push({ ...r, days, approvedAt });
+  }
+
+  // Stack approved pack durations instead of running every pack at the same time.
+  // A newly approved pack starts after the currently scheduled pack expiry.
+  approved.sort((a, b) => a.approvedAt - b.approvedAt);
+  let scheduledUntil = 0, firstActiveStart = 0, totalDays = 0, activeCount = 0;
+  let lastActivePack = null;
+  for (const pack of approved) {
+    const packStart = Math.max(pack.approvedAt, scheduledUntil);
+    const packExpiry = packStart + pack.days * 86400000;
+    scheduledUntil = packExpiry;
+    if (packExpiry > now) {
+      if (!firstActiveStart || packStart < firstActiveStart) firstActiveStart = Math.max(now, packStart);
+      totalDays += pack.days;
+      activeCount++;
+      lastActivePack = pack;
     }
   }
-  if (best) return { state: 'active', ...best, totalMs: best.durationDays * 86400000, remainingMs: best.expiresAt - now };
+
+  if (scheduledUntil > now && lastActivePack) {
+    const remainingMs = scheduledUntil - now;
+    return {
+      state: 'active',
+      packId: lastActivePack.packId,
+      packName: activeCount > 1 ? activeCount + ' Packs' : (lastActivePack.name || 'Pack'),
+      durationDays: Math.ceil(remainingMs / 86400000),
+      startedAt: firstActiveStart || now,
+      expiresAt: scheduledUntil,
+      totalMs: Math.max(remainingMs, totalDays * 86400000),
+      remainingMs
+    };
+  }
   if (hasPending) return { state: 'pending' };
   if (hasApproved) return { state: 'expired' };
   return { state: 'none' };
