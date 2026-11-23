@@ -137,14 +137,13 @@ BEGIN
     SET
         balance = v_balance,
         app_data = jsonb_set(
-            jsonb_set(
-                COALESCE(p.app_data, '{}'::jsonb),
-                '{progressData,balance}',
-                to_jsonb(v_balance),
-                true
-            ),
-            '{progressData,totalEarned}',
-            to_jsonb(v_total),
+            COALESCE(p.app_data, '{}'::jsonb),
+            '{progressData}',
+            COALESCE(p.app_data->'progressData', '{}'::jsonb)
+                || jsonb_build_object(
+                    'balance', v_balance,
+                    'totalEarned', v_total
+                ),
             true
         ),
         updated_at = v_now
