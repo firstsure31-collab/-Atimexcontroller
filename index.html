@@ -4934,9 +4934,27 @@ async function claimDailyReward(){
     a.balance=creditedBalance;
     a.totalEarned=creditedTotalEarned;
     updateBalanceDisplays();
-    // Persist the RPC-confirmed balance to both profiles.balance and app_data.progressData.
-    // saveAllProgress uses the current authoritative in-memory values set above.
-    await saveAllProgress();
+    // The claim RPC atomically updates profiles.balance and app_data.progressData.
+    // Update only this browser's local cache; do not upsert the whole profile again.
+    try {
+      const phone = a.userPhone || user.user_metadata?.phone ||
+        localStorage.getItem('currentLoggedInUser') || '';
+      const email = (user.email || '').trim().toLowerCase();
+      const localKey = phone ? 'user_' + phone : 'user_email_' + email;
+      const raw = localStorage.getItem(localKey) ||
+        (email ? localStorage.getItem('user_email_' + email) : null);
+      const saved = raw ? JSON.parse(raw) : {
+        phone, email, nickname: a.nickname || 'User', progressData: {}
+      };
+      saved.progressData = {
+        ...(saved.progressData || {}),
+        balance: creditedBalance,
+        totalEarned: creditedTotalEarned
+      };
+      localStorage.setItem(localKey, JSON.stringify(saved));
+    } catch (cacheError) {
+      console.warn('Daily claim local cache update failed:', cacheError);
+    }
     saveLocalTransaction({type:'Daily Claim Day '+(result.day_number||''),amount,status:'Credited'});
     window.monthlyDailyClaimState=result;
     renderDailyClaimCalendar(result);
