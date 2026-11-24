@@ -724,7 +724,7 @@ html, body {
     <div style="font-size:34px;margin-bottom:12px">🔒</div>
     <h1 id="atimexMaintenanceTitle" style="font-size:24px;font-weight:900;letter-spacing:2px;color:#6ee7b7">ATIMEX</h1>
     <p style="margin-top:8px;font-size:17px;font-weight:800">Temporary Maintenance</p>
-    <p id="atimexMaintenanceMessage" style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।</p>
+    <p id="atimexMaintenanceMessage" style="margin-top:12px;font-size:13px;line-height:1.8;color:#cbd5e1">আমাদের সাইটে বর্তমানে কিছু কাজ চলছে। এ কারণে আপনাদের কারও উইথড্রয়াল করতে সমস্যা হচ্ছে, কারও ডেইলি ক্লেইমে সমস্যা হচ্ছে। পাশাপাশি যেসব আইডি ইনঅ্যাকটিভ হয়ে গেছে বা আপনার আইডি ইনঅ্যাকটিভ হয়ে থাকলে, সেগুলোর সমস্যাও আমরা সমাধান করছি। সব সমস্যার সমাধান আমরা খুব দ্রুতই নিয়ে আসছি। অনুগ্রহ করে একটু ধৈর্য ধরে আমাদের সাথেই থাকুন।</p>
     <p style="margin-top:18px;font-size:10px;letter-spacing:1.5px;color:#64748b">PLEASE CHECK BACK LATER</p>
   </div>
 </div>
@@ -3082,7 +3082,7 @@ async function setAtimexMaintenance(enabled) {
         if (enabled) {
             const overlay = document.getElementById('atimexMaintenanceLock');
             const msg = document.getElementById('atimexMaintenanceMessage');
-            if (msg) msg.textContent = data.message || 'ATIMEX-এ update চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+            if (msg) msg.textContent = data.message || 'আমাদের সাইটে বর্তমানে কিছু কাজ চলছে। এ কারণে আপনাদের কারও উইথড্রয়াল করতে সমস্যা হচ্ছে, কারও ডেইলি ক্লেইমে সমস্যা হচ্ছে। পাশাপাশি যেসব আইডি ইনঅ্যাকটিভ হয়ে গেছে বা আপনার আইডি ইনঅ্যাকটিভ হয়ে থাকলে, সেগুলোর সমস্যাও আমরা সমাধান করছি। সব সমস্যার সমাধান আমরা খুব দ্রুতই নিয়ে আসছি। অনুগ্রহ করে একটু ধৈর্য ধরে আমাদের সাথেই থাকুন।';
             if (overlay) overlay.style.display = 'flex';
         } else {
             const overlay = document.getElementById('atimexMaintenanceLock');
@@ -5421,7 +5421,7 @@ async function updateReferralUi() {
       const row = Array.isArray(setting) ? setting[0] : setting;
       const maintenanceOn = row?.maintenance_enabled === true;
       const adminUser = sessionData?.session?.user?.id === '0496060f-0cdd-4ef7-9999-71f75c70f8b9';
-      if (message && row?.maintenance_message) message.textContent = row.maintenance_message;
+      if (message) message.textContent = 'আমাদের সাইটে বর্তমানে কিছু কাজ চলছে। এ কারণে আপনাদের কারও উইথড্রয়াল করতে সমস্যা হচ্ছে, কারও ডেইলি ক্লেইমে সমস্যা হচ্ছে। পাশাপাশি যেসব আইডি ইনঅ্যাকটিভ হয়ে গেছে বা আপনার আইডি ইনঅ্যাকটিভ হয়ে থাকলে, সেগুলোর সমস্যাও আমরা সমাধান করছি। সব সমস্যার সমাধান আমরা খুব দ্রুতই নিয়ে আসছি। অনুগ্রহ করে একটু ধৈর্য ধরে আমাদের সাথেই থাকুন।';
       if (overlay && maintenanceOn && !adminUser) {
         overlay.style.display = 'flex';
         document.documentElement.classList.add('atimex-maintenance-active');
