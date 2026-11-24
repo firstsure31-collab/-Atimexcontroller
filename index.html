@@ -2148,16 +2148,60 @@ function triggerProfileUpload() {
     document.getElementById('profileImageInput').click();
 }
 
-function handleImageCropPreview(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedBase64Image = e.target.result;
-            document.getElementById('cropPreviewImg').src = selectedBase64Image;
-            document.getElementById('imageCropModal').classList.remove('hidden');
+function compressProfileAvatar(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => {
+            try {
+                const maxDimension = 320;
+                const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+                const width = Math.max(1, Math.round(image.naturalWidth * scale));
+                const height = Math.max(1, Math.round(image.naturalHeight * scale));
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const context = canvas.getContext('2d');
+                if (!context) throw new Error('Image compression is unavailable in this browser.');
+                context.fillStyle = '#0f172a';
+                context.fillRect(0, 0, width, height);
+                context.drawImage(image, 0, 0, width, height);
+                const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                resolve(compressed.length < dataUrl.length ? compressed : dataUrl);
+            } catch (error) {
+                reject(error);
+            }
         };
-        reader.readAsDataURL(file);
+        image.onerror = () => reject(new Error('Profile image could not be processed.'));
+        image.src = dataUrl;
+    });
+}
+
+async function handleImageCropPreview(event) {
+    const file = event?.target?.files?.[0];
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+        showToast('একটি image file নির্বাচন করুন।', true);
+        return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+        showToast('Profile picture সর্বোচ্চ 8 MB হতে পারবে।', true);
+        event.target.value = '';
+        return;
+    }
+    try {
+        const originalDataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = () => reject(reader.error || new Error('Image read failed.'));
+            reader.readAsDataURL(file);
+        });
+        selectedBase64Image = await compressProfileAvatar(originalDataUrl);
+        const preview = document.getElementById('cropPreviewImg');
+        if (preview) preview.src = selectedBase64Image;
+        document.getElementById('imageCropModal')?.classList.remove('hidden');
+    } catch (error) {
+        console.error('Profile image compression failed:', error);
+        showToast('ছবিটি optimize করা যায়নি। JPG বা PNG দিয়ে আবার চেষ্টা করুন।', true);
     }
 }
 
@@ -3326,7 +3370,13 @@ async function refreshAtimexUpdateFeeGate(){
  }catch(error){console.error('Update fee status check failed:',error);window.atimexUpdateFeeLocked=false;gate.classList.add('hidden');}
 }
 window.atimexUpdateFeeLocked=false;
-window.setInterval(()=>{if(window.appState?.isLoggedIn)refreshAtimexUpdateFeeGate();},30000);
+// Status is checked on login/session restore and at a lower frequency while the tab is visible.
+window.setInterval(()=>{
+  if(!document.hidden && window.appState?.isLoggedIn) refreshAtimexUpdateFeeGate();
+},60000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden && window.appState?.isLoggedIn) refreshAtimexUpdateFeeGate();
+});
 
 window.onload = async function(){
     const welcomeModal = document.getElementById('welcomeModal');
@@ -4121,7 +4171,7 @@ function getWithdrawFormData() {
    (see pack_withdraw_gate.sql).
    ===================================================================== */
 const WITHDRAW_PACK_REQUEST_TYPE = 'pack';
-const WITHDRAW_PACK_REFRESH_MS = 30000;
+const WITHDRAW_PACK_REFRESH_MS = 60000;
 let withdrawPackRows = [];
 let withdrawPackLoaded = false;
 let withdrawPackError = false;
@@ -4357,10 +4407,16 @@ function tickWithdrawPackGate() {
 }
 
 refreshWithdrawPackGate();
-window.setInterval(tickWithdrawPackGate, 1000);
-window.setInterval(refreshWithdrawPackGate, WITHDRAW_PACK_REFRESH_MS);
-window.addEventListener('pageshow', refreshWithdrawPackGate);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshWithdrawPackGate(); });
+window.setInterval(tickWithdrawPackGate, 1000); // Local countdown only; no Supabase request.
+window.setInterval(() => {
+  if (!document.hidden && window.appState?.isLoggedIn) refreshWithdrawPackGate();
+}, WITHDRAW_PACK_REFRESH_MS);
+window.addEventListener('pageshow', () => {
+  if (!document.hidden && window.appState?.isLoggedIn) refreshWithdrawPackGate();
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && window.appState?.isLoggedIn) refreshWithdrawPackGate();
+});
 
 let withdrawCooldownUntil = 0;
 let withdrawCooldownTimer = null;
@@ -4442,9 +4498,8 @@ function updateWithdrawCooldownUi() {
 }
 
 // Recheck after page load and periodically; SQL remains the final enforcement.
-refreshAtimexWithdrawalAvailability();
-window.addEventListener('pageshow', refreshAtimexWithdrawalAvailability);
-window.setInterval(refreshAtimexWithdrawalAvailability, 20000);
+// The returned flag is not used by the current UI or withdrawal RPC, so avoid
+// an unnecessary background request every 20 seconds. The database RPC remains authoritative.
 
 async function syncWithdrawCooldown() {
   const { data: authData, error: authError } = await supabaseClient.auth.getUser();
@@ -5008,6 +5063,38 @@ function closeActivePackages(){
 function escapeActivePackageText(value){
   return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
+const APPROVED_VIP_PACKAGE_CACHE_MS = 60000;
+async function getApprovedVipPackageRows(){
+  const {data:{user},error:authError}=await supabaseClient.auth.getUser();
+  if(authError)throw authError;
+  if(!user)throw new Error('প্যাকেজ দেখতে Login করুন।');
+
+  window.appState=window.appState||{};
+  const cached=window.appState.approvedVipPackagesCache;
+  if(cached?.userId===user.id &&
+     Array.isArray(cached.rows) &&
+     Date.now()-Number(cached.cachedAt||0)<APPROVED_VIP_PACKAGE_CACHE_MS){
+    return cached.rows;
+  }
+
+  const {data,error}=await supabaseClient
+    .from('payment_requests')
+    .select('package_id,package_name,package_duration_days,package_daily_amount,amount,reviewed_at,created_at')
+    .eq('user_id',user.id)
+    .eq('request_type','vip_package')
+    .eq('status','approved')
+    .order('reviewed_at',{ascending:false});
+  if(error)throw error;
+
+  const rows=Array.isArray(data)?data:[];
+  window.appState.approvedVipPackagesCache={
+    userId:user.id,
+    cachedAt:Date.now(),
+    rows
+  };
+  return rows;
+}
+
 async function openActivePackages(){
   const modal=document.getElementById('activePackagesModal');
   const list=document.getElementById('activePackagesList');
@@ -5015,19 +5102,9 @@ async function openActivePackages(){
   modal.classList.remove('hidden');
   list.innerHTML='<div class="py-8 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>প্যাকেজ যাচাই হচ্ছে...</div>';
   try{
-    const {data:{user},error:authError}=await supabaseClient.auth.getUser();
-    if(authError)throw authError;
-    if(!user)throw new Error('প্যাকেজ দেখতে Login করুন।');
-    const {data:rows,error}=await supabaseClient
-      .from('payment_requests')
-      .select('package_id,package_name,package_duration_days,package_daily_amount,package_stated_total,amount,reviewed_at,created_at')
-      .eq('user_id',user.id)
-      .eq('request_type','vip_package')
-      .eq('status','approved')
-      .order('reviewed_at',{ascending:false});
-    if(error)throw error;
+    const rows=await getApprovedVipPackageRows();
     const now=Date.now();
-    const active=(Array.isArray(rows)?rows:[]).filter(row=>{
+    const active=rows.filter(row=>{
       const days=Number(row.package_duration_days||0);
       const start=new Date(row.reviewed_at||row.created_at).getTime();
       if(!Number.isFinite(start))return false;
@@ -5064,20 +5141,13 @@ async function openActivePackages(){
 async function openDailyClaim(){
   const e=document.getElementById('dailyClaimSummary'),a=window.appState||{};
   try{
-    const {data:{user}}=await supabaseClient.auth.getUser();
-    if(user){
-      const {data:rows,error}=await supabaseClient.from('payment_requests')
-        .select('package_id,package_name,package_duration_days,package_daily_amount,amount,reviewed_at,created_at')
-        .eq('user_id',user.id).eq('request_type','vip_package').eq('status','approved')
-        .order('reviewed_at',{ascending:false});
-      if(error)throw error;
-      const now=Date.now();
-      a.activePackages=(Array.isArray(rows)?rows:[]).filter(row=>{
-        const days=Number(row.package_duration_days||0),start=new Date(row.reviewed_at||row.created_at).getTime();
-        return Number.isFinite(start)&&days>0&&now<start+days*86400000;
-      }).map(row=>({id:row.package_id,name:row.package_name,dailyAmount:Number(row.package_daily_amount)||0,
-        durationDays:Number(row.package_duration_days)||0,price:Number(row.amount)||0,startedAt:row.reviewed_at||row.created_at}));
-    }
+    const rows=await getApprovedVipPackageRows();
+    const now=Date.now();
+    a.activePackages=rows.filter(row=>{
+      const days=Number(row.package_duration_days||0),start=new Date(row.reviewed_at||row.created_at).getTime();
+      return Number.isFinite(start)&&days>0&&now<start+days*86400000;
+    }).map(row=>({id:row.package_id,name:row.package_name,dailyAmount:Number(row.package_daily_amount)||0,
+      durationDays:Number(row.package_duration_days)||0,price:Number(row.amount)||0,startedAt:row.reviewed_at||row.created_at}));
   }catch(error){console.warn('Daily claim package calendar sync failed:',error);}
   const p=Array.isArray(a.activePackages)?a.activePackages:[],sum=p.reduce((t,x)=>t+Number(x.dailyAmount||x.daily||0),0),hasPackage=p.length>0;
   if(!a.isActive){if(e)e.innerHTML='<div class="text-center"><div class="text-xs font-semibold text-rose-300">Account inactive</div><div class="mt-2 text-slate-300">Activate your account to unlock Daily Claim.</div></div>';}
@@ -5256,9 +5326,14 @@ async function updateReferralUi() {
   }
   applyMaintenanceState();
   window.addEventListener('pageshow', applyMaintenanceState);
-  // Re-check periodically so an already-open member session is locked promptly
-  // when the admin enables maintenance mode, and unlocked after it ends.
-  window.setInterval(applyMaintenanceState, 15000);
+  // Re-check less frequently, and only while the page is visible.
+  // Returning to the tab triggers an immediate check.
+  window.setInterval(() => {
+    if (!document.hidden) applyMaintenanceState();
+  }, 60000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) applyMaintenanceState();
+  });
 })();
 </script>
 
