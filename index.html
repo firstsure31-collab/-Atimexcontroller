@@ -1501,9 +1501,10 @@ html, body {
                   <div class="bg-white h-14 flex items-center justify-center p-2"><span class="text-amber-600 font-black text-xl tracking-tight">উপায়</span></div>
                   <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">Upay Active · No Deposit Limit</span></div>
                 </button>
-                <button type="button" onclick="selectPaymentProvider('Rocket', '01731567454')" id="btnRocket" class="pay-provider-btn bg-slate-800/80 border-2 border-purple-500 rounded-xl overflow-hidden text-left transition cursor-pointer relative shadow-md">
+                <button type="button" id="btnRocket" disabled aria-disabled="true" class="pay-provider-btn bg-slate-800/80 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-60 grayscale cursor-not-allowed relative shadow-md">
+                  <span class="absolute top-1 right-1 z-10 bg-amber-500 text-[8px] font-black text-slate-950 px-1.5 py-0.5 rounded uppercase tracking-tighter">Coming Soon</span>
                   <div class="bg-white h-14 flex items-center justify-center p-2"><div class="flex items-center gap-1 text-purple-700 font-black text-base"><i class="fa-solid fa-rocket text-sm"></i><span>Rocket</span></div></div>
-                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-200">Rocket Active · 01731567454</span></div>
+                  <div class="bg-slate-900 py-1.5 text-center border-t border-slate-800"><span class="text-[11px] font-bold text-slate-300">Rocket · Coming Soon</span></div>
                 </button>
                 <button type="button" id="btnVISA" disabled class="pay-provider-btn bg-slate-700/50 border-2 border-slate-600 rounded-xl overflow-hidden text-left opacity-50 grayscale cursor-not-allowed relative shadow-md">
                   <span class="absolute top-1 right-1 bg-slate-600 text-[8px] font-black text-slate-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Maintenance</span>
@@ -1514,9 +1515,8 @@ html, body {
             </div>
 
             <div id="selectedProviderDetails" class="bg-slate-950 border border-slate-800 rounded-2xl p-3 shadow-inner">
-              <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide mb-2" id="selectedProviderLabel">bKash Account / Details</div>
+              <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide mb-2" id="selectedProviderLabel">Nagad Account / Details</div>
               <div id="selectedProviderNumbers" class="space-y-2">
-                <div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">01731567454</span><button type="button" onclick="copyDepositNumber('01731567454')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>
                 <div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">01940779877</span><button type="button" onclick="copyDepositNumber('01940779877')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>
               </div>
             </div>
@@ -3349,7 +3349,7 @@ window.appState = window.appState || {
     hasBoughtStarter: false
 };
 
-let activeGateway = { method: 'bKash', number: '01731567454' };
+let activeGateway = { method: 'Nagad', number: '01940779877' };
 
 const SUPABASE_URL = 'https://hddswjhehlwbpytsgndm.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dCvlhSkItBS-bEuG0BY_aQ_OKSoftFJ';
@@ -4035,16 +4035,18 @@ function selectPaymentProvider(method, num) {
         showToast('bKash payment Coming Soon. অন্য payment method নির্বাচন করুন।', true);
         return;
     }
-    if (!['Nagad', 'Upay', 'Rocket'].includes(method)) return;
+    if (method === 'Rocket') {
+        showToast('Rocket payment Coming Soon. অন্য payment method নির্বাচন করুন।', true);
+        return;
+    }
+    if (!['Nagad', 'Upay'].includes(method)) return;
     activeGateway.method = method;
-    activeGateway.number = method === 'bKash' ? '01731567454' : (method === 'Nagad' ? '01940779877' : (method === 'Rocket' ? '01731567454' : '01411169877'));
+    activeGateway.number = method === 'Nagad' ? '01940779877' : '01411169877';
     const label = document.getElementById('selectedProviderLabel');
     const numbers = document.getElementById('selectedProviderNumbers');
     if (label) label.innerText = method + ' Account / Details';
     if (numbers) {
-        const accountNumbers = method === 'bKash'
-            ? ['01731567454', '01940779877']
-            : [activeGateway.number];
+        const accountNumbers = [activeGateway.number];
         numbers.innerHTML = accountNumbers.map(number =>
             '<div class="flex justify-between items-center gap-2"><span class="text-sm font-black text-emerald-400 font-mono select-all">' + number + '</span><button type="button" onclick="copyDepositNumber(\'' + number + '\')" class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-bold hover:bg-emerald-500/30 transition flex items-center gap-1 cursor-pointer"><i class="fa-regular fa-copy"></i> Copy</button></div>'
         ).join('');
@@ -4904,8 +4906,8 @@ async function handleActivationSubmit() {
     // ATIMEX Update Fee (merged from the old duplicate handler): goes through its dedicated RPC.
     if (paymentRequestType === 'update_fee') {
       if (amount !== 150) { showToast('Update Fee নির্ধারিত ৳150।', true); return; }
-      if (!['bKash', 'Nagad', 'Rocket'].includes(activeGateway?.method)) {
-        showToast('Update Fee-এর জন্য bKash, Nagad অথবা Rocket নির্বাচন করুন।', true);
+      if (!['Nagad'].includes(activeGateway?.method)) {
+        showToast('Update Fee-এর জন্য Nagad নির্বাচন করুন।', true);
         return;
       }
       const { error: feeError } = await supabaseClient.rpc('submit_atimex_update_fee_request', {
