@@ -1251,9 +1251,6 @@ html, body {
     <i id="profileDefaultIcon" class="fa-solid fa-user text-emerald-400 text-2xl"></i>
 </div>
 </div>
-<div class="mx-auto w-full max-w-sm rounded-xl border border-amber-400/50 bg-amber-400/10 px-3 py-2 text-center shadow-[0_0_12px_rgba(251,191,36,.16)]">
-    <p class="text-[11px] font-bold leading-relaxed text-amber-200">📢 আপাতত কারও Profile Picture add করার প্রয়োজন নেই। এখানে একটু glitch/সমস্যা রয়েছে। পরবর্তীতে আপনাদের জানানো হবে।</p>
-</div>
 <button id="profileNotificationButton" type="button" onclick="openUserNotifications()" class="absolute right-1 top-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-[10px] text-amber-300 shadow-sm" aria-label="Notifications">
 <i class="fa-solid fa-bell"></i><span id="profileNotificationBadge" class="hidden absolute -right-1 -top-1 min-w-3 rounded-full bg-rose-500 px-0.5 text-[6px] font-black text-white"></span>
 </button>
@@ -2153,7 +2150,7 @@ function compressProfileAvatar(dataUrl) {
         const image = new Image();
         image.onload = () => {
             try {
-                const maxDimension = 320;
+                const maxDimension = 256;
                 const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
                 const width = Math.max(1, Math.round(image.naturalWidth * scale));
                 const height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -2165,8 +2162,13 @@ function compressProfileAvatar(dataUrl) {
                 context.fillStyle = '#0f172a';
                 context.fillRect(0, 0, width, height);
                 context.drawImage(image, 0, 0, width, height);
-                const compressed = canvas.toDataURL('image/jpeg', 0.72);
-                resolve(compressed.length < dataUrl.length ? compressed : dataUrl);
+                let quality = 0.76;
+                let compressed = canvas.toDataURL('image/jpeg', quality);
+                while (compressed.length > 180000 && quality > 0.44) {
+                    quality = Math.max(0.44, quality - 0.08);
+                    compressed = canvas.toDataURL('image/jpeg', quality);
+                }
+                resolve(compressed);
             } catch (error) {
                 reject(error);
             }
@@ -2176,6 +2178,63 @@ function compressProfileAvatar(dataUrl) {
     });
 }
 
+async function uploadProfileAvatarToStorage(dataUrl, userId) {
+    if (!/^data:image\//i.test(String(dataUrl || ''))) {
+        throw new Error('Invalid profile image data.');
+    }
+    const optimizedDataUrl = await compressProfileAvatar(dataUrl);
+    const response = await fetch(optimizedDataUrl);
+    if (!response.ok) throw new Error('Compressed image could not be prepared.');
+    const imageBlob = await response.blob();
+    if (!imageBlob.size || imageBlob.size > 256 * 1024) {
+        throw new Error('Profile picture 256 KB-এর মধ্যে optimize করা যায়নি। অন্য ছবি চেষ্টা করুন।');
+    }
+    const objectPath = String(userId) + '/avatar.jpg';
+    const { error: uploadError } = await supabaseClient.storage
+        .from('profile-avatars')
+        .upload(objectPath, imageBlob, {
+            cacheControl: '31536000',
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+    if (uploadError) throw uploadError;
+    const { data } = supabaseClient.storage.from('profile-avatars').getPublicUrl(objectPath);
+    if (!data?.publicUrl) throw new Error('Profile picture URL পাওয়া যায়নি।');
+    return data.publicUrl + '?v=' + Date.now();
+}
+
+async function persistOwnProfileAvatar(user, avatarUrl) {
+    const { error } = await supabaseClient.rpc('set_my_profile_avatar', {
+        p_avatar_url: avatarUrl || null
+    });
+    if (error) throw error;
+
+    const phone = window.appState?.userPhone || user.user_metadata?.phone ||
+        localStorage.getItem('currentLoggedInUser') || '';
+    const email = (user.email || '').trim().toLowerCase();
+    const localKey = phone ? 'user_' + phone : 'user_email_' + email;
+    try {
+        const raw = localStorage.getItem(localKey);
+        const saved = raw ? JSON.parse(raw) : { phone, email };
+        saved.avatar = avatarUrl || null;
+        localStorage.setItem(localKey, JSON.stringify(saved));
+    } catch (storageError) {
+        console.warn('Local profile avatar cache update failed:', storageError);
+    }
+
+    if (avatarUrl) localStorage.setItem('userProfilePic', avatarUrl);
+    else localStorage.removeItem('userProfilePic');
+}
+
+async function migrateLegacyProfileAvatar(user, legacyDataUrl) {
+    const avatarUrl = await uploadProfileAvatarToStorage(legacyDataUrl, user.id);
+    await persistOwnProfileAvatar(user, avatarUrl);
+    document.querySelectorAll('.user-avatar-display').forEach(img => {
+        img.src = avatarUrl;
+        img.classList.remove('hidden');
+    });
+    document.getElementById('profileDefaultIcon')?.classList.add('hidden');
+}
 async function handleImageCropPreview(event) {
     const file = event?.target?.files?.[0];
     if (!file) return;
@@ -2209,38 +2268,69 @@ function closeCropModal() {
     document.getElementById('imageCropModal').classList.add('hidden');
 }
 
-function confirmAndSaveProfilePic() {
-    if (selectedBase64Image) {
-        localStorage.setItem('userProfilePic', selectedBase64Image);
-        
-        const avatarElements = document.querySelectorAll('.user-avatar-display');
-        avatarElements.forEach(img => {
-            img.src = selectedBase64Image;
+async function confirmAndSaveProfilePic() {
+    if (!selectedBase64Image) return;
+    const saveButton = document.querySelector('#imageCropModal button[onclick="confirmAndSaveProfilePic()"]');
+    const originalLabel = saveButton?.textContent || '';
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+    }
+    try {
+        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) throw authError;
+        const user = authData?.user;
+        if (!user) throw new Error('Profile picture save করতে login করুন।');
+
+        const avatarUrl = await uploadProfileAvatarToStorage(selectedBase64Image, user.id);
+        await persistOwnProfileAvatar(user, avatarUrl);
+
+        document.querySelectorAll('.user-avatar-display').forEach(img => {
+            img.src = avatarUrl;
             img.classList.remove('hidden');
         });
-        
-        const defIcon = document.getElementById('profileDefaultIcon');
-        if(defIcon) defIcon.classList.add('hidden');
+        document.getElementById('profileDefaultIcon')?.classList.add('hidden');
 
-        if(typeof saveAllProgress === 'function') saveAllProgress();
-        if(typeof showToast === 'function') showToast('Profile picture successfully updated!');
+        selectedBase64Image = '';
+        const fileInput = document.getElementById('profileImageInput');
+        if (fileInput) fileInput.value = '';
+        closeCropModal();
+        showToast('Profile picture successfully updated!');
+    } catch (error) {
+        console.error('Profile picture save failed:', error);
+        showToast('Profile picture save হয়নি: ' + (error.message || 'আবার চেষ্টা করুন'), true);
+    } finally {
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = originalLabel || 'OK / Save';
+        }
     }
-    closeCropModal();
 }
 
-function removeProfilePic() {
-    localStorage.removeItem('userProfilePic');
-    const avatarElements = document.querySelectorAll('.user-avatar-display');
-    avatarElements.forEach(img => {
-        img.src = '';
-        img.classList.add('hidden');
-    });
-    
-    const defIcon = document.getElementById('profileDefaultIcon');
-    if(defIcon) defIcon.classList.remove('hidden');
+async function removeProfilePic() {
+    try {
+        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) throw authError;
+        const user = authData?.user;
+        if (!user) throw new Error('Profile picture remove করতে login করুন।');
 
-    closeProfilePicModal();
-    if(typeof showToast === 'function') showToast('Profile picture removed!');
+        await persistOwnProfileAvatar(user, null);
+        const { error: removeError } = await supabaseClient.storage
+            .from('profile-avatars')
+            .remove([String(user.id) + '/avatar.jpg']);
+        if (removeError) console.warn('Old profile avatar file cleanup failed:', removeError);
+
+        document.querySelectorAll('.user-avatar-display').forEach(img => {
+            img.removeAttribute('src');
+            img.classList.add('hidden');
+        });
+        document.getElementById('profileDefaultIcon')?.classList.remove('hidden');
+        closeProfilePicModal();
+        showToast('Profile picture removed!');
+    } catch (error) {
+        console.error('Profile picture removal failed:', error);
+        showToast('Profile picture remove হয়নি: ' + (error.message || 'আবার চেষ্টা করুন'), true);
+    }
 }
         async function openLeaderboardModal() {
     const modal = document.getElementById('leaderboardModal');
@@ -3293,7 +3383,16 @@ function applySavedUser(saved, phone){
  if(safePhone)localStorage.setItem('currentLoggedInUser',safePhone);else localStorage.removeItem('currentLoggedInUser');
  const ph=document.getElementById('profilePhone');if(ph)ph.innerText=safePhone||'Mobile number not added';
  const ne=document.getElementById('profileNickname');if(ne)ne.innerText=window.appState.nickname;
- if(saved&&saved.avatar){localStorage.setItem('userProfilePic',saved.avatar);document.querySelectorAll('.user-avatar-display').forEach(img=>{img.src=saved.avatar;img.classList.remove('hidden');});document.getElementById('profileDefaultIcon')?.classList.add('hidden');}
+ const profileAvatar = typeof saved?.avatar === 'string' ? saved.avatar : '';
+ if(profileAvatar){
+   localStorage.setItem('userProfilePic',profileAvatar);
+   document.querySelectorAll('.user-avatar-display').forEach(img=>{img.src=profileAvatar;img.classList.remove('hidden');});
+   document.getElementById('profileDefaultIcon')?.classList.add('hidden');
+ }else{
+   localStorage.removeItem('userProfilePic');
+   document.querySelectorAll('.user-avatar-display').forEach(img=>{img.removeAttribute('src');img.classList.add('hidden');});
+   document.getElementById('profileDefaultIcon')?.classList.remove('hidden');
+ }
  document.getElementById('authModal')?.classList.add('hidden');document.getElementById('welcomeModal')?.classList.add('hidden');
  updateBalanceDisplays();updateSpinUI();updateReferralUi();updateAccountStatusBadge();if(window.appState.isActive)activateAccountUIOnly();syncDailyClaimCooldown();
  if(safePhone&&!localStorage.getItem('noticeSeen_'+safePhone)){const n=document.getElementById('firstVisitNotice');if(n){n.classList.remove('hidden');n.classList.add('flex');}}
@@ -3302,6 +3401,10 @@ async function persistCloudUser(userId, phone, saved, email){
     const safePhone = phone || saved.phone || '';
     const safeEmail = email || saved.email || null;
     const nickname = saved.nickname || window.appState.nickname || 'User';
+    const avatarCandidate = saved.avatar || localStorage.getItem('userProfilePic') || null;
+    const avatarValue = typeof avatarCandidate === 'string' && /^data:image\//i.test(avatarCandidate)
+        ? null
+        : avatarCandidate;
     
     const payload = {
         id: userId,
@@ -3315,7 +3418,7 @@ async function persistCloudUser(userId, phone, saved, email){
           phone: safePhone,
           nickname,
           progressData: saved.progressData || defaultProgressData(),
-          avatar: saved.avatar || localStorage.getItem('userProfilePic') || null
+          avatar: avatarValue || null
         },
         updated_at: new Date().toISOString()
     };
@@ -3348,6 +3451,12 @@ async function loadCloudUser(user, phone){
  const saved={...local,...cloudData,progressData:mergedProgress,phone:safePhone,email,nickname:row?.nickname||cloudData.nickname||local.nickname||user.user_metadata?.nickname||'User'};
  localStorage.setItem(localKey,JSON.stringify(saved));
  applySavedUser(saved,safePhone);
+ // Migrate old Base64 avatars once so later logins download only a small URL.
+ if(row && typeof saved.avatar==='string' && /^data:image\//i.test(saved.avatar)){
+   migrateLegacyProfileAvatar(user,saved.avatar).catch(migrationError=>{
+     console.warn('Legacy profile avatar migration deferred:',migrationError);
+   });
+ }
  // Existing cloud profiles are authoritative. Do not upsert them during login/session refresh,
  // because a second write from a stale page could overwrite a newer server-side wallet credit.
  const hasCloudProgressData = !!row
